@@ -58,7 +58,7 @@ Select the model with `Network` in [`Config.yaml`](Config.yaml):
 
 ## Data
 
-The experiments use [dataset name / source]. Set the data folders in the `paths` section of `Config.yaml` (`{R}` is replaced by the acceleration rate):
+The experiments use segmented breath-hold cine data from the [OCMR dataset](https://www.ocmr.info). Set the data folders in the `paths` section of `Config.yaml` (`{R}` is replaced by the acceleration rate):
 
 ```
 data/
@@ -68,16 +68,16 @@ data/
 └── coils/        fs_XXXX_<scanner>_Slice_<n>.mat
 ```
 
-Each frame file contains:
+We include one example frame, [`data/subj_0020_slice_001_T008.mat`](data/subj_0020_slice_001_T008.mat), to show the expected file format. Each frame file contains:
 
-| Key             | Shape          | Description                                                       |
-|-----------------|----------------|-------------------------------------------------------------------|
-| `kspace_t`      | `[H, W, Nc]`   | Fully sampled multi-coil k-space (complex)                        |
-| `mask_t`        | `[H, W]`       | Undersampling mask of this frame                                  |
-| `r`             | `[H, W, Nc]`   | Magnitude prior, e.g. k-space magnitudes taken from neighboring frames |
-| `normalization` | scalar         | Normalization constant applied to `kspace_t` and `r`               |
-| `nPhase`        | scalar         | Number of cardiac phases of the slice                             |
-| `scanner_id`    | string         | Field strength, e.g. `"1.5 T"` (used to find the coil file)       |
+| Key             | Shape        | Description                                                   |
+|-----------------|--------------|---------------------------------------------------------------|
+| `kspace_t`      | `[H, W, Nc]` | Fully sampled multi-coil k-space of this frame (complex)      |
+| `mask_t`        | `[H, W]`     | Undersampling mask of this frame                              |
+| `r`             | `[H, W, Nc]` | Auxiliary k-space magnitude estimated from neighboring frames |
+| `normalization` | scalar       | Normalization constant applied to the k-space data            |
+| `nPhase`        | scalar       | Number of cardiac phases of the slice                         |
+| `scanner_id`    | string       | Field strength, e.g. `"3T"` (used to find the coil file)      |
 
 Coil files contain the sensitivity maps under the key `maps` with shape `[H, W, Nc]`. Training and test subjects are listed in the `subjects` section of the config.
 
