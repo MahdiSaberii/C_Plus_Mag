@@ -20,14 +20,14 @@ Mahdi Saberi, Yaşar Utku Alçalar, Merve Gülle, Chetan Shenoy, Mehmet Akçakay
 
 ```
 C_Plus_Mag/
-├── Config.yaml         # All training / testing settings (network, paths, subjects, hyperparameters)
-├── train.py            # Training loop (k-space L1+L2 loss, validation, logging)
-├── test.py             # Inference, PSNR/SSIM metrics, PNGs and per-slice .mat outputs
+├── Config.yaml         
+├── train.py            
+├── test.py             
 ├── Unrolled_Network.py # Unrolled ADMM networks: ℂ+Mag (MI) and the PD-DL baseline (PDDL)
 ├── DC.py               # Data-consistency blocks: magnitude-aware GD (DC_MI) and conjugate gradient (DC_CG)
 ├── DataLoader.py       # Dataset of single frames (spatial) or R-frame stacks (spatiotemporal)
-├── Utils.py            # MRI operators, preprocessing, metrics and plotting helpers
-├── unet/               # Time-conditioned U-Net used as the learned proximal operator
+├── Utils.py            
+├── unet/               
 └── requirements.txt
 ```
 
