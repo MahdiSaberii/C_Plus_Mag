@@ -9,7 +9,7 @@ Mahdi Saberi, Yaşar Utku Alçalar, Merve Gülle, Chetan Shenoy, Mehmet Akçakay
 *IEEE Transactions on Biomedical Engineering (TBME), 2026*
 
 <p align="center">
-  <img src="data/pipeline.png" width="90%">
+  <img src="data/Pipeline.png" width="90%">
 </p>
 
 ## Overview
