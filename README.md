@@ -70,11 +70,3 @@ If you find this work useful, please cite:
   doi     = {[DOI]}
 }
 ```
-
-## Contact
-
-For questions, please open an issue or reach out via [mahdisaberii.github.io](https://mahdisaberii.github.io).
-
-This work was done at the [Center for Magnetic Resonance Research (CMRR)](https://cmrr.umn.edu), University of Minnesota.
-
-This work was done at the [Center for Magnetic Resonance Research (CMRR)](https://cmrr.umn.edu), University of Minnesota.
