@@ -12,9 +12,11 @@ Mahdi Saberi, Yaşar Utku Alçalar, Merve Gülle, Chetan Shenoy, Mehmet Akçakay
   <img src="data/Pipeline.png" width="100%">
 </p>
 
-## Overview
+## Abstract
 
-Physics-driven deep learning (PD-DL) reconstructions enforce consistency only with the acquired complex-valued k-space samples, so at high acceleration rates the unacquired locations are constrained only by the learned regularizer. **C+Mag** adds a second source of information: a magnitude-only estimate of the unacquired k-space, obtained from the undersampled data of adjacent frames in dynamic MRI. The unrolled network uses both the **c**omplex measurements and these auxiliary **mag**nitude measurements, improving cine reconstruction quality at high acceleration rates (R = 6 to 16) with no extra scan time.
+<p align="justify">
+MRI reconstruction methods for undersampled k-space data naturally utilize complex-valued measurements. Parallel developments in sparse phase retrieval have shown that magnitude-only measurements may provide complementary information for signal recovery. However, their use in MRI reconstruction remains largely unexplored, due to lack of practical settings where informative magnitude measurements can be obtained without additional scan time. In this work, we investigate the use of auxiliary k-space magnitude information for accelerated steady-state dynamic MRI reconstruction, and demonstrate strong consistency of k-space magnitudes across time-frames. Building on this observation, we propose <b>ℂ+Mag</b>, a magnitude-informed physics-driven deep learning (PD-DL) reconstruction method. The proposed method employs an ADMM-based unrolling framework with a novel magnitude-aware data-fidelity formulation, where quadratically smoothed optimization and momentum-based updates are introduced to address the non-differentiability and non-convexity of the magnitude constraints. Experiments on retrospectively undersampled cine MRI and phase-contrast flow MRI datasets, as well as prospectively undersampled real-time cine MRI acquisitions, demonstrate improved artifact suppression, sharper anatomical recovery, and better preservation of phase information compared to conventional PD-DL methods, which is further supported through blinded expert reader evaluations.
+</p>
 
 ## Repository Structure
 
