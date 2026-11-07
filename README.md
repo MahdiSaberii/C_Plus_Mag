@@ -20,13 +20,15 @@ Mahdi Saberi, Yaşar Utku Alçalar, Merve Gülle, Chetan Shenoy, Mehmet Akçakay
 
 ```
 C_Plus_Mag/
-├── configs/          # Training and testing configurations
-├── data/             # Data loading and preprocessing
-├── models/           # Unrolled network, regularizer, data-consistency blocks
-├── utils/            # FFT, coil, metric, and visualization helpers
-├── train.py
-├── test.py
-└── assets/           # README figures
+├── Config.yaml         # All training / testing settings (network, paths, subjects, hyperparameters)
+├── train.py            # Training loop (k-space L1+L2 loss, validation, logging)
+├── test.py             # Inference, PSNR/SSIM metrics, PNGs and per-slice .mat outputs
+├── Unrolled_Network.py # Unrolled ADMM networks: ℂ+Mag (MI) and the PD-DL baseline (PDDL)
+├── DC.py               # Data-consistency blocks: magnitude-aware GD (DC_MI) and conjugate gradient (DC_CG)
+├── DataLoader.py       # Dataset of single frames (spatial) or R-frame stacks (spatiotemporal)
+├── Utils.py            # MRI operators, preprocessing, metrics and plotting helpers
+├── unet/               # Time-conditioned U-Net used as the learned proximal operator
+└── requirements.txt
 ```
 
 ## Installation
@@ -39,23 +41,70 @@ conda activate cplusmag
 pip install -r requirements.txt
 ```
 
+## Models
+
+Select the model with `Network` in [`Config.yaml`](Config.yaml):
+
+| `Network`                  | Data consistency            | Magnitude prior on unacquired lines            |
+|----------------------------|-----------------------------|------------------------------------------------|
+| `PDDL_Spatial`             | Conjugate gradient          | – (conventional PD-DL baseline)                |
+| `MI_Spatial`               | Magnitude-aware GD (ℂ+Mag)  | From neighboring frames (`r` in the data)      |
+| `MI_Oracle_Spatial`        | Magnitude-aware GD (ℂ+Mag)  | Oracle: magnitude of the fully sampled k-space |
+| `PDDL_Spatiotemporal`      | Conjugate gradient          | –                                              |
+| `MI_Spatiotemporal`        | Magnitude-aware GD (ℂ+Mag)  | From neighboring frames                        |
+| `MI_Oracle_Spatiotemporal` | Magnitude-aware GD (ℂ+Mag)  | Oracle                                         |
+
+*Spatial* models reconstruct one frame at a time. *Spatiotemporal* models reconstruct a stack of R frames jointly; for these, the keys in the `Spatiotemporal:` section of the config override the defaults.
+
 ## Data
 
-The experiments use [dataset name / source]. Each slice is stored as multi-coil k-space with shape `[frames, coils, H, W]`, with coil sensitivity maps in a separate folder. See [`data/README.md`](data/README.md) for the expected directory layout and preprocessing steps.
+The experiments use [dataset name / source]. Set the data folders in the `paths` section of `Config.yaml` (`{R}` is replaced by the acceleration rate):
+
+```
+data/
+├── train/R{R}/   subj_XXXX_slice_XXX_TXXX.mat   # one file per subject / slice / time frame
+├── val/R{R}/     ...
+├── test/R{R}/    ...
+└── coils/        fs_XXXX_<scanner>_Slice_<n>.mat
+```
+
+Each frame file contains:
+
+| Key             | Shape          | Description                                                       |
+|-----------------|----------------|-------------------------------------------------------------------|
+| `kspace_t`      | `[H, W, Nc]`   | Fully sampled multi-coil k-space (complex)                        |
+| `mask_t`        | `[H, W]`       | Undersampling mask of this frame                                  |
+| `r`             | `[H, W, Nc]`   | Magnitude prior, e.g. k-space magnitudes taken from neighboring frames |
+| `normalization` | scalar         | Normalization constant applied to `kspace_t` and `r`               |
+| `nPhase`        | scalar         | Number of cardiac phases of the slice                             |
+| `scanner_id`    | string         | Field strength, e.g. `"1.5 T"` (used to find the coil file)       |
+
+Coil files contain the sensitivity maps under the key `maps` with shape `[H, W, Nc]`. Training and test subjects are listed in the `subjects` section of the config.
 
 ## Usage
 
 **Training**
 ```bash
-python train.py --config configs/cine_R8.yaml
+python train.py
 ```
+Checkpoints, loss and learned-parameter curves are written to `results/train/<experiment name>/`. The best model (lowest validation loss) is saved as `model/BestModel_R{R}_Epoch{N}.pth`.
 
 **Testing**
-```bash
-python test.py --config configs/cine_R8.yaml --checkpoint checkpoints/cine_R8.pth
-```
 
-Pretrained weights for R = 6, 8, 12, and 16 are available [here](LINK).
+Set the model to evaluate in the `Test:` section of `Config.yaml` (its keys override the training settings), e.g.
+```yaml
+Test:
+  R           : 8
+  Network     : "MI_Spatial"
+  model_epoch : 24        # loads BestModel_R8_Epoch24.pth
+```
+then run
+```bash
+python test.py
+```
+PSNR / SSIM per frame and per subject (`.csv`, `.mat`), reconstruction PNGs and one `.mat` file per slice (all time frames) are written to `results/test/<experiment name>/`.
+
+Pretrained weights for R = 6, 8, 12, and 16 are available [here](LINK). Place them under `results/train/<experiment name>/model/` to run `test.py`.
 
 ## Citation
 
@@ -63,8 +112,8 @@ If you find this work useful, please cite:
 
 ```bibtex
 @article{saberi2026cplusmag,
-  title   = {[Paper Title]},
-  author  = {Saberi, Mahdi and [Co-authors] and Ak{\c{c}}akaya, Mehmet},
+  title   = {Harnessing Magnitude-Only and Complex Measurements for Improved Dynamic {MRI} Reconstruction with Learned Priors},
+  author  = {Saberi, Mahdi and Al{\c{c}}alar, Ya{\c{s}}ar Utku and G{\"u}lle, Merve and Shenoy, Chetan and Ak{\c{c}}akaya, Mehmet},
   journal = {IEEE Transactions on Biomedical Engineering},
   year    = {2026},
   doi     = {[DOI]}
