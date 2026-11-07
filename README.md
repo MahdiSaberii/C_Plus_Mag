@@ -1,5 +1,8 @@
 # C+Mag
-[Harnessing Magnitude-Only and Complex Measurements for Improved Dynamic MRI Reconstruction with Learned Priors] Mahdi Saberi, Mehmet Akçakaya IEEE Transactions on Biomedical Engineering (TBME), 2026
+
+**[Harnessing Magnitude-Only and Complex Measurements for Improved Dynamic MRI Reconstruction with Learned Priors]**
+Mahdi Saberi, Yaşar Utku Alçalar, Merve Gülle, Chetan Shenoy, Mehmet Akçakaya
+*IEEE Transactions on Biomedical Engineering (TBME), 2026*
 
 [![Paper](https://img.shields.io/badge/IEEE%20TBME-Paper-blue)](https://ieeexplore.ieee.org/abstract/document/11735101)
 [![arXiv](https://img.shields.io/badge/arXiv-2608.18036-b31b1b)](https://arxiv.org/abs/2608.18036)
