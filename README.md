@@ -48,11 +48,11 @@ Select the model with `Network` in [`Config.yaml`](Config.yaml):
 | `Network`                  | Data consistency            | Magnitude prior on unacquired lines            |
 |----------------------------|-----------------------------|------------------------------------------------|
 | `PDDL_Spatial`             | Conjugate gradient          | – (conventional PD-DL baseline)                |
-| `MI_Spatial`               | Magnitude-aware GD (ℂ+Mag)  | From neighboring frames (`r` in the data)      |
-| `MI_Oracle_Spatial`        | Magnitude-aware GD (ℂ+Mag)  | Oracle: magnitude of the fully sampled k-space |
+| `MI_Spatial`               | Magnitude-inoformed GD (ℂ+Mag)  | From neighboring frames (`r` in the data)      |
+| `MI_Oracle_Spatial`        | Magnitude-inoformed GD (ℂ+Mag)  | Oracle: magnitude of the fully sampled k-space |
 | `PDDL_Spatiotemporal`      | Conjugate gradient          | –                                              |
-| `MI_Spatiotemporal`        | Magnitude-aware GD (ℂ+Mag)  | From neighboring frames                        |
-| `MI_Oracle_Spatiotemporal` | Magnitude-aware GD (ℂ+Mag)  | Oracle                                         |
+| `MI_Spatiotemporal`        | Magnitude-inoformed GD (ℂ+Mag)  | From neighboring frames                        |
+| `MI_Oracle_Spatiotemporal` | Magnitude-inoformed GD (ℂ+Mag)  | Oracle                                         |
 
 *Spatial* models reconstruct one frame at a time. *Spatiotemporal* models reconstruct a stack of R frames jointly; for these, the keys in the `Spatiotemporal:` section of the config override the defaults.
 
