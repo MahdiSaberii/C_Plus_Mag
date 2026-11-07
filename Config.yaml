@@ -1,0 +1,75 @@
+# ---------------------------------------------------------------------------
+# Paths ("{R}" is replaced by the acceleration rate R)
+# ---------------------------------------------------------------------------
+paths:
+  train_data    : "./data/train/R{R}/"   # subj_XXXX_slice_XXX_TXXX.mat files
+  val_data      : "./data/val/R{R}/"     # null -> no validation, best model selected on the training loss
+  test_data     : "./data/test/R{R}/"
+  coils         : "./data/coils/"        # fs_XXXX_<scanner>_Slice_<n>.mat coil maps
+  train_results : "./results/train"
+  test_results  : "./results/test"
+
+# Subject split (subjects 4, 5, 6 excluded; 56 left out of the test set)
+subjects:
+  train : [9, 12, 16, 19, 27, 28, 32, 34, 40, 45, 57, 63, 74, 78, 79, 80, 83, 84, 89, 91, 96, 97,
+           107, 108, 109, 111, 112, 120, 121, 122, 137, 138, 146, 150, 151, 155, 156, 157, 160, 161, 164]
+  test  : [10, 20, 21, 25, 26, 38, 39, 53, 55, 60, 68, 69, 113, 139]
+
+monitor_subjects : []        # save a PNG of these subjects' target frame during training
+
+# ---------------------------------------------------------------------------
+# Training
+# ---------------------------------------------------------------------------
+device          : "cuda:3"
+R               : 6          # acceleration rate (= number of frames per sample for spatiotemporal networks)
+n_epochs        : 100
+learning_rate   : 0.00005
+patience        : 5          # ReduceLROnPlateau patience
+gamma_scheduler : 0.9        # ReduceLROnPlateau factor
+
+# ---------------------------------------------------------------------------
+# Unrolled network
+# ---------------------------------------------------------------------------
+Network         : "MI_Spatial"
+#   Spatial        : "PDDL_Spatial" (baseline)        | "MI_Spatial"        | "MI_Oracle_Spatial"
+#   Spatiotemporal : "PDDL_Spatiotemporal" (baseline) | "MI_Spatiotemporal" | "MI_Oracle_Spatiotemporal"
+Unrolls         : 10
+DF_Steps        : 10             # inner data-consistency iterations (GD for MI, CG for PDDL)
+Share_params    : False          # share scalar parameters across unrolls
+SoftPlus        : True           # keep scalar parameters positive through a SoftPlus
+beta_softplus   : 20
+Momentum_type   : "Nesterov"     # "None" | "Polyak" | "Nesterov"   (MI only)
+Smoothing_type  : "Simple"       # smoothed sign x / sqrt(|x|^2 + epsilon)   (MI only)
+epsilon         : 1e-9
+
+# Initial values of the learnable scalars
+init:
+  mu            : 0.2
+  eta           : 0.15
+  lamda         : 0.15
+  beta_ADMM     : 0.2
+  beta_Momentum : 0.9
+
+# Display
+diff_scale      : 5              # error-map amplification in the saved PNGs
+window_scale    : 0.35           # display window for the saved PNGs
+
+# ---------------------------------------------------------------------------
+# Spatiotemporal (keys here override the ones above when Network is "*_Spatiotemporal")
+# ---------------------------------------------------------------------------
+Spatiotemporal:
+  R               : 16
+  n_epochs        : 25
+  learning_rate   : 0.0001
+  paths:
+    val_data      : null
+  monitor_subjects : [95]
+
+# ---------------------------------------------------------------------------
+# Test (keys here override everything above when running test.py)
+# ---------------------------------------------------------------------------
+Test:
+  device       : "cuda:1"
+  R            : 8
+  Network      : "PDDL_Spatial"
+  model_epoch  : 24              # loads BestModel_R{R}_Epoch{model_epoch}.pth
