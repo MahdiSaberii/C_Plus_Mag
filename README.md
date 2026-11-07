@@ -4,8 +4,8 @@
 Mahdi Saberi, Yaşar Utku Alçalar, Merve Gülle, Chetan Shenoy, Mehmet Akçakaya
 *IEEE Transactions on Biomedical Engineering (TBME), 2026*
 
-[![Paper](https://img.shields.io/badge/IEEE%20TBME-Paper-blue)]([DOI_LINK](https://ieeexplore.ieee.org/abstract/document/11735101))
-[![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b)]([ARXIV_LINK](https://arxiv.org/abs/2608.18036))
+[![Paper](https://img.shields.io/badge/IEEE%20TBME-Paper-blue)](https://ieeexplore.ieee.org/abstract/document/11735101)
+[![arXiv](https://img.shields.io/badge/arXiv-2608.18036-b31b1b)](https://arxiv.org/abs/2608.18036)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 <p align="center">
