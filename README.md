@@ -116,6 +116,6 @@ If you find this work useful, please cite:
   author  = {Saberi, Mahdi and Al{\c{c}}alar, Ya{\c{s}}ar Utku and G{\"u}lle, Merve and Shenoy, Chetan and Ak{\c{c}}akaya, Mehmet},
   journal = {IEEE Transactions on Biomedical Engineering},
   year    = {2026},
-  doi     = {[DOI]}
+  doi     = {[10.1109/TBME.2026.3743233]}
 }
 ```
