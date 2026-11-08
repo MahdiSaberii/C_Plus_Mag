@@ -104,8 +104,6 @@ python test.py
 ```
 PSNR / SSIM per frame and per subject (`.csv`, `.mat`), reconstruction PNGs and one `.mat` file per slice are written to `results/test/<experiment name>/`.
 
-Pretrained weights for R = 6 and R = 16 are provided in [`checkpoints/`](checkpoints/). To run `test.py` with them, copy the checkpoint for your acceleration rate to `results/train/<experiment name>/model/`.
-
 ## 📝 BibTeX
 
 If you find this repository useful in your research, please consider citing our work:
