@@ -68,7 +68,7 @@ data/
 └── coils/        fs_XXXX_<scanner>_Slice_<n>.mat
 ```
 
-We include one example frame, [`data/subj_0020_slice_001_T008.mat`](data/subj_0020_slice_001_T008.mat), to show the expected file format. Each frame file contains:
+We include one example frame, [`data/subj_0020_slice_001_T008.mat`](data/subj_0020_slice_001_T008.mat), and its coil sensitivity maps, [`data/coil_subj_0020_slice_1.mat`](data/coil_subj_0020_slice_1.mat), to show the expected file formats. Each frame file contains:
 
 | Key             | Shape        | Description                                                   |
 |-----------------|--------------|---------------------------------------------------------------|
