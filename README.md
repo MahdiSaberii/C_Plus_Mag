@@ -87,7 +87,7 @@ Coil files contain the sensitivity maps under the key `maps` with shape `[H, W, 
 ```bash
 python train.py
 ```
-Checkpoints, loss and learned-parameter curves are written to `results/train/<experiment name>/`. The best model (lowest validation loss) is saved as `model/BestModel_R{R}_Epoch{N}.pth`.
+Checkpoints, loss and learned-parameter curves are written to `results/train/<experiment name>/`. The best model is saved as `model/BestModel_R{R}_Epoch{N}.pth`.
 
 **Testing**
 
@@ -102,9 +102,9 @@ then run
 ```bash
 python test.py
 ```
-PSNR / SSIM per frame and per subject (`.csv`, `.mat`), reconstruction PNGs and one `.mat` file per slice (all time frames) are written to `results/test/<experiment name>/`.
+PSNR / SSIM per frame and per subject (`.csv`, `.mat`), reconstruction PNGs and one `.mat` file per slice are written to `results/test/<experiment name>/`.
 
-Pretrained weights for R = 6, 8, 12, and 16 are available [here](LINK). Place them under `results/train/<experiment name>/model/` to run `test.py`.
+Pretrained weights for R = 6 and R = 16 are provided in [`checkpoints/`](checkpoints/). To run `test.py` with them, copy the checkpoint for your acceleration rate to `results/train/<experiment name>/model/`.
 
 ## 📝 BibTeX
 
