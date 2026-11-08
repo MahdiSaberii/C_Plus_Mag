@@ -96,7 +96,7 @@ Set the model to evaluate in the `Test:` section of `Config.yaml` (its keys over
 Test:
   R           : 8
   Network     : "MI_Spatial"
-  model_epoch : 24        # loads BestModel_R8_Epoch24.pth
+  model_epoch : 25        # loads BestModel_R8_Epoch25.pth
 ```
 then run
 ```bash
@@ -116,6 +116,6 @@ If you find this work useful, please cite:
   author  = {Saberi, Mahdi and Al{\c{c}}alar, Ya{\c{s}}ar Utku and G{\"u}lle, Merve and Shenoy, Chetan and Ak{\c{c}}akaya, Mehmet},
   journal = {IEEE Transactions on Biomedical Engineering},
   year    = {2026},
-  doi     = {[10.1109/TBME.2026.3743233]}
+  doi     = {10.1109/TBME.2026.3743233}
 }
 ```
