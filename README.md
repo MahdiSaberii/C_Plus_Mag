@@ -16,21 +16,6 @@ Mahdi Saberi, Yaşar Utku Alçalar, Merve Gülle, Chetan Shenoy, Mehmet Akçakay
 
 <p align="justify"> MRI reconstruction methods naturally use the acquired complex-valued k-space measurements, while phase retrieval theory suggests that magnitude-only measurements can provide complementary information. We show that in steady-state dynamic MRI, k-space magnitudes are highly consistent across time-frames, so neighboring frames supply informative magnitude measurements at unacquired locations with no additional scan time. Building on this, we propose <b>ℂ+Mag</b>, a magnitude-informed physics-driven deep learning (PD-DL) method that uses ADMM-based unrolling with a novel magnitude-aware data-fidelity formulation. On retrospectively undersampled cine and phase-contrast flow MRI, as well as prospectively undersampled real-time cine, <b>ℂ+Mag</b> improves artifact suppression, anatomical sharpness, and phase preservation over conventional PD-DL, further supported by blinded expert reader evaluations. </p>
 
-## Repository Structure
-
-```
-C_Plus_Mag/
-├── Config.yaml         
-├── train.py            
-├── test.py             
-├── Unrolled_Network.py # Unrolled ADMM networks: ℂ+Mag (MI) and the PD-DL baseline (PDDL)
-├── DC.py               # Data-consistency blocks: magnitude-aware GD (DC_MI) and conjugate gradient (DC_CG)
-├── DataLoader.py       # Dataset of single frames (spatial) or R-frame stacks (spatiotemporal)
-├── Utils.py            
-├── unet/               
-└── requirements.txt
-```
-
 ## Installation
 
 ```bash
