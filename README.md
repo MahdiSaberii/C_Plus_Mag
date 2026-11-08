@@ -54,7 +54,7 @@ Select the model with `Network` in [`Config.yaml`](Config.yaml):
 | `MI_Spatiotemporal`        | Magnitude-inoformed GD (ℂ+Mag)  | From neighboring frames                        |
 | `MI_Oracle_Spatiotemporal` | Magnitude-inoformed GD (ℂ+Mag)  | Oracle                                         |
 
-*Spatial* models reconstruct one frame at a time. *Spatiotemporal* models reconstruct a stack of R frames jointly; for these, the keys in the `Spatiotemporal:` section of the config override the defaults.
+*Spatial* models reconstruct one frame at a time. *Spatiotemporal* models reconstruct a stack of R frames jointly.
 
 ## Data
 
