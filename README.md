@@ -106,9 +106,9 @@ PSNR / SSIM per frame and per subject (`.csv`, `.mat`), reconstruction PNGs and 
 
 Pretrained weights for R = 6, 8, 12, and 16 are available [here](LINK). Place them under `results/train/<experiment name>/model/` to run `test.py`.
 
-## Citation
+## 📝 BibTeX
 
-If you find this work useful, please cite:
+If you find this repository useful in your research, please consider citing our work:
 
 ```bibtex
 @article{saberi2026cplusmag,
