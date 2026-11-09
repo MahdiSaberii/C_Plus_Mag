@@ -8,69 +8,89 @@
 <meta name="description" content="ℂ+Mag: harnessing magnitude-only and complex measurements for improved dynamic MRI reconstruction with learned priors. IEEE TBME 2026.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400;1,6..72,500&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400;1,6..72,500&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 /* Layout: one reading column (≈1040px) with full-bleed figure plates; color carries meaning:
    blue = complex-valued measurements, amber = magnitude-only measurements / ℂ+Mag. */
 :root{
-  --bg:#f4f6f9; --surface:#ffffff; --ink:#111a2b; --ink-2:#465267; --muted:#6f7b8f; --line:#dbe1ea;
-  --cx:#2e63d6; --mag:#c0670c; --base:#66758a; --oracle:#7a5bc7;
+  --bg:#fbfbfa; --surface:#ffffff; --surface-2:#f3f3f0; --ink:#17181a; --ink-2:#45484d; --muted:#5d6066; --line:#e3e3de;
+  --cx:#2f5bea; --mag:#b8860b; --base:#9aa0aa; --oracle:#7446d0; --accent-soft:#f6e9eb;
   --plate:#ffffff; --kbg:#070b16; --kdim:#1b2236;
-  --f-display:"Newsreader", "Iowan Old Style", Georgia, serif;
-  --f-body:"Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --accent:#7a1f2b; --gold:#b8860b;  /* UMN maroon + gold, as on the UDT page */
+  --f-head:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-display:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono:"JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
   --col:1040px;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0d121b; --surface:#151c28; --ink:#e7ecf4; --ink-2:#adb7c6; --muted:#8692a5; --line:#273143;
-    --cx:#78a2f7; --mag:#f0a03c; --base:#9aa8bb; --oracle:#ab92f0; --plate:#f7f8fa; color-scheme:dark;
+    --bg:#111214; --surface:#191b1e; --surface-2:#202226; --ink:#ececea; --ink-2:#c4c6ca; --muted:#a2a5ab; --line:#2d3035; --accent-soft:#2a1b1e;
+    --cx:#7c9bff; --mag:#e0b44c; --base:#6b7280; --oracle:#b79bff; --plate:#ffffff; --accent:#e07a88; --gold:#e0b44c; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0d121b; --surface:#151c28; --ink:#e7ecf4; --ink-2:#adb7c6; --muted:#8692a5; --line:#273143;
-  --cx:#78a2f7; --mag:#f0a03c; --base:#9aa8bb; --oracle:#ab92f0; --plate:#f7f8fa; color-scheme:dark;
+  --bg:#111214; --surface:#191b1e; --surface-2:#202226; --ink:#ececea; --ink-2:#c4c6ca; --muted:#a2a5ab; --line:#2d3035; --accent-soft:#2a1b1e;
+  --cx:#7c9bff; --mag:#e0b44c; --base:#6b7280; --oracle:#b79bff; --plate:#ffffff; --accent:#e07a88; --gold:#e0b44c; color-scheme:dark;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--f-body);-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.65 var(--f-body);-webkit-font-smoothing:antialiased}
 .wrap{max-width:var(--col);margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
 a{color:var(--cx)}
-a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--mag);outline-offset:2px}
-h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0;letter-spacing:-.01em}
-h2{font-size:clamp(1.6rem,3.2vw,2.15rem);line-height:1.15}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);font-weight:800;text-wrap:balance;margin:0;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3vw,1.875rem);line-height:1.2}
 h3{font-size:1.25rem;line-height:1.25}
 p{margin:0}
 .prose{max-width:68ch;color:var(--ink-2)}
 .prose p+p{margin-top:.9em}
 .cx{color:var(--cx);font-weight:600}
 .mag{color:var(--mag);font-weight:600}
-.cm{font-family:var(--f-display);font-weight:600;white-space:nowrap}
+.cm{font-family:var(--f-display);font-weight:700;color:var(--accent);white-space:nowrap}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
-.eyebrow{font:600 .74rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.eyebrow{font:700 14px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 
-/* ---------- hero ---------- */
-header.hero{padding-block:clamp(40px,7vw,84px) 28px}
-.venue{display:inline-flex;gap:.6em;align-items:center;font:600 .78rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mag);border:1px solid color-mix(in srgb,var(--mag) 45%,transparent);padding:.5em .8em;border-radius:999px}
-.hero h1{font-size:clamp(2rem,5.2vw,3.5rem);line-height:1.06;margin-top:22px;max-width:20ch}
-.hero h1 .brand{display:block;font-size:.55em;font-style:italic;font-weight:500;color:var(--ink-2);margin-bottom:.35em;letter-spacing:0}
-.hero h1 .brand b{font-style:normal;font-weight:600;color:var(--ink)}
-.authors{margin-top:22px;font-size:1.02rem;color:var(--ink)}
-.authors span{white-space:nowrap}
-.affil{color:var(--muted);font-size:.92rem;margin-top:4px}
-.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
-.btn{display:inline-flex;align-items:center;gap:.5em;padding:.62em 1.05em;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;font-weight:600;font-size:.92rem;transition:border-color .15s,transform .15s}
-.btn:hover{border-color:var(--ink-2);transform:translateY(-1px)}
-.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.btn svg{width:16px;height:16px;flex:none}
-.thesis{margin-top:36px;font-family:var(--f-display);font-size:clamp(1.2rem,2.4vw,1.55rem);line-height:1.4;max-width:46ch;color:var(--ink)}
-.thesis em{font-style:italic;color:var(--mag)}
+/* ---------- hero (centered, UDT-style) ---------- */
+header.hero{padding-block:64px 24px;text-align:center}
+.hero .venue{display:inline-block;font:600 13px/1.4 var(--f-head);letter-spacing:.04em;text-transform:uppercase;color:var(--gold);border:1px solid color-mix(in srgb,var(--gold) 40%,transparent);background:color-mix(in srgb,var(--gold) 8%,transparent);padding:4px 12px;border-radius:999px;margin-bottom:20px}
+h1.title{font-family:var(--f-head);font-size:clamp(22px,2.75vw,31px);line-height:1.18;font-weight:800;letter-spacing:-.025em;margin:0 auto 8px;text-wrap:balance;color:var(--ink)}
+h1.title .name{color:var(--accent)}
+.hero .authors{font-size:18px;margin:24px 0 4px;color:var(--ink)}
+.hero .authors .au{color:var(--ink);font-weight:500;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:1.5px;text-underline-offset:4px;white-space:nowrap}
+.hero .authors a.au:hover{color:var(--accent)}
+.hero .authors .au+.au{margin-left:.45em}
+h1.title{max-width:1008px}
+h1.title .nw{white-space:nowrap}
+.hero .affil{color:var(--muted);font-size:15px}
+.links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:28px 0 8px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:999px;font:600 15px/1.4 var(--f-head);text-decoration:none;border:1px solid var(--ink);transition:transform .15s ease,opacity .15s ease}
+.btn:hover{transform:translateY(-1px);opacity:.9}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn svg{width:17px;height:17px;flex:none}
+.thesis{margin:26px auto 0;font-size:15.5px;line-height:1.65;max-width:68ch;text-wrap:pretty;color:var(--ink-2)}
+
+/* ---------- teaser animation (canvas, like UDT) ---------- */
+.teaser{position:relative;margin:36px auto 0;border-radius:18px;overflow:hidden;background:#fbf7ec;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(120,90,20,.08);border:1px solid #ece3cc}
+.teaser canvas{display:block;width:100%;aspect-ratio:16/9}
+.teaser-ctrl{position:absolute;top:12px;right:12px;display:flex;gap:6px;opacity:.6;transition:opacity .2s}
+.teaser:hover .teaser-ctrl,.teaser-ctrl:focus-within{opacity:1}
+.teaser-ctrl button{font:600 12px var(--f-head);color:#17181a;cursor:pointer;background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.12);border-radius:999px;padding:5px 11px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.teaser-ctrl button:hover{background:rgba(0,0,0,.1)}
+.tsteps{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:14px}
+.tsteps button{font:600 13px/1.3 var(--f-head);color:var(--muted);background:var(--surface-2);border:1px solid transparent;border-radius:999px;padding:5px 12px;cursor:pointer}
+.tsteps button b{font-family:var(--f-mono);margin-right:6px}
+.tsteps button[aria-current="step"]{color:var(--accent);background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+@media (max-width:600px){.teaser{margin-left:-16px;margin-right:-16px;border-radius:0;border-left:0;border-right:0}}
+.thesis b{color:var(--accent)}
+.thesis em{font-style:normal;font-weight:700}
+.hero .glance{text-align:left}
 
 /* ---------- glance ---------- */
 .glance{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:36px}
 .stat{background:var(--surface);padding:20px 18px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.stat .num{font:600 clamp(1.7rem,3.4vw,2.35rem)/1 var(--f-display);color:var(--ink);font-variant-numeric:tabular-nums}
+.stat .num{font:800 clamp(1.7rem,3.4vw,2.35rem)/1 var(--f-display);color:var(--ink);font-variant-numeric:tabular-nums}
 .stat .num small{font-size:.5em;font-weight:500;color:var(--muted);margin-left:.15em}
 .stat .lbl{font-size:.86rem;color:var(--ink-2);line-height:1.4}
 .stat .src{font:.7rem/1.3 var(--f-mono);color:var(--muted);margin-top:auto;padding-top:6px}
@@ -106,7 +126,7 @@ figcaption b{color:var(--ink-2)}
 .seg button:last-child{border-right:0}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .ctl{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--muted);font-weight:600}
-input[type=range]{accent-color:var(--mag);width:min(260px,46vw)}
+input[type=range]{accent-color:var(--accent);width:min(260px,46vw)}
 
 /* ---------- sampling demo ---------- */
 .demo{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:26px;align-items:start}
@@ -122,14 +142,15 @@ input[type=range]{accent-color:var(--mag);width:min(260px,46vw)}
 
 /* ---------- math ---------- */
 .eq{overflow-x:auto;padding:18px 8px;margin:18px 0;border-block:1px solid var(--line);font-size:1.12rem}
-math{font-family:"STIX Two Math","Cambria Math","Latin Modern Math",serif}
+@font-face{font-family:"LMMath";src:url("static/fonts/latinmodern-math.woff2") format("woff2");font-display:swap}
+math{font-family:"LMMath","Latin Modern Math","STIX Two Math","Cambria Math",serif}
 .m-cx{color:var(--cx)} .m-mag{color:var(--mag)} .m-r{color:var(--ink-2)}
 .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}
 @media (max-width:860px){.steps{grid-template-columns:minmax(0,1fr)}}
 .step{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--surface);display:flex;flex-direction:column;gap:8px;min-width:0}
-.step.hl{border-color:color-mix(in srgb,var(--mag) 60%,var(--line));background:color-mix(in srgb,var(--mag) 6%,var(--surface))}
+.step.hl{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-soft)}
 .step .tag{font:600 .72rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.step.hl .tag{color:var(--mag)}
+.step.hl .tag{color:var(--accent)}
 .step .m{overflow-x:auto;font-size:.98rem;padding:4px 0}
 .step p{font-size:.88rem;color:var(--ink-2)}
 
@@ -155,11 +176,18 @@ th:first-child,td:first-child{text-align:left}
 thead th{font:600 .74rem/1.2 var(--f-mono);color:var(--muted);letter-spacing:.03em;background:var(--bg)}
 tbody tr:last-child td{border-bottom:0}
 tr.grp td{font:600 .72rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
-tr.ours td{background:color-mix(in srgb,var(--mag) 9%,transparent);font-weight:600}
+tr.ours td{background:var(--accent-soft);font-weight:700}
 tr.oracle td{color:var(--muted);font-style:italic}
 td.best{font-weight:700;color:var(--ink)}
 .bar{display:inline-block;height:6px;border-radius:2px;background:var(--base);vertical-align:middle;margin-left:8px}
-tr.ours .bar{background:var(--mag)}
+tr.ours .bar{background:var(--accent)}
+
+.cinegrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cinegrid canvas{display:block;width:100%;height:auto;aspect-ratio:208/288;border-radius:10px;background:#000}
+.cinegrid figcaption{text-align:center;font-weight:700;color:var(--ink-2);margin-top:8px;font-size:.9rem}
+.cinegrid figcaption.ours{color:var(--accent)}
+.cinegrid .cm-m{display:block;font:500 .78rem/1.4 var(--f-mono);color:var(--muted);margin-top:2px}
+#cinePlay{min-width:72px}
 
 /* ---------- tabs ---------- */
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
@@ -170,7 +198,7 @@ tr.ours .bar{background:var(--mag)}
 .zoom{font-size:.8rem;margin-top:6px;display:inline-block}
 
 /* ---------- misc ---------- */
-.callout{border-left:3px solid var(--mag);padding:6px 0 6px 16px;color:var(--ink-2);margin-top:18px;max-width:72ch}
+.callout{border-left:3px solid var(--accent);padding:6px 0 6px 16px;color:var(--ink-2);margin-top:18px;max-width:72ch}
 pre.bib{margin:0;overflow-x:auto;font:13px/1.6 var(--f-mono);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
 .bibwrap{position:relative}
 .copy{position:absolute;top:10px;right:10px}
@@ -184,24 +212,32 @@ ul.clean li+li{margin-top:6px}
 
 <header class="hero">
   <div class="wrap">
-    <span class="venue">IEEE TBME · 2026</span>
-    <h1><span class="brand"><b>ℂ+Mag</b> · magnitude-informed PD-DL</span>Harnessing Magnitude-Only and Complex Measurements for Improved Dynamic MRI Reconstruction with Learned Priors</h1>
-    <p class="authors">
-      <span>Mahdi Saberi</span>, <span>Yaşar Utku Alçalar</span>, <span>Merve Gülle</span>, <span>Chetan Shenoy</span>, <span>Mehmet Akçakaya</span>
-    </p>
-    <p class="affil">University of Minnesota · Electrical &amp; Computer Engineering, Center for Magnetic Resonance Research, Cardiology</p>
+    <div class="venue">IEEE TBME 2026</div>
+    <h1 class="title"><span class="name">ℂ+Mag</span>: Harnessing <span class="nw">Magnitude-Only</span> and Complex Measurements for Improved Dynamic MRI Reconstruction with Learned Priors</h1>
+    <div class="authors">
+      <span class="au">Mahdi Saberi</span>, <a class="au" href="https://utkualcalar.github.io/" target="_blank" rel="noopener">Yaşar Utku Alçalar</a>, <span class="au">Merve Gülle</span>, <span class="au">Chetan Shenoy</span>, <a class="au" href="https://imagine.umn.edu/people/mehmet-akcakaya" target="_blank" rel="noopener">Mehmet Akçakaya</a>
+    </div>
+    <div class="affil">University of Minnesota</div>
     <div class="links">
-      <a class="btn primary" href="https://ieeexplore.ieee.org/abstract/document/11735101" target="_blank" rel="noopener">
+      <a class="btn" href="https://ieeexplore.ieee.org/abstract/document/11735101" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Paper (IEEE)</a>
       <a class="btn" href="https://arxiv.org/abs/2608.18036" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>arXiv</a>
       <a class="btn" href="https://github.com/MahdiSaberii/C_Plus_Mag" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>Code</a>
-      <a class="btn" href="#bibtex">
+      <a class="btn ghost" href="#bibtex">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>BibTeX</a>
     </div>
 
-    <p class="thesis">In steady-state cine, the neighboring frames have already measured the k-space lines this frame skipped. Their phase is wrong, but their <em>magnitude</em> is nearly right, and using it costs no extra scan time.</p>
+    <figure class="teaser" id="teaser">
+      <canvas width="1600" height="900" aria-label="Animation of the ℂ+Mag pipeline: interleaved cine acquisition across frames t−1 to t+2; frame t keeps complex k-space while neighbors keep only magnitude; neighbor magnitudes fill the lines frame t skipped; an unrolled ADMM network with a magnitude-aware data-fidelity step reconstructs a sharper image than conventional PD-DL."></canvas>
+      <div class="teaser-ctrl"><button type="button" data-act="play">Pause</button><button type="button" data-act="replay">Replay</button></div>
+    </figure>
+    <div class="tsteps" id="tsteps" aria-label="Animation steps">
+      <button type="button" data-i="0"><b>1</b>Acquire</button><button type="button" data-i="1"><b>2</b>Keep magnitude</button><button type="button" data-i="2"><b>3</b>Two data sets</button><button type="button" data-i="3"><b>4</b>PD-DL</button><button type="button" data-i="4"><b>5</b>ℂ+Mag</button><button type="button" data-i="5"><b>6</b>Cine</button>
+    </div>
+    <p class="thesis"><b>ℂ+Mag</b> reconstructs each frame from its own <b>complex</b> k-space plus the <b>magnitude-only</b> k-space of neighboring frames.<br>
+      Those magnitudes come from data the scan already acquires, so it <em>improves image quality and phase fidelity at no extra scan time</em>.</p>
 
     <div class="glance" aria-label="Results at a glance">
       <div class="stat"><span class="num">+8.7<small>dB</small></span><span class="lbl">PSNR over conventional PD-DL on segmented cine at R = 8 (38.67 vs 29.93)</span><span class="src">Tab. II · spatial-only</span></div>
@@ -281,8 +317,8 @@ ul.clean li+li{margin-top:6px}
         </div>
         <div>
           <div class="kpair">
-            <figure><svg id="kPD" viewBox="0 0 160 160" role="img" aria-label="Measurements seen by conventional PD-DL"></svg><figcaption>Conventional PD-DL</figcaption></figure>
-            <figure><svg id="kCM" viewBox="0 0 160 160" role="img" aria-label="Measurements seen by C+Mag"></svg><figcaption>ℂ+Mag</figcaption></figure>
+            <figure><svg id="kPD" viewBox="0 0 160 160" role="img" aria-label="Complex measurements of frame t"></svg><figcaption><span class="cx"><b>y</b><sub>Ω</sub></span>: complex, frame t<br>network input + DF (both methods)</figcaption></figure>
+            <figure><svg id="kCM" viewBox="0 0 160 160" role="img" aria-label="Auxiliary magnitude measurements from neighboring frames"></svg><figcaption><span class="mag"><b>r</b><sub>Δ</sub></span>: magnitude only, neighbors<br>DF units only (ℂ+Mag)</figcaption></figure>
           </div>
           <div class="readout" id="readout"></div>
         </div>
@@ -297,19 +333,19 @@ ul.clean li+li{margin-top:6px}
     <div class="head"><span class="eyebrow">Method</span><h2>A data-fidelity term for complex and magnitude measurements</h2></div>
     <figure>
       <a class="plate" href="static/figs/fig2_pipeline.jpg" target="_blank" rel="noopener"><img src="static/figs/fig2_pipeline.jpg" alt="Fig. 2: ℂ+Mag pipeline. Frame t contributes complex-valued data; frames t+1 and t+2 contribute only k-space magnitudes, which enter a new data-fidelity block in each unroll." loading="lazy"></a>
-      <figcaption><b>Fig. 2.</b> For target frame t, both methods use the complex data y<sub>Ω<sub>t</sub></sub>. ℂ+Mag also takes only the magnitudes of the neighbors' lines, r<sub>Δ</sub> with Δ = Ω<sub>t+1</sub> ∪ Ω<sub>t+2</sub> = Ω<sub>t</sub><sup>C</sup> (R = 3 shown), and feeds them to a new data-fidelity block DF<sub>μ,λ</sub>.</figcaption>
+      <figcaption><b>Fig. 2.</b> For target frame t, both methods use the complex data <b>y</b><sub>Ω<sub>t</sub></sub>. ℂ+Mag also takes only the magnitudes of the neighbors' lines, <b>r</b><sub>Δ</sub> with Δ = Ω<sub>t+1</sub> ∪ Ω<sub>t+2</sub> = Ω<sub>t</sub><sup>C</sup> (R = 3 shown), and feeds them to a new data-fidelity block DF<sub>μ,λ</sub>.</figcaption>
     </figure>
 
     <div class="prose" style="margin-top:28px"><p>We add a magnitude least-squares term to the standard regularized objective:</p></div>
     <div class="eq">
       <math display="block">
-        <munder><mrow><mi>arg</mi><mspace width="0.2em"/><mi>min</mi></mrow><mi>𝐱</mi></munder>
+        <munder><mrow><mi mathvariant="normal">arg</mi><mspace width="0.2em"/><mi mathvariant="normal">min</mi></mrow><mi mathvariant="normal">𝐱</mi></munder>
         <mspace width="0.4em"/>
-        <mrow class="m-cx"><msubsup><mrow><mo>‖</mo><msub><mi>𝐲</mi><mi>Ω</mi></msub><mo>−</mo><msub><mi>𝐄</mi><mi>Ω</mi></msub><mi>𝐱</mi><mo>‖</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mrow>
+        <mrow class="m-cx"><msubsup><mrow><mo>‖</mo><msub><mi mathvariant="normal">𝐲</mi><mi mathvariant="normal">Ω</mi></msub><mo>−</mo><msub><mi mathvariant="normal">E</mi><mi mathvariant="normal">Ω</mi></msub><mi mathvariant="normal">𝐱</mi><mo>‖</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mrow>
         <mo>+</mo>
-        <mrow class="m-mag"><mi>λ</mi><msubsup><mrow><mo>‖</mo><msub><mi>𝐫</mi><mi>Δ</mi></msub><mo>−</mo><mo fence="true">|</mo><msub><mi>𝐄</mi><mi>Δ</mi></msub><mi>𝐱</mi><mo fence="true">|</mo><mo>‖</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mrow>
+        <mrow class="m-mag"><mi mathvariant="normal">λ</mi><msubsup><mrow><mo>‖</mo><msub><mi mathvariant="normal">𝐫</mi><mi mathvariant="normal">Δ</mi></msub><mo>−</mo><mo fence="true">|</mo><msub><mi mathvariant="normal">E</mi><mi mathvariant="normal">Δ</mi></msub><mi mathvariant="normal">𝐱</mi><mo fence="true">|</mo><mo>‖</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mrow>
         <mo>+</mo>
-        <mrow class="m-r"><mi>ℛ</mi><mo>(</mo><mi>𝐱</mi><mo>)</mo></mrow>
+        <mrow class="m-r"><mi mathvariant="normal">ℛ</mi><mo>(</mo><mi mathvariant="normal">𝐱</mi><mo>)</mo></mrow>
       </math>
     </div>
     <div class="prose"><p>The <span class="cx">first term</span> enforces consistency with the acquired complex data. The <span class="mag">second</span> enforces consistency with the auxiliary magnitudes on Δ ⊆ Ω<sup>C</sup>. The regularizer ℛ is learned. ADMM splits the problem into three steps, unrolled for 10 iterations:</p></div>
@@ -317,17 +353,17 @@ ul.clean li+li{margin-top:6px}
     <div class="steps">
       <div class="step">
         <span class="tag">Step 1 · learned prior</span>
-        <div class="m"><math><msup><mi>𝐯</mi><mi>k</mi></msup><mo>=</mo><msub><mi>prox</mi><mi>ℛ</mi></msub><mo>(</mo><msup><mi>𝐱</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>+</mo><msup><mi>𝐮</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>)</mo></math></div>
+        <div class="m"><math><msup><mi mathvariant="normal">𝐯</mi><mi mathvariant="normal">k</mi></msup><mo>=</mo><msub><mi mathvariant="normal">prox</mi><mi mathvariant="normal">ℛ</mi></msub><mo>(</mo><msup><mi mathvariant="normal">𝐱</mi><mrow><mi mathvariant="normal">k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>+</mo><msup><mi mathvariant="normal">𝐮</mi><mrow><mi mathvariant="normal">k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>)</mo></math></div>
         <p>A time-embedded U-Net (TE-UNet), either spatial-only (one frame) or spatiotemporal (R frames). It is identical in PD-DL and ℂ+Mag.</p>
       </div>
       <div class="step hl">
         <span class="tag">Step 2 · magnitude-aware DF (new)</span>
-        <div class="m"><math><msup><mi>𝐱</mi><mi>k</mi></msup><mo>=</mo><munder><mrow><mi>arg</mi><mspace width="0.15em"/><mi>min</mi></mrow><mi>𝐱</mi></munder><mspace width="0.2em"/><mi>Q</mi><mo>(</mo><mi>𝐱</mi><mo>)</mo></math></div>
-        <p>Q is the objective above plus μ‖x − v<sup>k</sup> + u<sup>k−1</sup>‖². It is solved with 10 Nesterov-accelerated gradient steps, and λ, μ, β and the step sizes η are all learned per unroll.</p>
+        <div class="m"><math><msup><mi mathvariant="normal">𝐱</mi><mi mathvariant="normal">k</mi></msup><mo>=</mo><munder><mrow><mi mathvariant="normal">arg</mi><mspace width="0.15em"/><mi mathvariant="normal">min</mi></mrow><mi mathvariant="normal">𝐱</mi></munder><mspace width="0.2em"/><mi mathvariant="normal">Q</mi><mo>(</mo><mi mathvariant="normal">𝐱</mi><mo>)</mo></math></div>
+        <p>Q is the objective above plus μ‖<b>x</b> − <b>v</b><sup>k</sup> + <b>u</b><sup>k−1</sup>‖². It is solved with 10 Nesterov-accelerated gradient steps, and λ, μ, β and the step sizes η are all learned per unroll.</p>
       </div>
       <div class="step">
         <span class="tag">Step 3 · dual update</span>
-        <div class="m"><math><msup><mi>𝐮</mi><mi>k</mi></msup><mo>=</mo><msup><mi>𝐮</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>+</mo><mi>γ</mi><mo>(</mo><msup><mi>𝐱</mi><mi>k</mi></msup><mo>−</mo><msup><mi>𝐯</mi><mi>k</mi></msup><mo>)</mo></math></div>
+        <div class="m"><math><msup><mi mathvariant="normal">𝐮</mi><mi mathvariant="normal">k</mi></msup><mo>=</mo><msup><mi mathvariant="normal">𝐮</mi><mrow><mi mathvariant="normal">k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>+</mo><mi mathvariant="normal">γ</mi><mo>(</mo><msup><mi mathvariant="normal">𝐱</mi><mi mathvariant="normal">k</mi></msup><mo>−</mo><msup><mi mathvariant="normal">𝐯</mi><mi mathvariant="normal">k</mi></msup><mo>)</mo></math></div>
         <p>A standard ADMM dual ascent with a learnable γ.</p>
       </div>
     </div>
@@ -336,13 +372,13 @@ ul.clean li+li{margin-top:6px}
       <div class="prose">
         <h3 style="color:var(--ink);margin-bottom:10px">Making |·| trainable</h3>
         <p>The magnitude operator is not differentiable at zero, so we use quadratic smoothing (Quad-S) and take the gradient with CR-calculus:</p>
-        <div class="eq" style="font-size:1rem"><math display="block"><mo fence="true">|</mo><mi>𝐱</mi><mo fence="true">|</mo><mo>≈</mo><msqrt><mi>𝐱</mi><mo>⊙</mo><msup><mi>𝐱</mi><mi>H</mi></msup><mo>+</mo><mi>ϵ</mi></msqrt><mo>,</mo><mspace width="0.6em"/><mi>ϵ</mi><mo>=</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup><msubsup><mrow><mo>‖</mo><msubsup><mi>𝐄</mi><mi>Ω</mi><mi>H</mi></msubsup><msub><mi>𝐲</mi><mi>Ω</mi></msub><mo>‖</mo></mrow><mi>∞</mi><mn>2</mn></msubsup></math></div>
+        <div class="eq" style="font-size:1rem"><math display="block"><mo fence="true">|</mo><mi mathvariant="normal">𝐱</mi><mo fence="true">|</mo><mo>≈</mo><msqrt><mi mathvariant="normal">𝐱</mi><mo>⊙</mo><msup><mi mathvariant="normal">𝐱</mi><mi mathvariant="normal">H</mi></msup><mo>+</mo><mi mathvariant="normal">ϵ</mi></msqrt><mo>,</mo><mspace width="0.6em"/><mi mathvariant="normal">ϵ</mi><mo>=</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup><msubsup><mrow><mo>‖</mo><msubsup><mi mathvariant="normal">E</mi><mi mathvariant="normal">Ω</mi><mi mathvariant="normal">H</mi></msubsup><msub><mi mathvariant="normal">𝐲</mi><mi mathvariant="normal">Ω</mi></msub><mo>‖</mo></mrow><mi mathvariant="normal">∞</mi><mn>2</mn></msubsup></math></div>
         <p>Quad-S beat Smooth-ℓ1, Pseudo-Huber and Log-Exp smoothing in our ablations.</p>
       </div>
       <div class="prose">
         <h3 style="color:var(--ink);margin-bottom:10px">Taming non-convexity</h3>
         <p>Plain gradient descent on the magnitude term can settle in poor local minima. A Nesterov look-ahead step stabilizes the inner solver:</p>
-        <div class="eq" style="font-size:1rem"><math display="block"><mtable columnalign="left"><mtr><mtd><msub><mi>𝐦</mi><mi>j</mi></msub><mo>=</mo><mi>β</mi><msub><mi>𝐦</mi><mrow><mi>j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mo>∇</mo><mover><mi>𝐱</mi><mo>¯</mo></mover></msub><mi>Q</mi><mo>(</mo><msub><mi>𝐱</mi><mrow><mi>j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><mi>β</mi><msub><mi>𝐦</mi><mrow><mi>j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>)</mo></mtd></mtr><mtr><mtd><msub><mi>𝐱</mi><mi>j</mi></msub><mo>=</mo><msub><mi>𝐱</mi><mrow><mi>j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><msub><mi>η</mi><mi>j</mi></msub><msub><mi>𝐦</mi><mi>j</mi></msub></mtd></mtr></mtable></math></div>
+        <div class="eq" style="font-size:1rem"><math display="block"><mtable columnalign="left"><mtr><mtd><msub><mi mathvariant="normal">𝐦</mi><mi mathvariant="normal">j</mi></msub><mo>=</mo><mi mathvariant="normal">β</mi><msub><mi mathvariant="normal">𝐦</mi><mrow><mi mathvariant="normal">j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mo>∇</mo><mover><mi mathvariant="normal">𝐱</mi><mo>¯</mo></mover></msub><mi mathvariant="normal">Q</mi><mo>(</mo><msub><mi mathvariant="normal">𝐱</mi><mrow><mi mathvariant="normal">j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><mi mathvariant="normal">β</mi><msub><mi mathvariant="normal">𝐦</mi><mrow><mi mathvariant="normal">j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>)</mo></mtd></mtr><mtr><mtd><msub><mi mathvariant="normal">𝐱</mi><mi mathvariant="normal">j</mi></msub><mo>=</mo><msub><mi mathvariant="normal">𝐱</mi><mrow><mi mathvariant="normal">j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><msub><mi mathvariant="normal">η</mi><mi mathvariant="normal">j</mi></msub><msub><mi mathvariant="normal">𝐦</mi><mi mathvariant="normal">j</mi></msub></mtd></mtr></mtable></math></div>
         <p>At R = 8, Nesterov reached 37.55 dB PSNR, against 37.30 for Polyak momentum, 36.13 for plain GD and 32.79 for Adam.</p>
       </div>
     </div>
@@ -370,6 +406,22 @@ ul.clean li+li{margin-top:6px}
     <h3 style="margin:36px 0 12px">Table II</h3>
     <div class="tbl" id="tab2"></div>
 
+    <h3 style="margin:40px 0 12px">Cine playback at R = 6</h3>
+    <div class="panel" id="cinePanel">
+      <div class="controls">
+        <div class="seg"><button type="button" id="cinePlay">Pause</button></div>
+        <div class="seg" id="cineSubj" role="group" aria-label="Subject"><button type="button" data-v="0" aria-pressed="true">Subject 1</button><button type="button" data-v="1">Subject 2</button></div>
+        <div class="seg" id="cineMode" role="group" aria-label="Display"><button type="button" data-v="img" aria-pressed="true">Images</button><button type="button" data-v="err">Error maps</button></div>
+        <label class="ctl" for="cineFrame">Frame <input id="cineFrame" type="range" min="1" max="25" value="1"> <span class="mono" id="cineVal">1 / 25</span></label>
+      </div>
+      <div class="cinegrid">
+        <figure><canvas id="cvRef" width="312" height="432" aria-label="Reference cine"></canvas><figcaption>Reference<span class="cm-m">fully sampled</span></figcaption></figure>
+        <figure><canvas id="cvPd" width="312" height="432" aria-label="PD-DL cine"></canvas><figcaption>PD-DL<span class="cm-m" id="mPd"></span></figcaption></figure>
+        <figure><canvas id="cvCm" width="312" height="432" aria-label="C+Mag cine"></canvas><figcaption class="ours">ℂ+Mag<span class="cm-m" id="mCm"></span></figcaption></figure>
+      </div>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:12px">Two test subjects, all 25 cardiac phases, retrospectively undersampled at R = 6 and shown at full field of view. Within each subject, the three columns share one contrast setting and both error maps share one scale. Metrics are PSNR / SSIM averaged over the 25 phases of the unfiltered reconstructions; for smooth playback, each displayed phase is the median of itself and its two neighboring phases.</p>
+    </div>
+
     <h3 style="margin:40px 0 12px">Qualitative comparisons</h3>
     <div class="tabs" role="tablist" aria-label="Figures">
       <button role="tab" id="tab-cine" aria-selected="true" aria-controls="p-cine">Cine, all field strengths</button>
@@ -395,7 +447,7 @@ ul.clean li+li{margin-top:6px}
 <section id="phase">
   <div class="wrap">
     <div class="head"><span class="eyebrow">Phase preservation</span><h2>Better magnitude constraints also give better velocity phase</h2>
-      <p class="prose">The constraint only touches magnitudes, yet the velocity-encoding phase difference Δϕ = ∠(x<sub>2</sub> ⊙ x<sub>1</sub><sup>*</sup>) improves too. The charts show the mean absolute wrapped phase error over the foreground, mean ± SD over subjects, with lower being better. Both panels share one scale.</p>
+      <p class="prose">The constraint only touches magnitudes, yet the velocity-encoding phase difference Δϕ = ∠(<b>x</b><sub>2</sub> ⊙ <b>x</b><sub>1</sub><sup>*</sup>) improves too. The charts show the mean absolute wrapped phase error over the foreground, mean ± SD over subjects, with lower being better. Both panels share one scale.</p>
     </div>
     <div class="panel">
       <div class="chartlegend" id="barLegend"></div>
@@ -606,7 +658,7 @@ function drawDemo(){
   tx(ox + NF*cw/2, H - 1, "cardiac frame →", { "font-size": 8.5 });
 
   // k-space panels
-  const kpanel = (id, withMag) => {
+  const kpanel = (id, withMag) => {  // withMag=false: y_Ω (acquired lines); true: r_Δ (skipped lines only)
     const s = $(id); s.innerHTML = "";
     const defs = el("defs", {}, s);
     const rg = el("radialGradient", { id: id.slice(1) + "g", cx: "50%", cy: "50%", r: "50%" }, defs);
@@ -618,21 +670,21 @@ function drawDemo(){
     const h = 160 / NL;
     for (let l = 0; l < NL; l++){
       const acq = l % R === t % R;
-      if (acq) el("rect", { x: 0, y: l*h, width: 160, height: h, fill: cx, opacity: .85 }, s);
-      else if (withMag) el("rect", { x: 0, y: l*h, width: 160, height: h, fill: mag, opacity: .55 }, s);
+      if (acq && !withMag) el("rect", { x: l*h, y: 0, width: h, height: 160, fill: cx, opacity: .85 }, s);
+      else if (!acq && withMag) el("rect", { x: l*h, y: 0, width: h, height: 160, fill: mag, opacity: .55 }, s);
     }
     el("rect", { x: 0, y: 0, width: 160, height: 160, fill: `url(#${id.slice(1)}g)` }, s);
-    for (let l = 0; l < NL; l++) el("line", { x1: 0, x2: 160, y1: l*h, y2: l*h, stroke: css("--kbg"), "stroke-width": .5, opacity: .9 }, s);
+    for (let l = 0; l < NL; l++) el("line", { x1: l*h, x2: l*h, y1: 0, y2: 160, stroke: css("--kbg"), "stroke-width": .5, opacity: .9 }, s);
   };
   kpanel("#kPD", false); kpanel("#kCM", true);
 
   const nC = NL / R, nM = NL - nC, maxd = dn.length ? Math.max(...dn.map(f => Math.abs(f - t))) : 0;
   $("#readout").innerHTML =
-    `<div><span>Complex lines (both methods)</span><span class="mono cx">${nC} / ${NL} · ${(100/R).toFixed(1)}%</span></div>` +
-    `<div><span>Magnitude-only lines (ℂ+Mag)</span><span class="mono mag">${nM} / ${NL}</span></div>` +
+    `<div><span>Complex lines <b>y</b><sub>Ω</sub> (both methods)</span><span class="mono cx">${nC} / ${NL} · ${(100/R).toFixed(1)}%</span></div>` +
+    `<div><span>Magnitude-only lines <b>r</b><sub>Δ</sub> (ℂ+Mag DF)</span><span class="mono mag">${nM} / ${NL}</span></div>` +
     `<div><span>Frames that donate magnitude</span><span class="mono">${dn.length} (R − 1)</span></div>` +
     `<div><span>Farthest donor</span><span class="mono">${maxd} frame${maxd === 1 ? "" : "s"} away</span></div>` +
-    `<div><span>k-space covered by ℂ+Mag</span><span class="mono">100%</span></div>`;
+    `<div><span>Lines with magnitude only (Δ = Ω<sup>C</sup>)</span><span class="mono">all skipped lines</span></div>`;
   $("#tVal").textContent = "t = " + t;
 }
 segBind("#rSeg", d => { S.R = +d.r; drawDemo(); });
@@ -656,7 +708,7 @@ const T2 = {
 };
 const SER = [
   { k: "pd", name: "PD-DL (CG)", color: "--base", dash: "", marker: "square" },
-  { k: "cm", name: "ℂ+Mag (ours)", color: "--mag", dash: "", marker: "circle" },
+  { k: "cm", name: "ℂ+Mag (ours)", color: "--accent", dash: "", marker: "circle" },
   { k: "or", name: "ℂ+Mag oracle", color: "--oracle", dash: "5 4", marker: "diamond" }
 ];
 const legendHTML = () => SER.map(s => `<span><svg width="22" height="10" aria-hidden="true"><line x1="1" x2="21" y1="5" y2="5" stroke="${css(s.color)}" stroke-width="2" ${s.dash ? `stroke-dasharray="${s.dash}"` : ""}/></svg>${s.name}</span>`).join("");
@@ -809,7 +861,7 @@ $("#barLegend").innerHTML = SER.map(s => `<span><svg width="12" height="12" aria
 
   const rows6 = [
     ["Number & spread of neighbors", [["PD-DL (k = 0)", 34.67, 29.93], ["k = 2, near", 37.21, 32.10], ["k = 2, intermediate", 39.00, 34.53], ["k = 2, far", null, 34.77], ["k = 4, near", 39.63, 35.40], ["k = 4, intermediate", null, 37.14], ["k = 4, far", null, 37.68], ["k = 6, near", null, 37.93]]],
-    ["Temporal distance (same lines)", [["r<sub>Δ</sub> from t + 1", 37.02, 32.16], ["r<sub>Δ</sub> from t + 3", 36.25, 31.25], ["r<sub>Δ</sub> from t + 5", 36.02, 31.32]]]
+    ["Temporal distance (same lines)", [["<b>r</b><sub>Δ</sub> from t + 1", 37.02, 32.16], ["<b>r</b><sub>Δ</sub> from t + 3", 36.25, 31.25], ["<b>r</b><sub>Δ</sub> from t + 5", 36.02, 31.32]]]
   ];
   let g = `<table><thead><tr><th>Setting</th><th>PSNR R=6</th><th>PSNR R=8</th></tr></thead><tbody>`;
   rows6.forEach(([grp, rs]) => {
@@ -841,6 +893,349 @@ function renderAll(){ drawDemo(); drawLine(); drawBars("#barS", T3.S); drawBars(
 renderAll();
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
 new MutationObserver(renderAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>
+
+<!-- ================= Cine playback (Reference / PD-DL / C+Mag) ================= -->
+<script>
+(function(){
+"use strict";
+const NF = 25, FW = 208, FH = 288, FPS = 16;
+const SUBJ = [                                         // temporally median-filtered (3 phases) full-FOV sheets
+  { pre: "",     pd: "23.87 dB · 0.847", cm: "31.74 dB · 0.940" },
+  { pre: "s55_", pd: "26.44 dB · 0.831", cm: "34.34 dB · 0.948" }
+];
+const names = ["ref", "pddl", "cmag", "err_pddl", "err_cmag"], sheets = [{}, {}];
+const cv = { ref: document.getElementById("cvRef"), pd: document.getElementById("cvPd"), cm: document.getElementById("cvCm") };
+if (!cv.ref) return;
+const slider = document.getElementById("cineFrame"), val = document.getElementById("cineVal"), btn = document.getElementById("cinePlay");
+const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let f = 0, mode = "img", subj = 0, playing = !reduce, visible = true, acc = 0, last = null;
+const loaded = [0, 0];
+btn.textContent = playing ? "Pause" : "Play";
+function put(c, sheet){ const x = c.getContext("2d"); x.imageSmoothingQuality = "high"; x.drawImage(sheet, f*FW, 0, FW, FH, 0, 0, c.width, c.height); }
+function draw(){
+  document.getElementById("mPd").textContent = SUBJ[subj].pd; document.getElementById("mCm").textContent = SUBJ[subj].cm;
+  if (loaded[subj] < names.length) return;
+  const S = sheets[subj];
+  put(cv.ref, S.ref);
+  put(cv.pd, mode === "err" ? S.err_pddl : S.pddl);
+  put(cv.cm, mode === "err" ? S.err_cmag : S.cmag);
+  slider.value = f + 1; val.textContent = `${f + 1} / ${NF}`;
+}
+function tick(ts){
+  if (last == null) last = ts; const dt = (ts - last) / 1000; last = ts;
+  if (playing && visible){ acc += dt; if (acc >= 1/FPS){ acc = 0; f = (f + 1) % NF; draw(); } }
+  requestAnimationFrame(tick);
+}
+SUBJ.forEach((sj, si) => names.forEach(n => { const im = new Image(); im.onload = () => { sheets[si][n] = im; if (++loaded[si] === names.length && si === subj) draw(); }; im.src = `static/cine/${sj.pre}${n}_full.jpg`; }));
+document.getElementById("cineSubj").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+  document.querySelectorAll("#cineSubj button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); subj = +b.dataset.v; draw(); });
+draw();
+btn.addEventListener("click", () => { playing = !playing; btn.textContent = playing ? "Pause" : "Play"; });
+slider.addEventListener("input", () => { f = slider.value - 1; playing = false; btn.textContent = "Play"; draw(); });
+document.getElementById("cineMode").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+  document.querySelectorAll("#cineMode button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); mode = b.dataset.v; draw(); });
+if ("IntersectionObserver" in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(document.getElementById("cinePanel"));
+requestAnimationFrame(tick);
+})();
+</script>
+
+<!-- ================= Teaser animation: the ℂ+Mag pipeline in six steps (R = 6) ================= -->
+<script>
+(function(){
+"use strict";
+const fig = document.getElementById("teaser"); if (!fig) return;
+const cvs = fig.querySelector("canvas"), ctx = cvs.getContext("2d");
+const W = 1600, H = 900, NL = 48, R = 6, ROWH = 256 / NL, T_END = 39.2;
+const STEPS = [0, 4.5, 9, 14, 22, 29.4];
+const TITLES = [
+  "Interleaved cine at R = 6: each frame acquires a different set of k-space lines",
+  "Frame t keeps its complex data; its neighbors contribute only magnitude",
+  "Two separate measurement sets for frame t",
+  "Conventional PD-DL: only the complex data, as input and in every DF unit",
+  "ℂ+Mag: the same network, plus the magnitudes in every DF unit",
+  "All 25 cardiac phases, full field of view: PD-DL, ℂ+Mag and the reference"
+];
+const C = { bg:"#fbf7ec", panel:"#06080d", edge:"#e4dac2", con:"#3a3d45", txt:"#17181a", mut:"#6b6f76",
+            cx:"#2f5bea", mag:"#a87a06", acc:"#7a1f2b", red:"#d64545", ink:"#17181a",
+            reg:"#c3d2f6", regS:"#7f9be0", dfr:"#f7cfae", dfrS:"#de9a64", df:"#ddcdf3", dfS:"#a589d6", dual:"#f1e0ad", dualS:"#cfae52" };
+const MAGMA = [[0,"#000004"],[.125,"#140e36"],[.25,"#3b0f70"],[.375,"#641a80"],[.5,"#8c2981"],[.625,"#b73779"],[.75,"#de4968"],[.875,"#f7705c"],[.9375,"#fe9f6d"],[1,"#fcfdbf"]];
+const FONT = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif', MONO = '"JetBrains Mono", ui-monospace, monospace';
+const MF = '"LMMath", "Latin Modern Math", "STIX Two Math", serif';   // LaTeX (Computer Modern) look for math
+const FR = [-2, -1, 0, 1, 2, 3].map(d => ({ d, lab: d === 0 ? "t" : d < 0 ? `t−${-d}` : `t+${d}`, off: ((d % R) + R) % R, tgt: d === 0 }));
+const CXS = [200, 440, 680, 920, 1160, 1400];
+const FLY = { 3: 10.0, 1: 10.6, 4: 11.2, 0: 11.8, 5: 12.4 };      // neighbor index -> start of its flight into r_Δ
+const IMG_Y = 150, IMG_S = 205, KS_Y = 505, KS_S = 205;
+const SRC = { lab:"cine/ref.jpg", opd:"anim/out_pddl.png", ocm:"anim/out_cmag.png", oepd:"anim/err_pddl.png", oecm:"anim/err_cmag.png",
+              fref:"cine/ref_full.jpg", fpd:"cine/pddl_full.jpg", fcm:"cine/cmag_full.jpg", zf:"anim/zf.png", km:"anim/kmag.png", kp:"anim/kphase.png" };
+const FW = 208, FH = 288;                                // full field of view (portrait)
+const TS = 192, TT = 22, NFR = 25;                       // sprite tile size; frame t = 23 (index 22); 25 cardiac phases
+const IM = {}; let kB, kY, FRM = [], OUT = {}, ready = false;
+const TILE = (sheet, i) => { const c = document.createElement("canvas"); c.width = c.height = TS; c.getContext("2d").drawImage(sheet, i*TS, 0, TS, TS, 0, 0, TS, TS); return c; };
+
+const cl = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const ez = p => p < .5 ? 2*p*p : 1 - Math.pow(-2*p + 2, 2) / 2;
+const lerp = (a, b, p) => a + (b - a) * p;
+const rowsOf = off => { const r = []; for (let l = 0; l < NL; l++) if (l % R === off) r.push(l); return r; };
+const SKIPPED = NL - NL / R;
+
+function tint(img, col){
+  const c = document.createElement("canvas"); c.width = c.height = 256; const x = c.getContext("2d");
+  x.drawImage(img, 0, 0, 256, 256); x.globalCompositeOperation = "multiply"; x.fillStyle = col; x.fillRect(0, 0, 256, 256);
+  x.globalCompositeOperation = "lighter"; x.globalAlpha = .25; x.drawImage(img, 0, 0, 256, 256); return c;
+}
+function rr(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function text(s, x, y, o){
+  o = o || {}; const a = o.a == null ? 1 : o.a; if (a <= 0) return; ctx.globalAlpha = a; ctx.fillStyle = o.c || C.txt;
+  ctx.font = `${o.w || 600} ${o.s || 24}px ${o.f || FONT}`; ctx.textAlign = o.al || "center"; ctx.textBaseline = "alphabetic"; ctx.fillText(s, x, y);
+}
+function rich(parts, x, y, s, a, al){         // multi-color line; al = "center" | "left"
+  if (a <= 0) return; ctx.font = `600 ${s}px ${FONT}`;
+  const w = parts.reduce((m, p) => m + ctx.measureText(p[0]).width, 0); let cx = al === "left" ? x : x - w/2;
+  parts.forEach(p => { text(p[0], cx, y, { s, c: p[1], al:"left", a, w: p[2] || 600 }); ctx.font = `${p[2] || 600} ${s}px ${FONT}`; cx += ctx.measureText(p[0]).width; });
+}
+function math(s, x, y, size, col, a, al){ text(s, x, y, { s: size, w: 400, f: MF, c: col, a, al }); }
+function sub(main, sb, x, y, s, col, a, al){  // math symbol with subscript in the LaTeX font; al = "center" | "left" | "right"
+  if (a <= 0) return; ctx.font = `400 ${s}px ${MF}`; const w1 = ctx.measureText(main).width; ctx.font = `400 ${s*.66}px ${MF}`; const w2 = ctx.measureText(sb).width;
+  const x0 = al === "left" ? x : al === "right" ? x - (w1 + w2) : x - (w1 + w2)/2; math(main, x0, y, s, col, a, "left"); math(sb, x0 + w1 + 1, y + s*.26, s*.66, col, a, "left");
+  return w1 + w2;
+}
+function panel(x, y, s, a, stroke, lw){ if (a <= 0) return; ctx.globalAlpha = a; ctx.fillStyle = C.panel; rr(x, y, s, s, 10); ctx.fill(); ctx.strokeStyle = stroke || C.edge; ctx.lineWidth = lw || 2; ctx.stroke(); }
+function row(src, l, x, y, s, a){ if (a <= 0) return; ctx.globalAlpha = a; const h = s / NL; ctx.drawImage(src, l*ROWH, 0, ROWH, 256, x + l*h, y, Math.max(1, h*.8), s); }
+function imgR(im, x, y, w, hh, a, stroke, lw){ if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; rr(x, y, w, hh, 10); ctx.clip(); ctx.drawImage(im, x, y, w, hh); ctx.restore();
+  ctx.globalAlpha = a; ctx.strokeStyle = stroke || C.edge; ctx.lineWidth = lw || 2; rr(x, y, w, hh, 10); ctx.stroke(); }
+function img(im, x, y, s, a, stroke, lw){ if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; rr(x, y, s, s, 10); ctx.clip(); ctx.drawImage(im, x, y, s, s); ctx.restore();
+  ctx.globalAlpha = a; ctx.strokeStyle = stroke || C.edge; ctx.lineWidth = lw || 2; rr(x, y, s, s, 10); ctx.stroke(); }
+function arrow(x1, y1, x2, y2, col, a, dash){ if (a <= 0) return; ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = col === C.con ? 3.5 : 3; if (dash) ctx.setLineDash(dash);
+  const ang = Math.atan2(y2 - y1, x2 - x1); ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - 12*Math.cos(ang), y2 - 12*Math.sin(ang)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x2 - 14*Math.cos(ang) + 8*Math.sin(ang), y2 - 14*Math.sin(ang) - 8*Math.cos(ang)); ctx.lineTo(x2 - 14*Math.cos(ang) - 8*Math.sin(ang), y2 - 14*Math.sin(ang) + 8*Math.cos(ang)); ctx.closePath(); ctx.fill(); }
+function cbarH(x, y, w, a){              // horizontal magma colorbar
+  if (a <= 0) return; const g = ctx.createLinearGradient(x, 0, x + w, 0); MAGMA.forEach(s => g.addColorStop(s[0], s[1]));
+  ctx.globalAlpha = a; ctx.fillStyle = g; rr(x, y, w, 10, 3); ctx.fill(); ctx.strokeStyle = C.edge; ctx.lineWidth = 1; ctx.stroke();
+  text("error  0", x - 8, y + 10, { s: 13, c: C.mut, a, al: "right" }); text("max", x + w + 8, y + 10, { s: 13, c: C.mut, a, al: "left" });
+}
+function cbar(x, y, h, a){               // vertical magma colorbar, shared error scale
+  if (a <= 0) return; const g = ctx.createLinearGradient(0, y + h, 0, y); MAGMA.forEach(s => g.addColorStop(s[0], s[1]));
+  ctx.globalAlpha = a; ctx.fillStyle = g; rr(x, y, 10, h, 3); ctx.fill(); ctx.strokeStyle = C.edge; ctx.lineWidth = 1; ctx.stroke();
+  text("max", x + 5, y - 6, { s: 12, c: C.mut, a }); text("0", x + 5, y + h + 15, { s: 12, c: C.mut, a });
+}
+function line(pts, col, a, dash, lw){ if (a <= 0) return; ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw || 3; ctx.setLineDash(dash || []); ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); ctx.setLineDash([]); }
+
+// k-space panel of frame t (y_Ω) and the auxiliary magnitude panel (r_Δ)
+function yG(t){
+  const p3 = ez(seg(t, 9.2, 10.0)), p4 = ez(seg(t, 14, 14.8));
+  let x = lerp(CXS[2] - KS_S/2, 430, p3), y = lerp(KS_Y, 115, p3), s = lerp(KS_S, 300, p3);
+  return { x: lerp(x, 40, p4), y: lerp(y, 365, p4), s: lerp(s, 150, p4) };
+}
+function rG(t){
+  const p4 = ez(seg(t, 14, 14.8));
+  return { x: lerp(870, 40, p4), y: lerp(115, 690, p4), s: lerp(300, 150, p4) };
+}
+
+function draw(t){
+  ctx.setTransform(cvs.width / W, 0, 0, cvs.height / H, 0, 0);
+  ctx.globalAlpha = 1; ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+  if (!ready){ text("Loading…", W/2, H/2, { c: C.mut }); return; }
+
+  STEPS.forEach((s0, i) => {
+    const s1 = STEPS[i+1] == null ? T_END : STEPS[i+1];
+    const a = seg(t, s0, s0 + .5) * (1 - (i < STEPS.length - 1 ? seg(t, s1 - .4, s1) : seg(t, T_END - .7, T_END)));
+    rich([[`${i+1}`, C.acc, 800], ["   " + TITLES[i], C.txt]], W/2, 58, 29, a);
+  });
+
+  const Y = yG(t), RP = rG(t);
+  // ---------- steps 1-3: frames and their k-space ----------
+  FR.forEach((f, i) => {
+    const cx = CXS[i], appear = ez(seg(t, .12*i, .12*i + .7));
+    const imA = appear * (1 - seg(t, 9, 9.6));
+    if (imA > 0){
+      const b = 1, s = IMG_S, x = cx - s/2, y = IMG_Y + (IMG_S - s)/2;
+      img(FRM[i], x, y, s, imA, f.tgt ? C.cx : C.edge, f.tgt ? 4 : 2);
+      text(`frame ${f.lab}`, cx, IMG_Y + IMG_S + 36, { s: 23, w: f.tgt ? 800 : 600, c: f.tgt ? C.cx : C.mut, a: imA });
+    }
+    const rows = rowsOf(f.off), prog = seg(t, .9 + .15*i, 3.3 + .15*i) * rows.length;
+    if (f.tgt){
+      panel(Y.x, Y.y, Y.s, appear, C.cx, 3);
+      const q = seg(t, 4.8, 5.6);
+      rows.forEach((l, k) => { const a = cl(prog - k); row(IM.km, l, Y.x, Y.y, Y.s, a*(1 - q)); row(kB, l, Y.x, Y.y, Y.s, a*q); });
+    } else {
+      const st = FLY[i], pa = appear * (1 - seg(t, st + .6, st + 1.0));
+      const x = cx - KS_S/2, y = KS_Y;
+      panel(x, y, KS_S, pa);
+      const ph = seg(t, 5.0, 5.6) * (1 - seg(t, 6.9, 7.6)), q = seg(t, 7.2, 8.0);
+      rows.forEach((l, k) => {
+        const a = cl(prog - k), fp = ez(seg(t, st + k*.03, st + k*.03 + .8));
+        if (fp <= 0){ row(IM.km, l, x, y, KS_S, a*(1 - q)); row(kY, l, x, y, KS_S, a*q); row(IM.kp, l, x, y, KS_S, a*ph*.9); }
+        else if (fp < 1){ const xx = lerp(x, RP.x, fp), yy = lerp(y, RP.y, fp), ss = lerp(KS_S, RP.s, fp), w = ss / NL;
+          ctx.globalAlpha = .9; ctx.fillStyle = C.mag; ctx.fillRect(xx + l*w - 1, yy, w*.8 + 2, ss); row(kY, l, xx, yy, ss, .85); }
+      });
+      const xa = seg(t, 6.3, 6.6) * (1 - seg(t, 7.4, 7.9)) * pa;
+      if (xa > 0){ ctx.globalAlpha = xa; ctx.strokeStyle = C.red; ctx.lineWidth = 6; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(x + 22, y + 22); ctx.lineTo(x + KS_S - 22, y + KS_S - 22); ctx.moveTo(x + KS_S - 22, y + 22); ctx.lineTo(x + 22, y + KS_S - 22); ctx.stroke(); }
+    }
+    // labels under the k-space panels
+    const ly = KS_Y + KS_S + 36;
+    if (f.tgt){
+      if (t < 9.2){
+        text(`lines ${f.off}, ${f.off + R}, ${f.off + 2*R}, …`, cx, ly, { s: 17, f: MONO, w: 500, c: C.mut, a: appear * (1 - seg(t, 5.4, 5.8)) });
+        text("complex", cx, ly, { s: 21, w: 700, c: C.cx, a: seg(t, 5.6, 6.0) * (1 - seg(t, 9, 9.2)) });
+      }
+    } else {
+      const st = FLY[i], pa = 1 - seg(t, st + .6, st + 1.0);
+      text(`lines ${f.off}, ${f.off + R}, ${f.off + 2*R}, …`, cx, ly, { s: 17, f: MONO, w: 500, c: C.mut, a: appear * (1 - seg(t, 6.0, 6.3)) });
+      text("phase discarded", cx, ly, { s: 19, w: 700, c: C.red, a: seg(t, 6.3, 6.6) * (1 - seg(t, 7.5, 7.8)) });
+      text("magnitude only", cx, ly, { s: 19, w: 700, c: C.mag, a: seg(t, 7.8, 8.3) * pa });
+    }
+  });
+
+  // ---------- r_Δ panel (exists from step 3 on) ----------
+  const ra = seg(t, 9.4, 9.9);
+  if (ra > 0){
+    const dimR0 = 1 - .7 * seg(t, 15.0, 15.6) * (1 - seg(t, 22.2, 22.8));
+    panel(RP.x, RP.y, RP.s, ra * dimR0, C.mag, 3);
+    let m = 0;
+    FR.forEach((f, i) => { if (f.tgt) return; const st = FLY[i];
+      rowsOf(f.off).forEach((l, k) => { if (seg(t, st + k*.03, st + k*.03 + .8) >= 1){ row(kY, l, RP.x, RP.y, RP.s, dimR0); m++; } }); });
+    // step 3 labels beside the two panels
+    const a3 = seg(t, 9.6, 10.1) * (1 - seg(t, 13.6, 14));
+    if (a3 > 0){
+      const ly = Y.y + 70;
+      sub("𝐲", "Ω", Y.x - 24, ly, 46, C.cx, a3, "right");
+      text("complex", Y.x - 24, ly + 40, { s: 21, w: 700, c: C.cx, a: a3, al: "right" });
+      text("frame t’s own lines", Y.x - 24, ly + 70, { s: 18, c: C.mut, a: a3, al: "right" });
+      text(`${NL / R} / ${NL} lines`, Y.x - 24, ly + 98, { s: 18, f: MONO, c: C.txt, a: a3, al: "right" });
+      sub("𝐫", "Δ", RP.x + RP.s + 24, ly, 46, C.mag, a3, "left");
+      text("magnitude only", RP.x + RP.s + 24, ly + 40, { s: 21, w: 700, c: C.mag, a: a3, al: "left" });
+      text("from the 5 neighbors", RP.x + RP.s + 24, ly + 70, { s: 18, c: C.mut, a: a3, al: "left" });
+      text(`${m} / ${SKIPPED} skipped lines`, RP.x + RP.s + 24, ly + 98, { s: 18, f: MONO, c: C.txt, a: a3, al: "left" });
+      { ctx.font = `400 34px ${MF}`; const w = ctx.measureText("Δ = Ω").width, x0 = 800 - (w + 14)/2; math("Δ = Ω", x0, Y.y + Y.s/2 - 6, 34, C.txt, a3, "left"); math("C", x0 + w + 2, Y.y + Y.s/2 - 22, 20, C.txt, a3, "left"); }
+      text("kept separate", 800, Y.y + Y.s/2 + 26, { s: 18, c: C.mut, a: a3 });
+    }
+  }
+
+  // ---------- steps 4-5: conventional PD-DL (top) first, then ℂ+Mag (bottom) ----------
+  const a4 = seg(t, 14.4, 15.0);
+  const BH = 64, GW = 244, GX = [470, 732, 994], BX = j => 10 + j*80, dfX = g => GX[g] + BX(1) + BH/2;
+  const OX = 1256, OH = 210, OW = Math.round(210 * 208 / 288), EX = OX + OW + 14, CYS = [245, 635];
+  if (a4 > 0){
+    const dash = [7, 7], dimR = 1 - .7 * seg(t, 15.0, 15.6) * (1 - seg(t, 22.2, 22.8));
+    const PATHS = [
+      { cy: CYS[0], b: 15.8, yb: 160, df: ["DF", "μ", C.dfr, C.dfrS], name: "Conventional PD-DL", err: OUT.epd, out: OUT.pd, oc: C.edge, lab: "PD-DL", lc: C.txt, m: ["PSNR 26.33 dB", "SSIM 0.869"] },
+      { cy: CYS[1], b: 22.2, yb: 556, df: ["DF", "μ,λ", C.df, C.dfS], name: "ℂ+Mag", err: OUT.ecm, out: OUT.cm, oc: C.acc, lab: "ℂ+Mag", lc: C.acc, m: ["PSNR 33.77 dB", "SSIM 0.948"] }
+    ];
+    sub("𝐲", "Ω", Y.x + Y.s/2, Y.y - 14, 30, C.cx, a4);
+    sub("𝐫", "Δ", RP.x + RP.s/2, RP.y - 14, 30, C.mag, a4 * dimR);
+    text("magnitude only", RP.x + RP.s/2, RP.y + RP.s + 26, { s: 16, w: 700, c: C.mag, a: a4 * dimR });
+    // shared network input E_Ω^H y_Ω (zero-filled), to the right of the y_Ω panel, centered between the two rows
+    const za = ez(seg(t, 14.8, 15.6)), ZX = 235, ZS = 180, ZY = Y.y + Y.s/2 - ZS/2, zc = ZY + ZS/2, zr = 445;
+    arrow(Y.x + Y.s + 4, zc, ZX - 6, zc, C.cx, za);
+    math("E", Y.x + Y.s + 8, zc - 12, 22, C.mut, za, "left"); math("H", Y.x + Y.s + 24, zc - 24, 13, C.mut, za, "left"); math("Ω", Y.x + Y.s + 24, zc - 5, 13, C.mut, za, "left");
+    img(IM.zf, ZX, ZY, ZS, za, C.cx, 3);
+    text("network input", ZX + ZS/2, ZY + ZS + 24, { s: 16, w: 700, c: C.txt, a: za });
+    text("(zero-filled, shared)", ZX + ZS/2, ZY + ZS + 44, { s: 14, c: C.mut, a: za });
+    PATHS.forEach((P, pi) => {
+      const b = P.b, pa = ez(seg(t, b, b + .8));
+      if (pa <= 0) return;
+      line([[ZX + ZS + 4, zc], [zr, zc], [zr, P.cy]], C.con, pa, null, 3.5);
+      arrow(zr, P.cy, GX[0] - 4, P.cy, C.con, pa);
+      text(P.name, GX[0], P.cy + 88, { s: 22, w: 800, c: P.lc, a: pa, al: "left" });
+      // complex-data bus: starts at a y_Ω tag just above this row and drops into each DF unit
+      const ba = ez(seg(t, b + .8, b + 1.6)), tx = GX[0], tw = 62;
+      if (ba > 0){
+        ctx.globalAlpha = ba; ctx.fillStyle = "#ffffff"; rr(tx, P.yb - 17, tw, 34, 9); ctx.fill(); ctx.strokeStyle = C.cx; ctx.lineWidth = 2; ctx.setLineDash([]); ctx.stroke();
+        sub("𝐲", "Ω", tx + tw/2, P.yb + 8, 24, C.cx, ba);
+        line([[tx + tw + 2, P.yb], [dfX(2), P.yb]], C.cx, ba, dash);
+        GX.forEach((gx, g) => arrow(dfX(g), P.yb, dfX(g), P.cy - BH/2 - 4, C.cx, ba, dash));
+      }
+      if (pi){
+        const ma = ez(seg(t, b + 1.2, b + 2.0)), yR = RP.y + RP.s/2;
+        line([[RP.x + RP.s + 4, yR], [dfX(2), yR]], C.mag, ma, dash);
+        GX.forEach((gx, g) => arrow(dfX(g), yR, dfX(g), P.cy + BH/2 + 4, C.mag, ma, dash));
+      }
+      GX.forEach((gx, g) => {
+        const on = seg(t, b + 2.0 + g*.7, b + 2.3 + g*.7), gy = P.cy - 58, gh = 116;
+        ctx.globalAlpha = pa; ctx.strokeStyle = C.edge; ctx.lineWidth = 2; ctx.setLineDash([8, 6]); rr(gx, gy, GW, gh, 14); ctx.stroke(); ctx.setLineDash([]);
+        if (on > 0){ ctx.globalAlpha = on * .05; ctx.fillStyle = "#000000"; rr(gx, gy, GW, gh, 14); ctx.fill();
+          ctx.globalAlpha = on * .8; ctx.strokeStyle = C.mut; ctx.lineWidth = 2; rr(gx, gy, GW, gh, 14); ctx.stroke(); }
+        [["R", "θ", C.reg, C.regS], P.df, ["D", "γ", C.dual, C.dualS]].forEach((bk, j) => {
+          const bx = gx + BX(j), by = P.cy - BH/2;
+          ctx.globalAlpha = pa; ctx.fillStyle = bk[2]; rr(bx, by, BH, BH, 11); ctx.fill(); ctx.strokeStyle = bk[3]; ctx.lineWidth = 1.5; ctx.stroke();
+          sub(bk[0], bk[1], bx + BH/2, by + BH/2 + 10, bk[0] === "DF" ? 25 : 31, C.ink, pa);
+        });
+        for (let j = 0; j < 2; j++) arrow(gx + BX(j) + BH + 1, P.cy, gx + BX(j+1) - 1, P.cy, C.con, pa);
+        if (g < 2) arrow(gx + GW + 1, P.cy, GX[g+1] - 2, P.cy, C.con, pa);
+      });
+      const oa = ez(seg(t, b + 4.1, b + 4.9)), ea = ez(seg(t, b + 4.6, b + 5.4)), mt = seg(t, b + 5.3, b + 5.9);
+      arrow(GX[2] + GW + 3, P.cy, OX - 6, P.cy, pi ? C.acc : C.con, oa);
+      imgR(P.out, OX, P.cy - OH/2, OW, OH, oa, P.oc, pi ? 4 : 2);
+      text(P.lab, OX + OW/2, P.cy + OH/2 + 28, { s: 23, w: 800, c: P.lc, a: oa });
+      imgR(P.err, EX, P.cy - OH/2, OW, OH, ea, C.edge, 2);
+      text("error", EX + OW/2, P.cy + OH/2 + 28, { s: 19, w: 700, c: C.mut, a: ea });
+      cbar(EX + OW + 8, P.cy - OH/2, OH, ea);
+      P.m.forEach((s, k) => text(s, (OX + EX + OW)/2, P.cy + OH/2 + 54 + k*21, { s: 16, w: 600, f: MONO, c: pi ? C.txt : C.mut, a: mt }));
+    });
+  }
+
+  // ---------- step 6: cine of all 25 phases, full field of view: PD-DL | ℂ+Mag | reference ----------
+  const s6 = seg(t, 29.4, 30.2);
+  if (s6 > 0){
+    ctx.globalAlpha = s6; ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);          // fade the pipeline out
+    rich([["6", C.acc, 800], ["   " + TITLES[5], C.txt]], W/2, 58, 29, seg(t, 29.4, 29.9) * (1 - seg(t, T_END - .7, T_END)));
+    const TH = 560, TW = Math.round(TH * FW / FH), GAP = 44, X0 = (W - 3*TW - 2*GAP)/2, Y0 = 92;
+    const z = ez(seg(t, 29.6, 30.9)), play = Math.max(0, t - 31.0), fi = (TT + Math.floor(play * 11)) % NFR;
+    const frameImg = (sheet, f, x, y, w, hh, a, stroke, lw) => {
+      if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; rr(x, y, w, hh, 12); ctx.clip(); ctx.drawImage(sheet, f*FW, 0, FW, FH, x, y, w, hh); ctx.restore();
+      ctx.globalAlpha = a; ctx.strokeStyle = stroke || C.edge; ctx.lineWidth = lw || 2; rr(x, y, w, hh, 12); ctx.stroke();
+    };
+    const COLS = [
+      { sh: IM.fpd, lab: "PD-DL", c: C.txt, m: "PSNR 23.87 dB · SSIM 0.847", from: CYS[0] },
+      { sh: IM.fcm, lab: "ℂ+Mag", c: C.acc, m: "PSNR 31.74 dB · SSIM 0.940", from: CYS[1] },
+      { sh: IM.fref, lab: "Reference", c: C.mut, m: "fully sampled" }
+    ];
+    const la = seg(t, 30.6, 31.2);
+    COLS.forEach((cl6, i) => {
+      const gx = X0 + i*(TW + GAP);
+      if (cl6.from != null) frameImg(cl6.sh, fi, lerp(OX, gx, z), lerp(cl6.from - OH/2, Y0, z), lerp(OW, TW, z), lerp(OH, TH, z), 1, i === 1 ? C.acc : C.edge, i === 1 ? 4 : 2);
+      else frameImg(cl6.sh, fi, gx, Y0, TW, TH, ez(seg(t, 30.4, 31.0)), C.edge, 2);
+      text(cl6.lab, gx + TW/2, Y0 + TH + 40, { s: 30, w: 800, c: cl6.c, a: la });
+      text(cl6.m, gx + TW/2, Y0 + TH + 70, { s: 18, w: 600, f: cl6.from != null ? MONO : FONT, c: C.mut, a: la });
+    });
+    text("mean PSNR / SSIM over all 25 cardiac phases (unfiltered); playback uses a 3-phase temporal median", W/2, Y0 + TH + 108, { s: 16, c: C.mut, a: la });
+    text(`cardiac phase ${fi + 1} / ${NFR}`, W/2, Y0 + TH + 138, { s: 18, w: 600, f: MONO, c: C.txt, a: seg(t, 31.0, 31.4) });
+  }
+
+  const fo = seg(t, T_END - .7, T_END);
+  if (fo > 0){ ctx.globalAlpha = fo; ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H); }
+  ctx.globalAlpha = 1;
+}
+
+// ---------- clock, controls, visibility ----------
+const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = reduce ? 33 : 0, playing = !reduce, visible = true, last = null;
+const btnPlay = fig.querySelector('[data-act="play"]'), btnRe = fig.querySelector('[data-act="replay"]');
+const chips = [...document.querySelectorAll("#tsteps button")];
+btnPlay.textContent = playing ? "Pause" : "Play";
+function syncChips(){ let k = 0; STEPS.forEach((s, i) => { if (t >= s) k = i; }); chips.forEach((c, i) => { if (i === k) c.setAttribute("aria-current", "step"); else c.removeAttribute("aria-current"); }); }
+function fit(){ const w = cvs.getBoundingClientRect().width || W, d = Math.min(2, window.devicePixelRatio || 1);
+  cvs.width = Math.round(w * d); cvs.height = Math.round(w * d * 9 / 16); draw(t); }
+function tick(ts){
+  if (last == null) last = ts; const dt = Math.min(.05, (ts - last) / 1000); last = ts;
+  if (playing && visible && ready){ t += dt; if (t >= T_END) t = 0; draw(t); syncChips(); }
+  requestAnimationFrame(tick);
+}
+btnPlay.addEventListener("click", () => { playing = !playing; btnPlay.textContent = playing ? "Pause" : "Play"; });
+btnRe.addEventListener("click", () => { t = 0; playing = true; btnPlay.textContent = "Pause"; draw(t); syncChips(); });
+chips.forEach((c, i) => c.addEventListener("click", () => { t = playing ? STEPS[i] + .01 : [3.6, 8.6, 13.4, 21.4, 28.5, 33][i]; draw(t); syncChips(); }));
+if ("IntersectionObserver" in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(fig);
+window.addEventListener("resize", fit);
+
+let n = 0; const keys = Object.keys(SRC);
+const done = () => { if (++n === keys.length + 1){ kB = tint(IM.km, C.cx); kY = tint(IM.km, C.mag); FRM = FR.map(f => TILE(IM.lab, (TT + 3*f.d + NFR) % NFR)); /* step-1 thumbnails 3 phases apart so the motion is visible */ OUT = { cm: IM.ocm, pd: IM.opd, epd: IM.oepd, ecm: IM.oecm }; ready = true; fit(); syncChips(); } };
+keys.forEach(k => { const im = new Image(); im.onload = im.onerror = done; im.src = `static/${SRC[k]}`; IM[k] = im; });
+(document.fonts && document.fonts.load ? document.fonts.load('30px "LMMath"').catch(() => {}) : Promise.resolve()).then(done, done);
+fit(); requestAnimationFrame(tick);
 })();
 </script>
 </body>
