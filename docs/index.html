@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ℂ+Mag: Magnitude-Only and Complex Measurements for Dynamic MRI Reconstruction</title>
+<meta name="description" content="ℂ+Mag: a magnitude-informed physics-driven deep learning reconstruction for accelerated dynamic MRI. IEEE TBME 2026.">
+<meta property="og:title" content="ℂ+Mag: Harnessing Magnitude-Only and Complex Measurements for Improved Dynamic MRI Reconstruction">
+<meta property="og:description" content="Using k-space magnitudes from neighboring cine frames to improve physics-driven deep learning reconstruction. IEEE TBME 2026.">
+<meta property="og:type" content="website">
+<!-- TODO: add og:image (1200x630) at static/images/og-preview.jpg and og:url once the page is live -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f7fa; --surface:#ffffff; --ink:#172030; --muted:#566173; --rule:#d9dee6;
+  --complex:#3a3fbf; --mag:#0a8285; --none:#e3e7ed; --dot:#b4bcc9; --band:#eceff7;
+  --serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --sans:"Instrument Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f141c; --surface:#161d28; --ink:#e7ecf3; --muted:#9aa5b5; --rule:#2a3442;
+    --complex:#8d92ff; --mag:#3cc4c1; --none:#232c39; --dot:#3d4858; --band:#1c2433;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f141c; --surface:#161d28; --ink:#e7ecf3; --muted:#9aa5b5; --rule:#2a3442;
+  --complex:#8d92ff; --mag:#3cc4c1; --none:#232c39; --dot:#3d4858; --band:#1c2433;
+  color-scheme: dark;
+}
+:root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+*,*::before,*::after{ box-sizing:inherit; }
+html{ scroll-padding-top:env(safe-area-inset-top,0px); }
+body{ margin:0; background:var(--bg); color:var(--ink); font:400 1.125rem/1.65 var(--serif); }
+a{ color:var(--complex); text-underline-offset:.18em; }
+a:focus-visible,button:focus-visible,input:focus-visible{ outline:2px solid var(--complex); outline-offset:3px; border-radius:4px; }
+img,video{ max-width:100%; display:block; }
+
+.wrap{ max-width:60rem; margin:0 auto; padding:0 1.5rem; }
+.prose{ max-width:40rem; }
+
+/* Hero */
+header{ padding:4.5rem 0 2rem; }
+.venue{ font:500 .95rem/1.4 var(--sans); color:var(--muted); margin:0 0 1.25rem; }
+.venue strong{ color:var(--ink); font-weight:600; }
+h1{ font:500 clamp(2rem,4.6vw,3.25rem)/1.08 var(--serif); letter-spacing:-.015em; margin:0 0 1.5rem; max-width:22ch; }
+h1 .name{ display:block; font-size:1.35em; font-weight:600; letter-spacing:-.03em; margin-bottom:.35rem; }
+h1 .name .plus{ color:var(--mag); }
+.authors{ font:400 1.05rem/1.6 var(--sans); margin:0; }
+.authors a{ color:var(--ink); text-decoration-color:var(--rule); }
+.authors a:hover{ text-decoration-color:currentColor; }
+.authors sup{ color:var(--muted); font-size:.7em; }
+.affil{ font:400 .9rem/1.6 var(--sans); color:var(--muted); margin:.4rem 0 1.75rem; }
+.links{ display:flex; flex-wrap:wrap; gap:.6rem; }
+.links a{ font:500 .95rem/1 var(--sans); color:var(--ink); text-decoration:none; padding:.7rem 1.1rem; border:1px solid var(--rule); border-radius:999px; background:var(--surface); }
+.links a:hover{ border-color:var(--ink); }
+.links a.primary{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+
+/* Interactive k-t figure */
+.kt{ margin:2.5rem 0 1rem; padding:1.5rem; background:var(--surface); border:1px solid var(--rule); border-radius:14px; }
+.kt-controls{ display:flex; flex-wrap:wrap; align-items:center; gap:1rem 1.75rem; font:500 .9rem/1.2 var(--sans); margin-bottom:1.25rem; }
+.seg{ display:inline-flex; border:1px solid var(--rule); border-radius:8px; overflow:hidden; }
+.seg button{ font:500 .9rem/1 var(--sans); color:var(--muted); background:transparent; border:0; padding:.55rem .8rem; cursor:pointer; }
+.seg button + button{ border-left:1px solid var(--rule); }
+.seg button[aria-pressed="true"]{ background:var(--ink); color:var(--bg); }
+.ctl{ display:flex; align-items:center; gap:.6rem; color:var(--muted); }
+.ctl input[type=range]{ width:9rem; accent-color:var(--complex); }
+.play{ font:500 .9rem/1 var(--sans); color:var(--ink); background:transparent; border:1px solid var(--rule); border-radius:8px; padding:.55rem .8rem; cursor:pointer; }
+.kt svg{ width:100%; height:auto; display:block; touch-action:manipulation; }
+.kt svg .row{ cursor:pointer; }
+.kt-readout{ font:400 .95rem/1.55 var(--sans); margin:1rem 0 0; }
+.kt-readout b{ font-weight:600; }
+.kt-readout .c{ color:var(--complex); } .kt-readout .m{ color:var(--mag); }
+.legend{ display:flex; flex-wrap:wrap; gap:.5rem 1.25rem; font:400 .85rem/1.3 var(--sans); color:var(--muted); margin-top:.75rem; }
+.legend span::before{ content:""; display:inline-block; width:.8rem; height:.8rem; border-radius:2px; margin-right:.4rem; vertical-align:-.1rem; background:var(--sw); }
+.kt-caption{ font:400 .9rem/1.55 var(--sans); color:var(--muted); max-width:44rem; margin:.25rem 0 0; }
+
+/* Sections */
+section{ padding:3.5rem 0 0; }
+h2{ font:600 1.75rem/1.2 var(--serif); letter-spacing:-.01em; margin:0 0 1rem; }
+h3{ font:600 1.05rem/1.3 var(--sans); margin:2.25rem 0 .6rem; }
+p{ margin:0 0 1rem; }
+.lede{ font-size:1.2rem; }
+
+figure{ margin:1.5rem 0; }
+figcaption{ font:400 .9rem/1.55 var(--sans); color:var(--muted); margin-top:.6rem; max-width:44rem; }
+.media{ background:var(--surface); border:1px solid var(--rule); border-radius:10px; overflow:hidden; }
+/* Placeholder shown until the real image or video exists at its path */
+figure.missing .media{ min-height:14rem; display:grid; place-items:center; border-style:dashed; background:transparent; }
+figure.missing .media > *{ display:none; }
+figure.missing .media::before{ content:attr(data-label); font:400 .9rem/1.5 var(--sans); color:var(--muted); text-align:center; padding:1.5rem; max-width:32rem; }
+
+.grid2{ display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,1fr)); gap:1.5rem; }
+
+.table-scroll{ overflow-x:auto; margin:1.25rem 0; }
+table{ border-collapse:collapse; font:400 .95rem/1.4 var(--sans); min-width:34rem; width:100%; font-variant-numeric:tabular-nums; }
+th,td{ padding:.6rem .75rem; text-align:right; border-bottom:1px solid var(--rule); }
+th:first-child,td:first-child{ text-align:left; }
+thead th{ font-weight:600; color:var(--muted); }
+thead tr:first-child th{ border-bottom:0; padding-bottom:0; }
+tr.ours td{ font-weight:600; }
+tr.ours td:first-child{ color:var(--mag); }
+
+pre{ position:relative; background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:1.25rem 1.25rem; overflow-x:auto; font:400 .85rem/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace; margin:0; }
+.copy{ position:absolute; top:.75rem; right:.75rem; font:500 .8rem/1 var(--sans); color:var(--ink); background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:.45rem .7rem; cursor:pointer; }
+
+footer{ padding:4rem 0 3rem; font:400 .85rem/1.6 var(--sans); color:var(--muted); }
+
+@media (max-width:40rem){
+  header{ padding-top:3rem; }
+  .kt{ padding:1rem; }
+  body{ font-size:1.05rem; }
+}
+@media (prefers-reduced-motion: reduce){ *{ scroll-behavior:auto !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="venue"><strong>IEEE Transactions on Biomedical Engineering</strong>, 2026</p>
+  <h1>
+    <span class="name">ℂ<span class="plus">+Mag</span></span>
+    Harnessing Magnitude-Only and Complex Measurements for Improved Dynamic MRI Reconstruction with Learned Priors
+  </h1>
+  <!-- TODO: verify affiliations and author links -->
+  <p class="authors">
+    <a href="https://mahdisaberii.github.io/">Mahdi Saberi</a><sup>1</sup>,
+    <a href="https://utkualcalar.github.io/">Yaşar Utku Alçalar</a><sup>1</sup>,
+    Merve Gülle<sup>1</sup>,
+    Chetan Shenoy<sup>2</sup>,
+    <a href="https://imagine.umn.edu/people/mehmet-akcakaya">Mehmet Akçakaya</a><sup>1</sup>
+  </p>
+  <p class="affil"><sup>1</sup>Department of Electrical and Computer Engineering and Center for Magnetic Resonance Research, University of Minnesota<br><sup>2</sup>Department of Medicine (Cardiology), University of Minnesota</p>
+  <nav class="links" aria-label="Paper resources">
+    <a class="primary" href="https://arxiv.org/abs/2608.18036">Paper (arXiv)</a>
+    <!-- TODO: add the IEEE Xplore link once the DOI is assigned -->
+    <a href="https://github.com/MahdiSaberii/C_Plus_Mag">Code</a>
+    <a href="#citation">BibTeX</a>
+  </nav>
+</header>
+
+<!-- Interactive: which k-space lines frame t gets as complex vs magnitude-only -->
+<div class="kt" id="kt">
+  <div class="kt-controls">
+    <div class="ctl">Acceleration
+      <div class="seg" role="group" aria-label="Acceleration rate">
+        <button type="button" data-r="6">R = 6</button>
+        <button type="button" data-r="8" aria-pressed="true">R = 8</button>
+        <button type="button" data-r="12">R = 12</button>
+        <button type="button" data-r="16">R = 16</button>
+      </div>
+    </div>
+    <label class="ctl">Frame <input type="range" id="frame" min="1" max="25" value="1"> <span id="frameval">1</span></label>
+    <button type="button" class="play" id="play">Pause</button>
+  </div>
+  <svg id="ktsvg" role="img" aria-label="k–t sampling pattern across 25 cardiac phases, with the selected frame’s complex lines and its neighbors’ magnitude-only lines highlighted"></svg>
+  <p class="kt-readout" id="readout" aria-live="polite"></p>
+  <div class="legend">
+    <span style="--sw:var(--complex)">Complex sample acquired in this frame</span>
+    <span style="--sw:var(--mag)">Magnitude borrowed from a neighboring frame</span>
+    <span style="--sw:var(--none)">Not measured</span>
+  </div>
+</div>
+<p class="kt-caption">Illustrative k–t sampling across 25 cardiac phases (96 phase-encode lines shown). Each frame acquires its own complex k-space lines. Because k-space magnitudes stay consistent across time frames in steady-state cine, ℂ+Mag also uses the magnitudes of lines that the neighboring frames acquired. Pick a frame or an acceleration rate to see how much extra coverage that adds.</p>
+
+<section id="abstract">
+  <div class="prose">
+    <h2>Abstract</h2>
+    <p>MRI reconstruction methods for undersampled k-space data naturally utilize complex-valued measurements. Parallel developments in sparse phase retrieval have shown that magnitude-only measurements may provide complementary information for signal recovery. However, their use in MRI reconstruction remains largely unexplored, due to lack of practical settings where informative magnitude measurements can be obtained without additional scan time.</p>
+    <p>In this work, we investigate the use of auxiliary k-space magnitude information for accelerated steady-state dynamic MRI reconstruction, and demonstrate strong consistency of k-space magnitudes across time-frames. Building on this observation, we propose ℂ+Mag, a magnitude-informed physics-driven deep learning reconstruction method. The proposed method employs an ADMM-based unrolling framework with a novel magnitude-aware data-fidelity formulation, where quadratically smoothed optimization and momentum-based updates are introduced to address the non-differentiability and non-convexity of the magnitude constraints.</p>
+    <p>Experiments on retrospectively undersampled cine MRI and phase-contrast flow MRI datasets, as well as prospectively undersampled real-time cine MRI acquisitions, demonstrate improved artifact suppression, sharper anatomical recovery, and better preservation of phase information compared to conventional PD-DL methods, which is further supported through blinded expert reader evaluations.</p>
+  </div>
+</section>
+
+<section id="observation">
+  <div class="prose">
+    <h2>Magnitudes hold steady across the cardiac cycle</h2>
+    <!-- TODO: tighten this paragraph with your own wording / numbers from the paper -->
+    <p class="lede">Between neighboring frames of a cine scan, the phase of k-space changes with motion, but its magnitude barely does. That makes the magnitudes measured in adjacent frames a free, informative prior for the current one, with no extra scan time.</p>
+  </div>
+  <figure>
+    <div class="media" data-label="Add static/images/magnitude_consistency.png: k-space magnitude vs. phase across neighboring frames">
+      <img src="static/images/magnitude_consistency.png" alt="k-space magnitude and phase across neighboring cine frames" onerror="this.closest('figure').classList.add('missing')">
+    </div>
+    <figcaption>k-space magnitude across neighboring time frames compared with phase. <!-- TODO: caption --></figcaption>
+  </figure>
+</section>
+
+<section id="method">
+  <div class="prose">
+    <h2>Method</h2>
+    <p>ℂ+Mag unrolls an ADMM algorithm in which each iteration alternates a learned regularizer with a data-fidelity step that enforces both the acquired complex measurements and the auxiliary k-space magnitudes. The magnitude constraint is non-differentiable and non-convex, so the data-fidelity step uses quadratic smoothing and momentum-based updates to keep the unrolled network stable to train.</p>
+  </div>
+  <figure>
+    <div class="media" data-label="Add static/images/method.png: ℂ+Mag unrolled network overview">
+      <img src="static/images/method.png" alt="Overview of the ℂ+Mag unrolled ADMM network with magnitude-aware data fidelity" onerror="this.closest('figure').classList.add('missing')">
+    </div>
+    <figcaption>Overview of ℂ+Mag. <!-- TODO: caption --></figcaption>
+  </figure>
+</section>
+
+<section id="results">
+  <div class="prose">
+    <h2>Results</h2>
+    <p>ℂ+Mag is compared with conventional PD-DL that uses complex measurements alone, across retrospective cine, phase-contrast flow, and prospective real-time cine data.</p>
+  </div>
+
+  <h3>Retrospectively undersampled cine MRI</h3>
+  <figure>
+    <div class="media" data-label="Add static/videos/cine_comparison.mp4: reference vs. PD-DL vs. ℂ+Mag across the cardiac cycle">
+      <video autoplay loop muted playsinline preload="metadata" aria-label="Cine reconstructions across the cardiac cycle">
+        <source src="static/videos/cine_comparison.mp4" type="video/mp4" onerror="this.closest('figure').classList.add('missing')">
+      </video>
+    </div>
+    <figcaption>Cine reconstructions at R = <!-- TODO --> across the cardiac cycle.</figcaption>
+  </figure>
+
+  <!-- TODO: fill in the numbers from the paper's table; add or remove baseline rows as needed -->
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th></th><th colspan="2">R = 6</th><th colspan="2">R = 8</th><th colspan="2">R = 12</th><th colspan="2">R = 16</th></tr>
+        <tr><th>Method</th><th>PSNR</th><th>SSIM</th><th>PSNR</th><th>SSIM</th><th>PSNR</th><th>SSIM</th><th>PSNR</th><th>SSIM</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>PD-DL (complex only)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr class="ours"><td>ℂ+Mag</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <h3>Phase-contrast flow MRI</h3>
+      <figure>
+        <div class="media" data-label="Add static/images/flow_results.png: magnitude and phase (velocity) maps">
+          <img src="static/images/flow_results.png" alt="Phase-contrast flow reconstructions, magnitude and velocity maps" onerror="this.closest('figure').classList.add('missing')">
+        </div>
+        <figcaption>ℂ+Mag better preserves phase information in phase-contrast flow MRI. <!-- TODO --></figcaption>
+      </figure>
+    </div>
+    <div>
+      <h3>Prospective real-time cine</h3>
+      <figure>
+        <div class="media" data-label="Add static/videos/realtime_cine.mp4: prospectively undersampled real-time cine">
+          <video autoplay loop muted playsinline preload="metadata" aria-label="Prospectively undersampled real-time cine reconstructions">
+            <source src="static/videos/realtime_cine.mp4" type="video/mp4" onerror="this.closest('figure').classList.add('missing')">
+          </video>
+        </div>
+        <figcaption>Prospectively undersampled real-time cine, where no fully sampled reference exists. <!-- TODO --></figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <h3>Blinded reader study</h3>
+  <div class="prose">
+    <!-- TODO: summarize the reader study (number of readers, criteria, outcome) -->
+    <p>Expert readers, blinded to the method, scored reconstructions on <!-- TODO: criteria -->, favoring ℂ+Mag over conventional PD-DL.</p>
+  </div>
+  <figure>
+    <div class="media" data-label="Add static/images/reader_study.png: reader scores by criterion">
+      <img src="static/images/reader_study.png" alt="Blinded expert reader scores" onerror="this.closest('figure').classList.add('missing')">
+    </div>
+  </figure>
+</section>
+
+<section id="citation">
+  <h2>Citation</h2>
+  <!-- TODO: add volume, number, pages and doi once published -->
+  <pre id="bib"><button type="button" class="copy" id="copybib">Copy</button><code>@article{saberi2026cmag,
+  title   = {Harnessing Magnitude-Only and Complex Measurements for Improved
+             Dynamic {MRI} Reconstruction with Learned Priors},
+  author  = {Saberi, Mahdi and Al{\c{c}}alar, Ya{\c{s}}ar Utku and G{\"u}lle, Merve
+             and Shenoy, Chetan and Ak{\c{c}}akaya, Mehmet},
+  journal = {IEEE Transactions on Biomedical Engineering},
+  year    = {2026}
+}</code></pre>
+</section>
+
+<footer>
+  <!-- TODO: add funding acknowledgment if you want one here -->
+  © 2026 Mahdi Saberi, University of Minnesota
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var T = 25, N = 96, CENTER = 4;
+  var CW = 8, RH = 9, ML = 4, GAP = 18, BARH = 24;
+  var W = ML + N*CW + 4, H = T*RH + GAP + BARH + 4;
+  var svg = document.getElementById('ktsvg');
+  var readout = document.getElementById('readout');
+  var slider = document.getElementById('frame');
+  var frameval = document.getElementById('frameval');
+  var playBtn = document.getElementById('play');
+  var segBtns = document.querySelectorAll('.seg button');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+  var state = { R: 8, t: 0, playing: true };
+  var cache = {};
+
+  function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  // Variable-density random lines per frame, fully sampled center
+  function pattern(R){
+    if (cache[R]) return cache[R];
+    var c = N/2, rows = [];
+    for (var t = 0; t < T; t++){
+      var rnd = mulberry32(R*1000 + t*7 + 11), set = new Uint8Array(N);
+      for (var k = c - CENTER/2; k < c + CENTER/2; k++) set[k] = 1;
+      var need = Math.max(0, Math.round(N/R) - CENTER);
+      while (need > 0){
+        var w = [], tot = 0;
+        for (var j = 0; j < N; j++){ var v = set[j] ? 0 : 1/(1 + Math.pow((j - c)/(N/6), 2)); w.push(v); tot += v; }
+        var u = rnd()*tot, acc = 0;
+        for (j = 0; j < N; j++){ acc += w[j]; if (u <= acc){ set[j] = 1; break; } }
+        need--;
+      }
+      rows.push(set);
+    }
+    return (cache[R] = rows);
+  }
+
+  function rect(x,y,w,h,fill,op,cls){
+    return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="1" fill="'+fill+'"'+(op!=null?' fill-opacity="'+op+'"':'')+(cls?' class="'+cls+'"':'')+'/>';
+  }
+
+  function render(){
+    var P = pattern(state.R), t = state.t;
+    var prev = (t - 1 + T) % T, next = (t + 1) % T, s = '';
+    s += rect(0, t*RH, W, RH, 'var(--band)');
+    for (var r = 0; r < T; r++){
+      var isT = r === t, isN = r === prev || r === next;
+      for (var k = 0; k < N; k++){
+        if (!P[r][k]) continue;
+        var fill = isT ? 'var(--complex)' : isN ? 'var(--mag)' : 'var(--dot)';
+        s += rect(ML + k*CW + 1, r*RH + 1.5, CW - 2, RH - 3, fill, isN ? 0.85 : null);
+      }
+      s += '<rect class="row" data-row="'+r+'" x="0" y="'+(r*RH)+'" width="'+W+'" height="'+RH+'" fill="transparent"/>';
+    }
+    var y0 = T*RH + GAP, nC = 0, nM = 0;
+    for (k = 0; k < N; k++){
+      var cpx = P[t][k], mag = !cpx && (P[prev][k] || P[next][k]);
+      if (cpx) nC++; else if (mag) nM++;
+      s += rect(ML + k*CW + 0.5, y0, CW - 1, BARH, cpx ? 'var(--complex)' : mag ? 'var(--mag)' : 'var(--none)');
+    }
+    svg.innerHTML = s;
+    var pct = function(n){ return (100*n/N).toFixed(1) + '%'; };
+    readout.innerHTML = 'Frame <b>' + (t+1) + '</b> at R = ' + state.R + ': <b class="c">' + nC + ' lines complex</b> (' + pct(nC) + '), plus <b class="m">' + nM + ' lines magnitude-only</b> (' + pct(nM) + ') from frames ' + (prev+1) + ' and ' + (next+1) + '. Bottom bar: what frame ' + (t+1) + ' sees.';
+    slider.value = t + 1; frameval.textContent = t + 1;
+    segBtns.forEach(function(b){ b.setAttribute('aria-pressed', String(+b.dataset.r === state.R)); });
+  }
+
+  var timer = null;
+  function setPlaying(on){
+    state.playing = on;
+    playBtn.textContent = on ? 'Pause' : 'Play';
+    clearInterval(timer);
+    if (on) timer = setInterval(function(){ state.t = (state.t + 1) % T; render(); }, 650);
+  }
+  function stop(){ if (state.playing) setPlaying(false); }
+
+  svg.addEventListener('click', function(e){
+    var row = e.target.closest && e.target.closest('.row');
+    if (row){ stop(); state.t = +row.dataset.row; render(); }
+  });
+  slider.addEventListener('input', function(){ stop(); state.t = +slider.value - 1; render(); });
+  segBtns.forEach(function(b){ b.addEventListener('click', function(){ state.R = +b.dataset.r; render(); }); });
+  playBtn.addEventListener('click', function(){ setPlaying(!state.playing); });
+
+  render();
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setPlaying(!reduce);
+
+  // Copy BibTeX
+  var copyBtn = document.getElementById('copybib');
+  copyBtn.addEventListener('click', function(){
+    var text = document.querySelector('#bib code').textContent;
+    try {
+      navigator.clipboard.writeText(text).then(function(){ copyBtn.textContent = 'Copied'; setTimeout(function(){ copyBtn.textContent = 'Copy'; }, 1500); });
+    } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
