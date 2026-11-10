@@ -809,9 +809,9 @@ const CXS = [200, 440, 680, 920, 1160, 1400];
 const FLY = { 3: 10.0, 1: 10.6, 4: 11.2, 0: 11.8, 5: 12.4 };      // neighbor index -> start of its flight into r_Δ
 const IMG_Y = 150, IMG_S = 205, KS_Y = 505, KS_S = 205;
 const SRC = { lab:"cine/ref.jpg", opd:"anim/out_pddl.png", ocm:"anim/out_cmag.png", oepd:"anim/err_pddl.png", oecm:"anim/err_cmag.png",
-              fref:"cine/ref_full.jpg", fpd:"cine/pddl_full.jpg", fcm:"cine/cmag_full.jpg", gref:"cine/flow_ref_full.jpg", gpd:"cine/flow_pddl_full.jpg", gcm:"cine/flow_cmag_full.jpg", zf:"anim/zf.png", km:"anim/kmag.png", kp:"anim/kphase.png" };
-const FW = 208, FH = 288;                                // full field of view (portrait)
-const FLW = 160, FLH = 224;                              // Flow2D frames
+              fref:"cine/cine_ref_crop.jpg", fpd:"cine/cine_pddl_crop.jpg", fcm:"cine/cine_cmag_crop.jpg", gref:"cine/flow_ref_crop.jpg", gpd:"cine/flow_pddl_crop.jpg", gcm:"cine/flow_cmag_crop.jpg", zf:"anim/zf.png", km:"anim/kmag.png", kp:"anim/kphase.png" };
+const FW = 187, FH = 248;                                // cine frames, cropped so the body is centered
+const FLW = 169, FLH = 224;                              // Flow2D frames (same aspect as cine)
 const TS = 192, TT = 22, NFR = 25;                       // sprite tile size; frame t = 23 (index 22); 25 cardiac phases
 const IM = {}; let kB, kY, FRM = [], OUT = {}, ready = false;
 const TILE = (sheet, i) => { const c = document.createElement("canvas"); c.width = c.height = TS; c.getContext("2d").drawImage(sheet, i*TS, 0, TS, TS, 0, 0, TS, TS); return c; };
