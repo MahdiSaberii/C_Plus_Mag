@@ -49,7 +49,7 @@ p{margin:0}
 .cx{color:var(--cx);font-weight:600}
 .mag{color:var(--mag);font-weight:600}
 .cm{font-family:var(--f-display);font-weight:700;color:var(--accent);white-space:nowrap}
-.cmg{font-family:"LMMath","Latin Modern Math","STIX Two Math","Cambria Math",serif;font-size:1.1em;line-height:1;letter-spacing:0;white-space:nowrap}
+.cmg{color:var(--accent);font-family:"LMMath","Latin Modern Math","STIX Two Math","Cambria Math",serif;font-size:1.1em;line-height:1;letter-spacing:0;white-space:nowrap}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .eyebrow{font:700 14px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 
@@ -108,7 +108,7 @@ section>.wrap>.head{display:flex;flex-direction:column;gap:10px;margin-bottom:22
 figure{margin:0}
 .plate{background:var(--plate);border:1px solid var(--line);border-radius:10px;padding:10px;display:block}
 .plate img{display:block;width:100%;height:auto;border-radius:4px}
-figcaption{font-size:.86rem;color:var(--muted);margin-top:10px;line-height:1.5;max-width:90ch}
+figcaption{font-size:.86rem;color:var(--muted);margin-top:10px;line-height:1.5;max-width:90ch;text-align:justify;hyphens:auto}
 figcaption b{color:var(--ink-2)}
 .two{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start}
 @media (max-width:860px){.two{grid-template-columns:minmax(0,1fr)}}
@@ -250,7 +250,7 @@ ul.clean li+li{margin-top:6px}
 <!-- ================= TOY EXAMPLE ================= -->
 <section id="toy">
   <div class="wrap">
-    <div class="head"><span class="eyebrow">Background</span><h2>Two magnitude-only measurements can stand in for one complex measurement</h2></div>
+    <div class="head"><span class="eyebrow">Background</span><h2>Two magnitudes ≈ one complex measurement</h2></div>
     <div class="two" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center">
       <div class="prose" style="text-align:justify;hyphens:auto">
         <p>A <span class="cx">complex-valued</span> measurement carries two real numbers: its real and imaginary parts. A <span class="mag">magnitude-only</span> measurement carries just one. For sparse signals, Akçakaya and Tarokh showed that two random magnitude-only measurements hold the same information as one random complex-valued linear measurement <a href="#ref-at15" class="cite">[1]</a>, which motivates reconstructing MRI from a mix of the two <a href="#ref-atn15" class="cite">[2]</a>.</p>
@@ -275,14 +275,14 @@ ul.clean li+li{margin-top:6px}
 <!-- ================= ABSTRACT ================= -->
 <section id="abstract">
   <div class="wrap">
-    <div class="head"><span class="eyebrow">Abstract</span><h2>Two kinds of measurement, one reconstruction</h2></div>
+    <div class="head"><span class="eyebrow">Abstract</span><h2>Dynamic MRI: free and accurate auxiliary magnitude measurements</h2></div>
     <div class="two" style="grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start">
       <div class="prose" style="text-align:justify;hyphens:auto">
         <p>MRI reconstruction methods for undersampled k-space data naturally utilize <span class="cx">complex-valued</span> measurements. Parallel developments in sparse phase retrieval have shown that <span class="mag">magnitude-only</span> measurements may provide complementary information for signal recovery. However, their use in MRI reconstruction remains largely unexplored, due to lack of practical settings where informative magnitude measurements can be obtained without additional scan time. In this work, we investigate the use of auxiliary k-space magnitude information for accelerated steady-state dynamic MRI reconstruction, and demonstrate strong consistency of k-space magnitudes across time-frames. Building on this observation, we propose <span class="cm"><span class="cmg">ℂ+Mag</span></span>, a magnitude-informed physics-driven deep learning (PD-DL) reconstruction method. The proposed method employs an ADMM-based unrolling framework with a novel magnitude-aware data-fidelity formulation, where quadratically smoothed optimization and momentum-based updates are introduced to address the non-differentiability and non-convexity of the magnitude constraints. Experiments on retrospectively undersampled cine MRI and phase-contrast flow MRI datasets, as well as prospectively undersampled real-time cine MRI acquisitions, demonstrate improved artifact suppression, sharper anatomical recovery, and better preservation of phase information compared to conventional PD-DL methods, which is further supported through blinded expert reader evaluations.</p>
       </div>
       <figure>
         <a class="plate" href="figs/motivation.png" target="_blank" rel="noopener"><img src="figs/motivation.png" alt="Cosine similarity between the k-space magnitude of the central cardiac phase and every other phase. All curves peak at 1.000 at phase 13 and stay above about 0.988 over all 25 phases." loading="lazy"></a>
-        <figcaption>Cosine similarity between the k-space magnitude of the central cardiac phase (dashed line) and every other phase; mean ± std across slices. Since <span class="mono" style="white-space:nowrap">NMSE ≈ 2(1 − c-sim)</span> for equal-energy magnitudes, c-sim is another view of the NMSE. It stays above 0.988 <span style="white-space:nowrap">(NMSE &lt; 0.024)</span> over the whole cycle, so the magnitudes of neighboring frames closely match the ones a frame did not acquire.</figcaption>
+        <figcaption>Cosine similarity (c-sim) between the k-space magnitude of the central cardiac phase (dashed line) and that of every other phase. Solid lines are means across slices; shaded bands are ± one standard deviation. The similarity is 1 at the central phase by definition and decays only slowly away from it, staying above 0.988 over the whole cycle. Since <span class="mono" style="white-space:nowrap">NMSE ≈ 2(1 − c-sim)</span> for equal-energy magnitudes, this means an NMSE below about 0.024. The magnitudes of neighboring frames are therefore a close stand-in for the magnitudes a frame did not acquire, which is what lets <span class="cmg">ℂ+Mag</span> reuse them at no extra scan time.</figcaption>
       </figure>
     </div>
   </div>
@@ -1100,7 +1100,8 @@ function text(s, x, y, o){
   const w = o.w || 600, sz = o.s || 24, f = o.f || FONT, al = o.al || "center"; ctx.textBaseline = "alphabetic";
   if (f === MF || s.indexOf(CM_TOK) < 0){ ctx.font = `${w} ${sz}px ${f}`; ctx.textAlign = al; ctx.fillText(s, x, y); return; }
   const tw = textW(s, w, sz, f); let cx = al === "left" ? x : al === "right" ? x - tw : x - tw/2; ctx.textAlign = "left";
-  segs(s).forEach(g => { const gw = segW(g, w, sz, f); ctx.fillText(g, cx, y); cx += gw; });
+  const base = ctx.fillStyle;
+  segs(s).forEach(g => { const gw = segW(g, w, sz, f); ctx.fillStyle = g === CM_TOK ? C.acc : base; ctx.fillText(g, cx, y); cx += gw; });
 }
 function rich(parts, x, y, s, a, al){         // multi-color line; al = "center" | "left"
   if (a <= 0) return;
