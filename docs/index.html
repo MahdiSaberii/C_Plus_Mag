@@ -142,7 +142,7 @@ input[type=range]{accent-color:var(--accent);width:min(260px,46vw)}
 
 /* ---------- math ---------- */
 .eq{overflow-x:auto;padding:18px 8px;margin:18px 0;border-block:1px solid var(--line);font-size:1.12rem}
-@font-face{font-family:"LMMath";src:url("static/fonts/latinmodern-math.woff2") format("woff2");font-display:swap}
+@font-face{font-family:"LMMath";src:url("fonts/latinmodern-math.woff2") format("woff2");font-display:swap}
 math{font-family:"LMMath","Latin Modern Math","STIX Two Math","Cambria Math",serif}
 .m-cx{color:var(--cx)} .m-mag{color:var(--mag)} .m-r{color:var(--ink-2)}
 .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}
@@ -186,6 +186,8 @@ tr.ours .bar{background:var(--accent)}
 .cinegrid canvas{display:block;width:100%;height:auto;aspect-ratio:208/288;border-radius:10px;background:#000}
 .cinegrid figcaption{text-align:center;font-weight:700;color:var(--ink-2);margin-top:8px;font-size:.9rem}
 .cinegrid figcaption.ours{color:var(--accent)}
+.cinerow+.cinerow{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.cinelab{font:700 .8rem/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
 .cinegrid .cm-m{display:block;font:500 .78rem/1.4 var(--f-mono);color:var(--muted);margin-top:2px}
 #cinePlay{min-width:72px}
 
@@ -284,7 +286,7 @@ ul.clean li+li{margin-top:6px}
         <p style="font-size:.8rem;color:var(--muted);margin-top:8px">Median c-sim by radial band, segmented cine. Flow2D: 0.995 / 0.882 / 0.723.</p>
       </div>
       <figure>
-        <a class="plate" href="static/figs/fig1_consistency.png" target="_blank" rel="noopener"><img src="static/figs/fig1_consistency.png" alt="Fig. 1: temporal c-sim curves above 0.986, linear NMSE versus c-sim relationship, and coil-wise c-sim violin plots." loading="lazy"></a>
+        <a class="plate" href="figs/fig1_consistency.png" target="_blank" rel="noopener"><img src="figs/fig1_consistency.png" alt="Fig. 1: temporal c-sim curves above 0.986, linear NMSE versus c-sim relationship, and coil-wise c-sim violin plots." loading="lazy"></a>
         <figcaption><b>Fig. 1.</b> (a) Mean temporal c-sim over Ω<sup>C</sup> for segmented cine and Flow2D at R ∈ {6, 8}. (b) NMSE falls linearly as c-sim rises. (c, d) Coil-wise c-sim distributions.</figcaption>
       </figure>
     </div>
@@ -332,7 +334,7 @@ ul.clean li+li{margin-top:6px}
   <div class="wrap">
     <div class="head"><span class="eyebrow">Method</span><h2>A data-fidelity term for complex and magnitude measurements</h2></div>
     <figure>
-      <a class="plate" href="static/figs/fig2_pipeline.jpg" target="_blank" rel="noopener"><img src="static/figs/fig2_pipeline.jpg" alt="Fig. 2: ℂ+Mag pipeline. Frame t contributes complex-valued data; frames t+1 and t+2 contribute only k-space magnitudes, which enter a new data-fidelity block in each unroll." loading="lazy"></a>
+      <a class="plate" href="figs/fig2_pipeline.jpg" target="_blank" rel="noopener"><img src="figs/fig2_pipeline.jpg" alt="Fig. 2: ℂ+Mag pipeline. Frame t contributes complex-valued data; frames t+1 and t+2 contribute only k-space magnitudes, which enter a new data-fidelity block in each unroll." loading="lazy"></a>
       <figcaption><b>Fig. 2.</b> For target frame t, both methods use the complex data <b>y</b><sub>Ω<sub>t</sub></sub>. ℂ+Mag also takes only the magnitudes of the neighbors' lines, <b>r</b><sub>Δ</sub> with Δ = Ω<sub>t+1</sub> ∪ Ω<sub>t+2</sub> = Ω<sub>t</sub><sup>C</sup> (R = 3 shown), and feeds them to a new data-fidelity block DF<sub>μ,λ</sub>.</figcaption>
     </figure>
 
@@ -410,14 +412,24 @@ ul.clean li+li{margin-top:6px}
     <div class="panel" id="cinePanel">
       <div class="controls">
         <div class="seg"><button type="button" id="cinePlay">Pause</button></div>
-        <div class="seg" id="cineSubj" role="group" aria-label="Subject"><button type="button" data-v="0" aria-pressed="true">Subject 1</button><button type="button" data-v="1">Subject 2</button></div>
         <div class="seg" id="cineMode" role="group" aria-label="Display"><button type="button" data-v="img" aria-pressed="true">Images</button><button type="button" data-v="err">Error maps</button></div>
         <label class="ctl" for="cineFrame">Frame <input id="cineFrame" type="range" min="1" max="25" value="1"> <span class="mono" id="cineVal">1 / 25</span></label>
       </div>
-      <div class="cinegrid">
-        <figure><canvas id="cvRef" width="312" height="432" aria-label="Reference cine"></canvas><figcaption>Reference<span class="cm-m">fully sampled</span></figcaption></figure>
-        <figure><canvas id="cvPd" width="312" height="432" aria-label="PD-DL cine"></canvas><figcaption>PD-DL<span class="cm-m" id="mPd"></span></figcaption></figure>
-        <figure><canvas id="cvCm" width="312" height="432" aria-label="C+Mag cine"></canvas><figcaption class="ours">ℂ+Mag<span class="cm-m" id="mCm"></span></figcaption></figure>
+      <div class="cinerow">
+        <div class="cinelab">Subject 1</div>
+        <div class="cinegrid">
+          <figure><canvas id="cvRef0" width="312" height="432" aria-label="Subject 1 reference cine"></canvas><figcaption>Reference<span class="cm-m">fully sampled</span></figcaption></figure>
+          <figure><canvas id="cvPd0" width="312" height="432" aria-label="Subject 1 PD-DL cine"></canvas><figcaption>PD-DL<span class="cm-m" id="mPd0"></span></figcaption></figure>
+          <figure><canvas id="cvCm0" width="312" height="432" aria-label="Subject 1 C+Mag cine"></canvas><figcaption class="ours">ℂ+Mag<span class="cm-m" id="mCm0"></span></figcaption></figure>
+        </div>
+      </div>
+      <div class="cinerow">
+        <div class="cinelab">Subject 2</div>
+        <div class="cinegrid">
+          <figure><canvas id="cvRef1" width="312" height="432" aria-label="Subject 2 reference cine"></canvas><figcaption>Reference<span class="cm-m">fully sampled</span></figcaption></figure>
+          <figure><canvas id="cvPd1" width="312" height="432" aria-label="Subject 2 PD-DL cine"></canvas><figcaption>PD-DL<span class="cm-m" id="mPd1"></span></figcaption></figure>
+          <figure><canvas id="cvCm1" width="312" height="432" aria-label="Subject 2 C+Mag cine"></canvas><figcaption class="ours">ℂ+Mag<span class="cm-m" id="mCm1"></span></figcaption></figure>
+        </div>
       </div>
       <p style="font-size:.82rem;color:var(--muted);margin-top:12px">Two test subjects, all 25 cardiac phases, retrospectively undersampled at R = 6 and shown at full field of view. Within each subject, the three columns share one contrast setting and both error maps share one scale. Metrics are PSNR / SSIM averaged over the 25 phases of the unfiltered reconstructions; for smooth playback, each displayed phase is the median of itself and its two neighboring phases.</p>
     </div>
@@ -429,15 +441,15 @@ ul.clean li+li{margin-top:6px}
       <button role="tab" id="tab-flow" aria-selected="false" aria-controls="p-flow">Flow2D magnitude &amp; phase</button>
     </div>
     <div class="tabpanel" id="p-cine" role="tabpanel" aria-labelledby="tab-cine">
-      <figure><a class="plate" href="static/figs/fig3_cine.jpg" target="_blank" rel="noopener"><img src="static/figs/fig3_cine.jpg" alt="Fig. 3: diastolic and systolic cine reconstructions at R = 6, 8, 12, 16 from 0.55 T, 1.5 T and 3 T scans." loading="lazy"></a>
+      <figure><a class="plate" href="figs/fig3_cine.jpg" target="_blank" rel="noopener"><img src="figs/fig3_cine.jpg" alt="Fig. 3: diastolic and systolic cine reconstructions at R = 6, 8, 12, 16 from 0.55 T, 1.5 T and 3 T scans." loading="lazy"></a>
       <figcaption><b>Fig. 3.</b> Diastolic (left) and systolic (right) frames at R ∈ {6, 8, 12, 16} from 0.55 T, 1.5 T and 3.0 T. ℂ+Mag keeps anatomy sharp where spatial-only PD-DL breaks down, and adds gains on top of the spatiotemporal regularizer at R = 12 and 16. Select the image to open it at full size.</figcaption></figure>
     </div>
     <div class="tabpanel narrow" id="p-xt" role="tabpanel" aria-labelledby="tab-xt" hidden>
-      <figure><a class="plate" href="static/figs/fig5_xt.jpg" target="_blank" rel="noopener"><img src="static/figs/fig5_xt.jpg" alt="Fig. 5: reconstructed frames with x-t and y-t temporal profiles." loading="lazy"></a>
+      <figure><a class="plate" href="figs/fig5_xt.jpg" target="_blank" rel="noopener"><img src="figs/fig5_xt.jpg" alt="Fig. 5: reconstructed frames with x-t and y-t temporal profiles." loading="lazy"></a>
       <figcaption><b>Fig. 5.</b> x-t and y-t profiles (temporal axis enlarged 5×). ℂ+Mag preserves temporal structure, and the benefit is largest at high R.</figcaption></figure>
     </div>
     <div class="tabpanel narrow" id="p-flow" role="tabpanel" aria-labelledby="tab-flow" hidden>
-      <figure><a class="plate" href="static/figs/fig4_flow.jpg" target="_blank" rel="noopener"><img src="static/figs/fig4_flow.jpg" alt="Fig. 4: Flow2D magnitude images, ×10 error maps and phase-difference maps at R = 6, 8, 12, 16." loading="lazy"></a>
+      <figure><a class="plate" href="figs/fig4_flow.jpg" target="_blank" rel="noopener"><img src="figs/fig4_flow.jpg" alt="Fig. 4: Flow2D magnitude images, ×10 error maps and phase-difference maps at R = 6, 8, 12, 16." loading="lazy"></a>
       <figcaption><b>Fig. 4.</b> Flow2D magnitude, error (×10) and phase-difference Δϕ maps. PD-DL leaves residual artifacts and phase inconsistencies that ℂ+Mag suppresses.</figcaption></figure>
     </div>
   </div>
@@ -465,7 +477,7 @@ ul.clean li+li{margin-top:6px}
   <div class="wrap">
     <div class="head"><span class="eyebrow">Prospective undersampling</span><h2>Real-time cine at R = 8, trained without fully sampled data</h2></div>
     <div class="two">
-      <figure><a class="plate" href="static/figs/fig6_realtime.jpg" target="_blank" rel="noopener"><img src="static/figs/fig6_realtime.jpg" alt="Fig. 6: real-time bSSFP and GRE cine reconstructions comparing tGRAPPA, PD-DL and ℂ+Mag." loading="lazy"></a>
+      <figure><a class="plate" href="figs/fig6_realtime.jpg" target="_blank" rel="noopener"><img src="figs/fig6_realtime.jpg" alt="Fig. 6: real-time bSSFP and GRE cine reconstructions comparing tGRAPPA, PD-DL and ℂ+Mag." loading="lazy"></a>
       <figcaption><b>Fig. 6.</b> Real-time bSSFP (top) and GRE (bottom). Yellow arrows mark residual artifacts and lost detail in tGRAPPA and PD-DL.</figcaption></figure>
       <div class="prose">
         <p>Free-breathing real-time cine has no fully sampled reference, so these models were trained with multi-mask SSDU self-supervision.</p>
@@ -484,7 +496,7 @@ ul.clean li+li{margin-top:6px}
   <div class="wrap">
     <div class="head"><span class="eyebrow">Clinical evaluation</span><h2>Measurements and reader scores match the reference</h2></div>
     <figure>
-      <a class="plate" href="static/figs/fig8_reader.png" target="_blank" rel="noopener"><img src="static/figs/fig8_reader.png" alt="Fig. 8: blinded reader scores for SNR, blurring, aliasing and overall quality for cine and Flow2D at R = 6 and 8." loading="lazy"></a>
+      <a class="plate" href="figs/fig8_reader.png" target="_blank" rel="noopener"><img src="figs/fig8_reader.png" alt="Fig. 8: blinded reader scores for SNR, blurring, aliasing and overall quality for cine and Flow2D at R = 6 and 8." loading="lazy"></a>
       <figcaption><b>Fig. 8.</b> Blinded cardiologist scores on a 4-point Likert scale (1 = excellent, lower is better) for SNR, blurring, aliasing and overall quality. ℂ+Mag scores close to the reference and clearly better than PD-DL. Wilcoxon signed-rank test, * P &lt; 0.05.</figcaption>
     </figure>
     <h3 style="margin:34px 0 12px">Cardiac function and flow (Table IV)</h3>
@@ -536,7 +548,7 @@ ul.clean li+li{margin-top:6px}
     </div>
 
     <div class="two" style="margin-top:36px">
-      <figure><a class="plate" href="static/figs/fig7_relerr.jpg" target="_blank" rel="noopener"><img src="static/figs/fig7_relerr.jpg" alt="Fig. 7: relative-error maps of the magnitude estimate across k-space, with region partitions." loading="lazy"></a>
+      <figure><a class="plate" href="figs/fig7_relerr.jpg" target="_blank" rel="noopener"><img src="figs/fig7_relerr.jpg" alt="Fig. 7: relative-error maps of the magnitude estimate across k-space, with region partitions." loading="lazy"></a>
       <figcaption><b>Fig. 7.</b> (a, b) Relative error of the neighbor magnitudes at R = 6 and 8: low at the center, rising toward the edges. (c, d) The 2D and phase-encode partitions used in the ablation.</figcaption></figure>
       <div>
         <h3 style="margin-bottom:12px">Which frequencies help (Table VI-a, PSNR)</h3>
@@ -906,21 +918,23 @@ const SUBJ = [                                         // temporally median-filt
   { pre: "s55_", pd: "26.44 dB · 0.831", cm: "34.34 dB · 0.948" }
 ];
 const names = ["ref", "pddl", "cmag", "err_pddl", "err_cmag"], sheets = [{}, {}];
-const cv = { ref: document.getElementById("cvRef"), pd: document.getElementById("cvPd"), cm: document.getElementById("cvCm") };
-if (!cv.ref) return;
+const CV = [0, 1].map(i => ({ ref: document.getElementById("cvRef" + i), pd: document.getElementById("cvPd" + i), cm: document.getElementById("cvCm" + i) }));
+if (!CV[0].ref) return;
 const slider = document.getElementById("cineFrame"), val = document.getElementById("cineVal"), btn = document.getElementById("cinePlay");
 const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-let f = 0, mode = "img", subj = 0, playing = !reduce, visible = true, acc = 0, last = null;
+let f = 0, mode = "img", playing = !reduce, visible = true, acc = 0, last = null;
 const loaded = [0, 0];
 btn.textContent = playing ? "Pause" : "Play";
+SUBJ.forEach((sj, i) => { document.getElementById("mPd" + i).textContent = sj.pd; document.getElementById("mCm" + i).textContent = sj.cm; });
 function put(c, sheet){ const x = c.getContext("2d"); x.imageSmoothingQuality = "high"; x.drawImage(sheet, f*FW, 0, FW, FH, 0, 0, c.width, c.height); }
 function draw(){
-  document.getElementById("mPd").textContent = SUBJ[subj].pd; document.getElementById("mCm").textContent = SUBJ[subj].cm;
-  if (loaded[subj] < names.length) return;
-  const S = sheets[subj];
-  put(cv.ref, S.ref);
-  put(cv.pd, mode === "err" ? S.err_pddl : S.pddl);
-  put(cv.cm, mode === "err" ? S.err_cmag : S.cmag);
+  SUBJ.forEach((sj, i) => {
+    if (loaded[i] < names.length) return;
+    const S = sheets[i], cv = CV[i];
+    put(cv.ref, S.ref);
+    put(cv.pd, mode === "err" ? S.err_pddl : S.pddl);
+    put(cv.cm, mode === "err" ? S.err_cmag : S.cmag);
+  });
   slider.value = f + 1; val.textContent = `${f + 1} / ${NF}`;
 }
 function tick(ts){
@@ -928,10 +942,7 @@ function tick(ts){
   if (playing && visible){ acc += dt; if (acc >= 1/FPS){ acc = 0; f = (f + 1) % NF; draw(); } }
   requestAnimationFrame(tick);
 }
-SUBJ.forEach((sj, si) => names.forEach(n => { const im = new Image(); im.onload = () => { sheets[si][n] = im; if (++loaded[si] === names.length && si === subj) draw(); }; im.src = `static/cine/${sj.pre}${n}_full.jpg`; }));
-document.getElementById("cineSubj").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
-  document.querySelectorAll("#cineSubj button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); subj = +b.dataset.v; draw(); });
-draw();
+SUBJ.forEach((sj, si) => names.forEach(n => { const im = new Image(); im.onload = () => { sheets[si][n] = im; if (++loaded[si] === names.length) draw(); }; im.src = `cine/${sj.pre}${n}_full.jpg`; }));
 btn.addEventListener("click", () => { playing = !playing; btn.textContent = playing ? "Pause" : "Play"; });
 slider.addEventListener("input", () => { f = slider.value - 1; playing = false; btn.textContent = "Play"; draw(); });
 document.getElementById("cineMode").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
@@ -1233,7 +1244,7 @@ window.addEventListener("resize", fit);
 
 let n = 0; const keys = Object.keys(SRC);
 const done = () => { if (++n === keys.length + 1){ kB = tint(IM.km, C.cx); kY = tint(IM.km, C.mag); FRM = FR.map(f => TILE(IM.lab, (TT + 3*f.d + NFR) % NFR)); /* step-1 thumbnails 3 phases apart so the motion is visible */ OUT = { cm: IM.ocm, pd: IM.opd, epd: IM.oepd, ecm: IM.oecm }; ready = true; fit(); syncChips(); } };
-keys.forEach(k => { const im = new Image(); im.onload = im.onerror = done; im.src = `static/${SRC[k]}`; IM[k] = im; });
+keys.forEach(k => { const im = new Image(); im.onload = im.onerror = done; im.src = `${SRC[k]}`; IM[k] = im; });
 (document.fonts && document.fonts.load ? document.fonts.load('30px "LMMath"').catch(() => {}) : Promise.resolve()).then(done, done);
 fit(); requestAnimationFrame(tick);
 })();
