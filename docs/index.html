@@ -118,6 +118,11 @@ figcaption b{color:var(--ink-2)}
 .kv span:last-child{font-size:.78rem;color:var(--muted)}
 
 /* ---------- controls ---------- */
+.refs{font-size:.8rem;color:var(--muted);padding-left:1.4em;margin-top:14px;text-align:left}
+.refs li{margin-bottom:4px}
+.cite{text-decoration:none;color:var(--accent);font-weight:600}
+.toy svg{display:block;width:100%;height:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.toy #toyNote{min-height:4.7em}
 .controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-bottom:16px}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg)}
 .seg button{font:600 .82rem/1 var(--f-body);color:var(--ink-2);background:transparent;border:0;padding:.6em .85em;cursor:pointer;border-right:1px solid var(--line)}
@@ -242,18 +247,26 @@ ul.clean li+li{margin-top:6px}
 </header>
 
 <main>
-<!-- ================= MOTIVATION ================= -->
-<section id="motivation">
+<!-- ================= TOY EXAMPLE ================= -->
+<section id="toy">
   <div class="wrap">
-    <div class="head"><span class="eyebrow">Motivation</span><h2>Across the cardiac cycle, the k-space magnitude hardly changes</h2></div>
-    <div class="two" style="grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:center">
+    <div class="head"><span class="eyebrow">Background</span><h2>Two magnitude-only measurements can stand in for one complex measurement</h2></div>
+    <div class="two" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center">
       <div class="prose" style="text-align:justify;hyphens:auto">
-        <p>Cosine similarity between the k-space magnitude of the central cardiac phase (dashed line) and every other phase, shown as mean ± std across slices.</p>
-        <p>Since <span class="mono" style="white-space:nowrap">NMSE ≈ 2(1 − c-sim)</span> for equal-energy magnitudes, c-sim is simply another view of the NMSE. Over the whole cycle it stays above <span class="mono">0.988</span> <span style="white-space:nowrap">(NMSE &lt; <span class="mono">0.024</span>)</span>, so the neighbors' magnitudes closely match the ones a frame did not acquire.</p>
-        <p>The phase does change between frames, so <span class="cm"><span class="cmg">ℂ+Mag</span></span> borrows only the <span class="mag">magnitudes</span>.</p>
+        <p>A <span class="cx">complex-valued</span> measurement carries two real numbers: its real and imaginary parts. A <span class="mag">magnitude-only</span> measurement carries just one. For sparse signals, Akçakaya and Tarokh showed that two random magnitude-only measurements hold the same information as one random complex-valued linear measurement <a href="#ref-at15" class="cite">[1]</a>, which motivates reconstructing MRI from a mix of the two <a href="#ref-atn15" class="cite">[2]</a>.</p>
+        <p>Think of telling someone where your friend is. A complex measurement is like saying “260 m north-east of the school”: a distance <em>and</em> a direction. A magnitude-only measurement keeps the distance but drops the direction, so one of them only says “260 m from the school”. Two of them, “260 m from the school and 210 m from the library”, narrow it down to two spots, and one of those is in the river. Just as common sense rules out the river, a prior such as sparsity rules out the wrong solution.</p>
+        <ol class="refs">
+          <li id="ref-at15">M. Akçakaya and V. Tarokh, “Sparse signal recovery from a mixture of linear and magnitude-only measurements,” <i>IEEE Signal Processing Letters</i>, vol. 22, no. 9, pp. 1220–1223, 2015.</li>
+          <li id="ref-atn15">M. Akçakaya, V. Tarokh and R. Nezafat, “Joint compressed sensing and sparse phase retrieval: reconstruction from a combination of complex and magnitude-only k-space measurements,” in <i>Proc. ISMRM</i>, 2015.</li>
+        </ol>
       </div>
-      <figure>
-        <a class="plate" href="figs/motivation.png" target="_blank" rel="noopener"><img src="figs/motivation.png" alt="Cosine similarity between the k-space magnitude of the central cardiac phase and every other phase. All curves peak at 1.000 at phase 13 and stay above about 0.988 over all 25 phases." loading="lazy"></a>
+      <figure class="toy">
+        <div class="controls" style="margin-bottom:10px">
+          <div class="seg" id="toyMode" role="group" aria-label="What you are told"><button type="button" data-v="c" aria-pressed="true">Distance + direction</button><button type="button" data-v="m1">One distance</button><button type="button" data-v="m2">Two distances</button></div>
+        </div>
+        <svg id="toySvg" viewBox="0 0 400 330" role="img" aria-label="Map with a school, a library, a river and your friend. A distance and a direction from the school pin the friend down; one distance gives a circle; two distances give two circles that cross at the friend and at a point in the river."></svg>
+        <figcaption id="toyNote"></figcaption>
+        <figcaption style="margin-top:4px;font-size:.78rem">Analogy: distance ↔ magnitude, direction ↔ phase. In [1] the measurements are random linear projections of a sparse signal, and sparsity plays the role of the river.</figcaption>
       </figure>
     </div>
   </div>
@@ -263,10 +276,14 @@ ul.clean li+li{margin-top:6px}
 <section id="abstract">
   <div class="wrap">
     <div class="head"><span class="eyebrow">Abstract</span><h2>Two kinds of measurement, one reconstruction</h2></div>
-    <div class="prose">
-      <p>MRI reconstruction methods for undersampled k-space data naturally utilize <span class="cx">complex-valued</span> measurements. Parallel developments in sparse phase retrieval have shown that <span class="mag">magnitude-only</span> measurements may provide complementary information for signal recovery. However, their use in MRI reconstruction remains largely unexplored, due to lack of practical settings where informative magnitude measurements can be obtained without additional scan time.</p>
-      <p>In this work, we investigate the use of auxiliary k-space magnitude information for accelerated steady-state dynamic MRI reconstruction, and demonstrate strong consistency of k-space magnitudes across time-frames. Building on this observation, we propose <span class="cm"><span class="cmg">ℂ+Mag</span></span>, a magnitude-informed physics-driven deep learning (PD-DL) reconstruction method. The proposed method employs an ADMM-based unrolling framework with a novel magnitude-aware data-fidelity formulation, where quadratically smoothed optimization and momentum-based updates are introduced to address the non-differentiability and non-convexity of the magnitude constraints.</p>
-      <p>Experiments on retrospectively undersampled cine MRI and phase-contrast flow MRI datasets, as well as prospectively undersampled real-time cine MRI acquisitions, demonstrate improved artifact suppression, sharper anatomical recovery, and better preservation of phase information compared to conventional PD-DL methods, which is further supported through blinded expert reader evaluations.</p>
+    <div class="two" style="grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start">
+      <div class="prose" style="text-align:justify;hyphens:auto">
+        <p>MRI reconstruction methods for undersampled k-space data naturally utilize <span class="cx">complex-valued</span> measurements. Parallel developments in sparse phase retrieval have shown that <span class="mag">magnitude-only</span> measurements may provide complementary information for signal recovery. However, their use in MRI reconstruction remains largely unexplored, due to lack of practical settings where informative magnitude measurements can be obtained without additional scan time. In this work, we investigate the use of auxiliary k-space magnitude information for accelerated steady-state dynamic MRI reconstruction, and demonstrate strong consistency of k-space magnitudes across time-frames. Building on this observation, we propose <span class="cm"><span class="cmg">ℂ+Mag</span></span>, a magnitude-informed physics-driven deep learning (PD-DL) reconstruction method. The proposed method employs an ADMM-based unrolling framework with a novel magnitude-aware data-fidelity formulation, where quadratically smoothed optimization and momentum-based updates are introduced to address the non-differentiability and non-convexity of the magnitude constraints. Experiments on retrospectively undersampled cine MRI and phase-contrast flow MRI datasets, as well as prospectively undersampled real-time cine MRI acquisitions, demonstrate improved artifact suppression, sharper anatomical recovery, and better preservation of phase information compared to conventional PD-DL methods, which is further supported through blinded expert reader evaluations.</p>
+      </div>
+      <figure>
+        <a class="plate" href="figs/motivation.png" target="_blank" rel="noopener"><img src="figs/motivation.png" alt="Cosine similarity between the k-space magnitude of the central cardiac phase and every other phase. All curves peak at 1.000 at phase 13 and stay above about 0.988 over all 25 phases." loading="lazy"></a>
+        <figcaption>Cosine similarity between the k-space magnitude of the central cardiac phase (dashed line) and every other phase; mean ± std across slices. Since <span class="mono" style="white-space:nowrap">NMSE ≈ 2(1 − c-sim)</span> for equal-energy magnitudes, c-sim is another view of the NMSE. It stays above 0.988 <span style="white-space:nowrap">(NMSE &lt; 0.024)</span> over the whole cycle, so the magnitudes of neighboring frames closely match the ones a frame did not acquire.</figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -587,6 +604,104 @@ ul.clean li+li{margin-top:6px}
   </div>
 </section>
 </main>
+<script>
+/* ---------- toy example: finding a friend from a distance + direction, or from two distances ---------- */
+(() => {
+const svg = document.getElementById("toySvg"); if (!svg) return;
+const NS = "http://www.w3.org/2000/svg", css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const W = 400, H = 330, K = 400 / 600, O = { x: 200, y: 225 * K };        // 600 m wide map; meters -> px
+const SCH = { x: -160, y: -20 }, LIB = { x: 140, y: -40 }, FR = { x: 40, y: 150 };
+const DS = 260, DL = 210;                                                   // rounded distances shown in the text
+const P = q => ({ x: O.x + q.x * K, y: O.y - q.y * K });
+const el = (n, at, par) => { const e = document.createElementNS(NS, n); for (const k in at) e.setAttribute(k, at[k]); (par || svg).appendChild(e); return e; };
+const tx = (s, x, y, at) => { const e = el("text", Object.assign({ x, y, "font-size": 12, "font-family": "Inter, system-ui, sans-serif", "font-weight": 600, "text-anchor": "middle" }, at || {})); e.textContent = s; return e; };
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+function mirror(q){ const dx = LIB.x - SCH.x, dy = LIB.y - SCH.y, t = ((q.x - SCH.x)*dx + (q.y - SCH.y)*dy) / (dx*dx + dy*dy); return { x: 2*(SCH.x + t*dx) - q.x, y: 2*(SCH.y + t*dy) - q.y }; }
+const rTop = x => -175 + 15 * Math.sin(x / 90), rBot = x => -255 + 15 * Math.sin(x / 90 + .5);
+function riverPath(){
+  let d = ""; for (let x = -320; x <= 320; x += 10){ const q = P({ x, y: rTop(x) }); d += (d ? "L" : "M") + q.x.toFixed(1) + " " + q.y.toFixed(1); }
+  for (let x = 320; x >= -320; x -= 10){ const q = P({ x, y: rBot(x) }); d += "L" + q.x.toFixed(1) + " " + q.y.toFixed(1); }
+  return d + "Z";
+}
+function school(c, ink){ const q = P(c), g = el("g", {});
+  el("path", { d: `M${q.x - 11} ${q.y + 9}V${q.y - 3}L${q.x} ${q.y - 12}L${q.x + 11} ${q.y - 3}V${q.y + 9}Z`, fill: css("--surface"), stroke: ink, "stroke-width": 1.8, "stroke-linejoin": "round" }, g);
+  el("line", { x1: q.x, y1: q.y - 12, x2: q.x, y2: q.y - 21, stroke: ink, "stroke-width": 1.6 }, g); el("path", { d: `M${q.x} ${q.y - 21}h7l-2 2.5l2 2.5h-7z`, fill: css("--accent") }, g);
+  el("rect", { x: q.x - 3, y: q.y + 2, width: 6, height: 7, fill: ink }, g); tx("School", q.x, q.y + 24, { fill: ink }); }
+function library(c, ink){ const q = P(c), g = el("g", {});
+  el("path", { d: `M${q.x - 13} ${q.y - 5}L${q.x} ${q.y - 13}L${q.x + 13} ${q.y - 5}Z`, fill: css("--surface"), stroke: ink, "stroke-width": 1.8, "stroke-linejoin": "round" }, g);
+  [-8, 0, 8].forEach(dx => el("line", { x1: q.x + dx, y1: q.y - 4, x2: q.x + dx, y2: q.y + 7, stroke: ink, "stroke-width": 2.2 }, g));
+  el("line", { x1: q.x - 13, y1: q.y + 9, x2: q.x + 13, y2: q.y + 9, stroke: ink, "stroke-width": 2.2 }, g); tx("Library", q.x, q.y + 24, { fill: ink }); }
+// ---- timeline: the three cases play in turn; buttons jump to a case ----
+const PH = [["c", 0, 5.2], ["m1", 5.2, 9.6], ["m2", 9.6, 16.4]], T_LOOP = 16.4;
+const clamp = v => Math.max(0, Math.min(1, v)), seg = (u, a, b) => clamp((u - a) / (b - a)), ez = v => v < .5 ? 2*v*v : 1 - Math.pow(-2*v + 2, 2) / 2;
+const NOTES = {
+  c:  `<b class="cx">Distance + direction</b> (like one complex measurement): “${DS} m north-east of the school” pins your friend down.`,
+  m1: `<b class="mag">One distance</b> (like one magnitude measurement): “${DS} m from the school”. Your friend could be anywhere on the circle.`,
+  m2: `<b class="mag">Two distances</b> (like two magnitude measurements): “${DS} m from the school and ${DL} m from the library”. The circles cross twice, but one spot is in the river, so only one location is possible.`
+};
+const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = reduce ? 15 : 0, last = null, visible = true, shown = "";
+function ring(c, r, prog, a, labAng, lab, flip, labA){
+  const pc = P(c), R = r * K, C = 2 * Math.PI * R;
+  if (prog > 0) el("circle", { cx: pc.x, cy: pc.y, r: R, fill: "none", stroke: css("--mag"), "stroke-width": 2.2, opacity: a,
+    "stroke-dasharray": `${C * prog} ${C}`, transform: `rotate(${-labAng * 180 / Math.PI} ${pc.x} ${pc.y})` });
+  if (labA > 0){ const e = { x: pc.x + R * Math.cos(labAng), y: pc.y - R * Math.sin(labAng) }, nx = -Math.sin(labAng), ny = -Math.cos(labAng);
+    el("line", { x1: pc.x, y1: pc.y, x2: e.x, y2: e.y, stroke: css("--mag"), "stroke-width": 1.4, "stroke-dasharray": "3 4", opacity: labA * a });
+    tx(`${lab} m`, (pc.x + e.x)/2 + 16 * nx * flip, (pc.y + e.y)/2 + 16 * ny * flip + 4, { fill: css("--mag"), opacity: labA * a }); }
+}
+function draw(){
+  svg.innerHTML = "";
+  const line = css("--line"), mut = css("--muted"), ink = css("--ink"), cx = css("--cx"), red = "#d1495b";
+  const ph = PH.find(q => t >= q[1] && t < q[2]) || PH[2], mode = ph[0], u = t - ph[1], dur = ph[2] - ph[1];
+  const out = 1 - seg(u, dur - .45, dur);                                    // fade at the end of each case
+  if (shown !== mode){ shown = mode; document.getElementById("toyNote").innerHTML = NOTES[mode];
+    document.querySelectorAll("#toyMode button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === mode ? "true" : "false")); }
+  for (let g = -300; g <= 300; g += 100){ const a = P({ x: g, y: 0 }); el("line", { x1: a.x, y1: 0, x2: a.x, y2: H, stroke: line, "stroke-width": 1 }); }
+  for (let g = -200; g <= 200; g += 100){ const a = P({ x: 0, y: g }); el("line", { x1: 0, y1: a.y, x2: W, y2: a.y, stroke: line, "stroke-width": 1 }); }
+  el("path", { d: riverPath(), fill: "#4a90b8", "fill-opacity": .28, stroke: "#4a90b8", "stroke-opacity": .55, "stroke-width": 1.2 });
+  tx("River", P({ x: -240, y: -222 }).x, P({ x: -240, y: -222 }).y, { fill: "#4a90b8", "font-style": "italic" });
+  { const a = P({ x: 270, y: 170 }); tx("N", a.x, a.y - 16, { fill: mut, "font-size": 11 }); el("path", { d: `M${a.x} ${a.y - 12}l-5 12l5 -3l5 3z`, fill: mut }); }
+  const pf = P(FR), ps = P(SCH);
+  if (mode === "c"){
+    const pr = ez(seg(u, .4, 1.8)), ang = Math.atan2(pf.y - ps.y, pf.x - ps.x), L = (Math.hypot(pf.x - ps.x, pf.y - ps.y) - 12) * pr;
+    if (pr > 0){
+      el("line", { x1: ps.x, y1: ps.y, x2: ps.x + L * Math.cos(ang), y2: ps.y + L * Math.sin(ang), stroke: cx, "stroke-width": 2.6, opacity: out });
+      el("path", { d: `M0 0L-11 -6L-11 6Z`, fill: cx, opacity: out, transform: `translate(${ps.x + (L + 2) * Math.cos(ang)} ${ps.y + (L + 2) * Math.sin(ang)}) rotate(${ang * 180 / Math.PI})` });
+    }
+    const m = { x: (ps.x + pf.x)/2, y: (ps.y + pf.y)/2 }; tx(`${DS} m, north-east`, m.x - 30, m.y + 2, { fill: cx, "text-anchor": "end", opacity: seg(u, 1.4, 2.0) * out });
+  } else {
+    const r1 = dist(FR, SCH), r2 = dist(FR, LIB);
+    if (mode === "m1") ring(SCH, r1, ez(seg(u, .3, 2.0)), out, -0.45, DS, 1, seg(u, 1.6, 2.2));
+    else {
+      ring(SCH, r1, 1, out, -0.45, DS, 1, 1);
+      ring(LIB, r2, ez(seg(u, .3, 2.0)), out, 0.85, DL, -1, seg(u, 1.6, 2.2));
+      const xa = seg(u, 2.4, 2.9) * out;
+      if (xa > 0){ const m = P(mirror(FR)), sc = .6 + .4 * ez(seg(u, 2.4, 2.9));
+        const g = el("g", { opacity: xa, transform: `translate(${m.x} ${m.y}) scale(${sc})` });
+        el("circle", { cx: 0, cy: 0, r: 8, fill: "none", stroke: red, "stroke-width": 2.2 }, g);
+        el("path", { d: "M-5 -5L5 5M5 -5L-5 5", stroke: red, "stroke-width": 2.2, "stroke-linecap": "round" }, g);
+        tx("in the river: not feasible", m.x + 14, m.y + 4, { fill: red, "text-anchor": "start", opacity: xa });
+      }
+      const ka = seg(u, 3.2, 3.6) * out;                                       // the feasible crossing: your friend
+      if (ka > 0) el("circle", { cx: pf.x, cy: pf.y, r: 13 + 4 * Math.sin((u - 3.2) * 4), fill: "none", stroke: cx, "stroke-width": 2, opacity: ka * .8 });
+    }
+  }
+  school(SCH, ink); library(LIB, ink);
+  el("circle", { cx: pf.x, cy: pf.y, r: 8, fill: cx, stroke: css("--surface"), "stroke-width": 2 });
+  tx("Friend", pf.x + 13, pf.y + 4, { fill: cx, "text-anchor": "start" });
+}
+function tick(ts){
+  if (last == null) last = ts; const dt = Math.min(.05, (ts - last) / 1000); last = ts;
+  if (!reduce && visible){ t = (t + dt) % T_LOOP; draw(); }
+  requestAnimationFrame(tick);
+}
+document.getElementById("toyMode").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+  const q = PH.find(x => x[0] === b.dataset.v); t = reduce ? q[2] - .6 : q[1] + .01; draw(); });
+if ("IntersectionObserver" in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(svg);
+if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+draw(); requestAnimationFrame(tick);
+})();
+</script>
 
 <footer>
   <div class="wrap">
@@ -1023,11 +1138,11 @@ function line(pts, col, a, dash, lw){ if (a <= 0) return; ctx.globalAlpha = a; c
 function yG(t){
   const p3 = ez(seg(t, 9.2, 10.0)), p4 = ez(seg(t, 14, 14.8));
   let x = lerp(CXS[2] - KS_S/2, 430, p3), y = lerp(KS_Y, 115, p3), s = lerp(KS_S, 300, p3);
-  return { x: lerp(x, 40, p4), y: lerp(y, 365, p4), s: lerp(s, 150, p4) };
+  return { x: lerp(x, 22, p4), y: lerp(y, 365, p4), s: lerp(s, 150, p4) };
 }
 function rG(t){
   const p4 = ez(seg(t, 14, 14.8));
-  return { x: lerp(870, 40, p4), y: lerp(115, 690, p4), s: lerp(300, 150, p4) };
+  return { x: lerp(870, 22, p4), y: lerp(115, 690, p4), s: lerp(300, 150, p4) };
 }
 
 function draw(t){
@@ -1121,9 +1236,10 @@ function draw(t){
     sub("𝐫", "Δ", RP.x + RP.s/2, RP.y - 14, 30, C.mag, a4 * dimR);
     text("magnitude only", RP.x + RP.s/2, RP.y + RP.s + 26, { s: 16, w: 700, c: C.mag, a: a4 * dimR });
     // shared network input E_Ω^H y_Ω (zero-filled), to the right of the y_Ω panel, centered between the two rows
-    const za = ez(seg(t, 14.8, 15.6)), ZX = 226, ZS = 160, ZY = Y.y + Y.s/2 - ZS/2, zc = ZY + ZS/2, zr = 400;
+    const za = ez(seg(t, 14.8, 15.6)), ZX = 240, ZS = 148, ZY = Y.y + Y.s/2 - ZS/2, zc = ZY + ZS/2, zr = 400;
     arrow(Y.x + Y.s + 4, zc, ZX - 6, zc, C.cx, za);
-    math("E", Y.x + Y.s + 8, zc - 12, 22, C.mut, za, "left"); math("H", Y.x + Y.s + 24, zc - 24, 13, C.mut, za, "left"); math("Ω", Y.x + Y.s + 24, zc - 5, 13, C.mut, za, "left");
+    { const ex = (Y.x + Y.s + ZX)/2 - 13;   /* E_Ω^H centered above the arrow, clear of both panels */
+      math("E", ex, zc - 16, 24, C.txt, za, "left"); math("H", ex + 17, zc - 30, 14, C.txt, za, "left"); math("Ω", ex + 17, zc - 9, 14, C.txt, za, "left"); }
     img(IM.zf, ZX, ZY, ZS, za, C.cx, 3);
     text("network input", ZX + ZS/2, ZY + ZS + 24, { s: 16, w: 700, c: C.txt, a: za });
     text("(zero-filled, shared)", ZX + ZS/2, ZY + ZS + 44, { s: 14, c: C.mut, a: za });
