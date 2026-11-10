@@ -1128,19 +1128,19 @@ function draw(t){
 
   // ---------- steps 4-5: conventional PD-DL (top) first, then ℂ+Mag (bottom) ----------
   const a4 = seg(t, 14.4, 15.0);
-  const BH = 64, GW = 244, GX = [470, 732, 994], BX = j => 10 + j*80, dfX = g => GX[g] + BX(1) + BH/2;
+  const BW = 58, BH = 74, GW = 246, GX = [428, 702, 976], BX = j => 8 + j*86, dfX = g => GX[g] + BX(1) + BW/2;
   const OX = 1256, OH = 210, OW = Math.round(210 * 208 / 288), EX = OX + OW + 14, CYS = [245, 635];
   if (a4 > 0){
     const dash = [7, 7], dimR = 1 - .7 * seg(t, 15.0, 15.6) * (1 - seg(t, 22.2, 22.8));
     const PATHS = [
-      { cy: CYS[0], b: 15.8, yb: 160, df: ["DF", "μ", C.dfr, C.dfrS], name: "Conventional PD-DL", err: OUT.epd, out: OUT.pd, oc: C.edge, lab: "PD-DL", lc: C.txt, m: ["PSNR 26.33 dB", "SSIM 0.869"] },
-      { cy: CYS[1], b: 22.2, yb: 556, df: ["DF", "μ,λ", C.df, C.dfS], name: "ℂ+Mag", err: OUT.ecm, out: OUT.cm, oc: C.acc, lab: "ℂ+Mag", lc: C.acc, m: ["PSNR 33.77 dB", "SSIM 0.948"] }
+      { cy: CYS[0], b: 15.8, yb: 150, df: ["DF", "μ", C.dfr, C.dfrS], name: "Conventional PD-DL", err: OUT.epd, out: OUT.pd, oc: C.edge, lab: "PD-DL", lc: C.txt, m: ["PSNR 26.33 dB", "SSIM 0.869"] },
+      { cy: CYS[1], b: 22.2, yb: 540, df: ["DF", "μ,λ", C.df, C.dfS], name: "ℂ+Mag", err: OUT.ecm, out: OUT.cm, oc: C.acc, lab: "ℂ+Mag", lc: C.acc, m: ["PSNR 33.77 dB", "SSIM 0.948"] }
     ];
     sub("𝐲", "Ω", Y.x + Y.s/2, Y.y - 14, 30, C.cx, a4);
     sub("𝐫", "Δ", RP.x + RP.s/2, RP.y - 14, 30, C.mag, a4 * dimR);
     text("magnitude only", RP.x + RP.s/2, RP.y + RP.s + 26, { s: 16, w: 700, c: C.mag, a: a4 * dimR });
     // shared network input E_Ω^H y_Ω (zero-filled), to the right of the y_Ω panel, centered between the two rows
-    const za = ez(seg(t, 14.8, 15.6)), ZX = 235, ZS = 180, ZY = Y.y + Y.s/2 - ZS/2, zc = ZY + ZS/2, zr = 445;
+    const za = ez(seg(t, 14.8, 15.6)), ZX = 226, ZS = 160, ZY = Y.y + Y.s/2 - ZS/2, zc = ZY + ZS/2, zr = 400;
     arrow(Y.x + Y.s + 4, zc, ZX - 6, zc, C.cx, za);
     math("E", Y.x + Y.s + 8, zc - 12, 22, C.mut, za, "left"); math("H", Y.x + Y.s + 24, zc - 24, 13, C.mut, za, "left"); math("Ω", Y.x + Y.s + 24, zc - 5, 13, C.mut, za, "left");
     img(IM.zf, ZX, ZY, ZS, za, C.cx, 3);
@@ -1151,7 +1151,7 @@ function draw(t){
       if (pa <= 0) return;
       line([[ZX + ZS + 4, zc], [zr, zc], [zr, P.cy]], C.con, pa, null, 3.5);
       arrow(zr, P.cy, GX[0] - 4, P.cy, C.con, pa);
-      text(P.name, GX[0], P.cy + 88, { s: 22, w: 800, c: P.lc, a: pa, al: "left" });
+      text(P.name, GX[0], P.cy + 102, { s: 22, w: 800, c: P.lc, a: pa, al: "left" });
       // complex-data bus: starts at a y_Ω tag just above this row and drops into each DF unit
       const ba = ez(seg(t, b + .8, b + 1.6)), tx = GX[0], tw = 62;
       if (ba > 0){
@@ -1166,16 +1166,16 @@ function draw(t){
         GX.forEach((gx, g) => arrow(dfX(g), yR, dfX(g), P.cy + BH/2 + 4, C.mag, ma, dash));
       }
       GX.forEach((gx, g) => {
-        const on = seg(t, b + 2.0 + g*.7, b + 2.3 + g*.7), gy = P.cy - 58, gh = 116;
+        const on = seg(t, b + 2.0 + g*.7, b + 2.3 + g*.7), gy = P.cy - 72, gh = 144;
         ctx.globalAlpha = pa; ctx.strokeStyle = C.edge; ctx.lineWidth = 2; ctx.setLineDash([8, 6]); rr(gx, gy, GW, gh, 14); ctx.stroke(); ctx.setLineDash([]);
         if (on > 0){ ctx.globalAlpha = on * .05; ctx.fillStyle = "#000000"; rr(gx, gy, GW, gh, 14); ctx.fill();
           ctx.globalAlpha = on * .8; ctx.strokeStyle = C.mut; ctx.lineWidth = 2; rr(gx, gy, GW, gh, 14); ctx.stroke(); }
         [["R", "θ", C.reg, C.regS], P.df, ["D", "γ", C.dual, C.dualS]].forEach((bk, j) => {
           const bx = gx + BX(j), by = P.cy - BH/2;
-          ctx.globalAlpha = pa; ctx.fillStyle = bk[2]; rr(bx, by, BH, BH, 11); ctx.fill(); ctx.strokeStyle = bk[3]; ctx.lineWidth = 1.5; ctx.stroke();
-          sub(bk[0], bk[1], bx + BH/2, by + BH/2 + 10, bk[0] === "DF" ? 25 : 31, C.ink, pa);
+          ctx.globalAlpha = pa; ctx.fillStyle = bk[2]; rr(bx, by, BW, BH, 11); ctx.fill(); ctx.strokeStyle = bk[3]; ctx.lineWidth = 1.5; ctx.stroke();
+          sub(bk[0], bk[1], bx + BW/2, by + BH/2 + 9, bk[0] === "DF" ? 22 : 31, C.ink, pa);
         });
-        for (let j = 0; j < 2; j++) arrow(gx + BX(j) + BH + 1, P.cy, gx + BX(j+1) - 1, P.cy, C.con, pa);
+        for (let j = 0; j < 2; j++) arrow(gx + BX(j) + BW + 1, P.cy, gx + BX(j+1) - 1, P.cy, C.con, pa);
         if (g < 2) arrow(gx + GW + 1, P.cy, GX[g+1] - 2, P.cy, C.con, pa);
       });
       const oa = ez(seg(t, b + 4.1, b + 4.9)), ea = ez(seg(t, b + 4.6, b + 5.4)), mt = seg(t, b + 5.3, b + 5.9);
