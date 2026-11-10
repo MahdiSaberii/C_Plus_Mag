@@ -252,11 +252,28 @@ ul.clean li+li{margin-top:6px}
 
 <nav class="toc" aria-label="Sections">
   <div class="wrap">
-    <a href="#abstract">Abstract</a><a href="#observation">Observation</a><a href="#idea">Interactive</a><a href="#method">Method</a><a href="#results">Results</a><a href="#phase">Phase</a><a href="#prospective">Real-time</a><a href="#clinical">Clinical</a><a href="#ablations">Ablations</a><a href="#bibtex">BibTeX</a>
+    <a href="#motivation">Motivation</a><a href="#abstract">Abstract</a><a href="#observation">Observation</a><a href="#idea">Interactive</a><a href="#method">Method</a><a href="#results">Results</a><a href="#phase">Phase</a><a href="#prospective">Real-time</a><a href="#clinical">Clinical</a><a href="#ablations">Ablations</a><a href="#bibtex">BibTeX</a>
   </div>
 </nav>
 
 <main>
+<!-- ================= MOTIVATION ================= -->
+<section id="motivation">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow">Motivation</span><h2>Across the cardiac cycle, the k-space magnitude hardly changes</h2></div>
+    <div class="two" style="grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:center">
+      <div class="prose" style="text-align:justify;hyphens:auto">
+        <p>Cosine similarity between the k-space magnitude of the central cardiac phase (dashed line) and every other phase, shown as mean ± std across slices.</p>
+        <p>Since <span class="mono" style="white-space:nowrap">NMSE ≈ 2(1 − c-sim)</span> for equal-energy magnitudes, c-sim is simply another view of the NMSE. Over the whole cycle it stays above <span class="mono">0.988</span> <span style="white-space:nowrap">(NMSE &lt; <span class="mono">0.024</span>)</span>, so the neighbors' magnitudes closely match the ones a frame did not acquire.</p>
+        <p>The phase does change between frames, so <span class="cm">ℂ+Mag</span> borrows only the <span class="mag">magnitudes</span>.</p>
+      </div>
+      <figure>
+        <a class="plate" href="figs/motivation.png" target="_blank" rel="noopener"><img src="figs/motivation.png" alt="Cosine similarity between the k-space magnitude of the central cardiac phase and every other phase. All curves peak at 1.000 at phase 13 and stay above about 0.988 over all 25 phases." loading="lazy"></a>
+      </figure>
+    </div>
+  </div>
+</section>
+
 <!-- ================= ABSTRACT ================= -->
 <section id="abstract">
   <div class="wrap">
