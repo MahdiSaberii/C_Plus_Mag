@@ -14,7 +14,7 @@
    blue = complex-valued measurements, amber = magnitude-only measurements / ℂ+Mag. */
 :root{
   --bg:#fbfbfa; --surface:#ffffff; --surface-2:#f3f3f0; --ink:#17181a; --ink-2:#45484d; --muted:#5d6066; --line:#e3e3de;
-  --cx:#2f5bea; --mag:#b8860b; --base:#9aa0aa; --oracle:#7446d0; --accent-soft:#f6e9eb;
+  --cx:#2f5bea; --mag:#a87a06; --base:#9aa0aa; --oracle:#7446d0; --accent-soft:#f6e9eb;
   --plate:#ffffff; --kbg:#070b16; --kdim:#1b2236;
   --accent:#7a1f2b; --gold:#b8860b;  /* UMN maroon + gold, as on the UDT page */
   --f-head:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -69,10 +69,10 @@ h1.title .nw{white-space:nowrap}
 .btn:hover{transform:translateY(-1px);opacity:.9}
 .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
 .btn svg{width:17px;height:17px;flex:none}
-.thesis{margin:26px auto 0;font-size:15.5px;line-height:1.65;max-width:68ch;text-wrap:pretty;color:var(--ink-2)}
+.thesis{margin:34px 0 0;font-size:.86rem;line-height:1.55;max-width:none;text-align:justify;text-align-last:center;color:var(--muted)}
 
 /* ---------- teaser animation (canvas, like UDT) ---------- */
-.teaser{position:relative;margin:36px auto 0;border-radius:18px;overflow:hidden;background:#fbf7ec;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(120,90,20,.08);border:1px solid #ece3cc}
+.teaser{position:relative;margin:16px auto 0;border-radius:18px;overflow:hidden;background:#fbf7ec;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(120,90,20,.08);border:1px solid #ece3cc}
 .teaser canvas{display:block;width:100%;aspect-ratio:16/9}
 .teaser-ctrl{position:absolute;top:12px;right:12px;display:flex;gap:6px;opacity:.6;transition:opacity .2s}
 .teaser:hover .teaser-ctrl,.teaser-ctrl:focus-within{opacity:1}
@@ -84,7 +84,9 @@ h1.title .nw{white-space:nowrap}
 .tsteps button[aria-current="step"]{color:var(--accent);background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
 @media (max-width:600px){.teaser{margin-left:-16px;margin-right:-16px;border-radius:0;border-left:0;border-right:0}}
 .thesis b{color:var(--accent)}
-.thesis em{font-style:normal;font-weight:700}
+.thesis b.cx{color:var(--cx)}
+.thesis b.mag{color:var(--mag)}
+.thesis em{font-style:normal}
 .hero .glance{text-align:left}
 
 /* ---------- glance ---------- */
@@ -96,12 +98,7 @@ h1.title .nw{white-space:nowrap}
 .stat .src{font:.7rem/1.3 var(--f-mono);color:var(--muted);margin-top:auto;padding-top:6px}
 @media (max-width:760px){.glance{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-/* ---------- nav ---------- */
-nav.toc{position:sticky;top:env(safe-area-inset-top, 0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-top:40px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:21;background:var(--bg)}
-nav.toc .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-block:8px}
-nav.toc a{flex:none;font-size:.85rem;font-weight:600;color:var(--ink-2);text-decoration:none;padding:.4em .75em;border-radius:6px}
-nav.toc a:hover{background:var(--surface);color:var(--ink)}
 
 /* ---------- sections ---------- */
 section{padding-block:clamp(48px,7vw,80px) 0}
@@ -231,6 +228,7 @@ ul.clean li+li{margin-top:6px}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>BibTeX</a>
     </div>
 
+    <p class="thesis"><b>ℂ+Mag</b> reconstructs each frame from its own <b class="cx">complex</b> k-space plus the <b class="mag">magnitude-only</b> k-space of neighboring frames. Those magnitudes come from data the scan already acquires, so it <em>improves image quality at no extra scan time</em>.</p>
     <figure class="teaser" id="teaser">
       <canvas width="1600" height="900" aria-label="Animation of the ℂ+Mag pipeline: interleaved cine acquisition across frames t−1 to t+2; frame t keeps complex k-space while neighbors keep only magnitude; neighbor magnitudes fill the lines frame t skipped; an unrolled ADMM network with a magnitude-aware data-fidelity step reconstructs a sharper image than conventional PD-DL."></canvas>
       <div class="teaser-ctrl"><button type="button" data-act="play">Pause</button><button type="button" data-act="replay">Replay</button></div>
@@ -238,23 +236,9 @@ ul.clean li+li{margin-top:6px}
     <div class="tsteps" id="tsteps" aria-label="Animation steps">
       <button type="button" data-i="0"><b>1</b>Acquire</button><button type="button" data-i="1"><b>2</b>Keep magnitude</button><button type="button" data-i="2"><b>3</b>Two data sets</button><button type="button" data-i="3"><b>4</b>PD-DL</button><button type="button" data-i="4"><b>5</b>ℂ+Mag</button><button type="button" data-i="5"><b>6</b>Cine</button>
     </div>
-    <p class="thesis"><b>ℂ+Mag</b> reconstructs each frame from its own <b>complex</b> k-space plus the <b>magnitude-only</b> k-space of neighboring frames.<br>
-      Those magnitudes come from data the scan already acquires, so it <em>improves image quality and phase fidelity at no extra scan time</em>.</p>
 
-    <div class="glance" aria-label="Results at a glance">
-      <div class="stat"><span class="num">+8.7<small>dB</small></span><span class="lbl">PSNR over conventional PD-DL on segmented cine at R = 8 (38.67 vs 29.93)</span><span class="src">Tab. II · spatial-only</span></div>
-      <div class="stat"><span class="num">−48<small>%</small></span><span class="lbl">velocity-encoding phase error on Flow2D at R = 8 (0.088 vs 0.168 rad)</span><span class="src">Tab. III · spatial-only</span></div>
-      <div class="stat"><span class="num">0<small>s</small></span><span class="lbl">added scan time. The magnitudes come from frames the protocol already acquires</span><span class="src">Sec. IV-A</span></div>
-      <div class="stat"><span class="num">P&nbsp;&gt;&nbsp;0.05</span><span class="lbl">EDV, ESV, EF, mass and flow at R = 8 match the reference; no significant differences</span><span class="src">Tab. IV</span></div>
-    </div>
   </div>
 </header>
-
-<nav class="toc" aria-label="Sections">
-  <div class="wrap">
-    <a href="#motivation">Motivation</a><a href="#abstract">Abstract</a><a href="#observation">Observation</a><a href="#idea">Interactive</a><a href="#method">Method</a><a href="#results">Results</a><a href="#phase">Phase</a><a href="#prospective">Real-time</a><a href="#clinical">Clinical</a><a href="#ablations">Ablations</a><a href="#bibtex">BibTeX</a>
-  </div>
-</nav>
 
 <main>
 <!-- ================= MOTIVATION ================= -->
