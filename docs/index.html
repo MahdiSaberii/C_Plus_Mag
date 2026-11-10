@@ -639,7 +639,7 @@ const NOTES = {
   m1: `<b class="mag">One distance</b> (like one magnitude measurement): “${DS} m from the school”. Your friend could be anywhere on the circle.`,
   m2: `<b class="mag">Two distances</b> (like two magnitude measurements): “${DS} m from the school and ${DL} m from the library”. The circles cross twice, but one spot is in the river, so only one location is possible.`
 };
-const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduce = false;   /* autoplay even when the OS asks for reduced motion (author choice) */
 let t = reduce ? 15 : 0, last = null, visible = true, shown = "";
 function ring(c, r, prog, a, labAng, lab, flip, labA){
   const pc = P(c), R = r * K, C = 2 * Math.PI * R;
@@ -1014,7 +1014,7 @@ const names = ["ref", "pddl", "cmag", "err_pddl", "err_cmag"], sheets = [{}, {}]
 const CV = [0, 1].map(i => ({ ref: document.getElementById("cvRef" + i), pd: document.getElementById("cvPd" + i), cm: document.getElementById("cvCm" + i) }));
 if (!CV[0].ref) return;
 const slider = document.getElementById("cineFrame"), val = document.getElementById("cineVal"), btn = document.getElementById("cinePlay");
-const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduce = false;   /* autoplay even when the OS asks for reduced motion (author choice) */
 let f = 0, mode = "img", playing = !reduce, visible = true, acc = 0, last = null;
 const loaded = [0, 0];
 btn.textContent = playing ? "Pause" : "Play";
@@ -1325,7 +1325,7 @@ function draw(t){
 }
 
 // ---------- clock, controls, visibility ----------
-const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduce = false;   /* autoplay even when the OS asks for reduced motion (author choice) */
 let t = reduce ? 33 : 0, playing = !reduce, visible = true, last = null;
 const btnPlay = fig.querySelector('[data-act="play"]'), btnRe = fig.querySelector('[data-act="replay"]');
 const chips = [...document.querySelectorAll("#tsteps button")];
