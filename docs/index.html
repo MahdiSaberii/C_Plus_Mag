@@ -11,15 +11,15 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400;1,6..72,500&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 /* Layout: one reading column (≈1040px) with full-bleed figure plates; color carries meaning:
-   blue = complex-valued measurements, amber = magnitude-only measurements / ℂ+Mag. */
+   blue = complex-valued measurements, amber = magnitude-only measurements / <span class="cmg">ℂ+Mag</span>. */
 :root{
   --bg:#fbfbfa; --surface:#ffffff; --surface-2:#f3f3f0; --ink:#17181a; --ink-2:#45484d; --muted:#5d6066; --line:#e3e3de;
   --cx:#2f5bea; --mag:#a87a06; --base:#9aa0aa; --oracle:#7446d0; --accent-soft:#f6e9eb;
   --plate:#ffffff; --kbg:#070b16; --kdim:#1b2236;
   --accent:#7a1f2b; --gold:#b8860b;  /* UMN maroon + gold, as on the UDT page */
-  --f-head:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-display:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-head:"Inter", system-ui, -apple-system, "Segoe UI", "LMMath", sans-serif;
+  --f-display:"Inter", system-ui, -apple-system, "Segoe UI", "LMMath", sans-serif;
+  --f-body:"Inter", system-ui, -apple-system, "Segoe UI", "LMMath", sans-serif;
   --f-mono:"JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
   --col:1040px;
 }
@@ -49,6 +49,7 @@ p{margin:0}
 .cx{color:var(--cx);font-weight:600}
 .mag{color:var(--mag);font-weight:600}
 .cm{font-family:var(--f-display);font-weight:700;color:var(--accent);white-space:nowrap}
+.cmg{font-family:"LMMath","Latin Modern Math","STIX Two Math","Cambria Math",serif;font-size:1.1em;line-height:1;letter-spacing:0;white-space:nowrap}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .eyebrow{font:700 14px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 
@@ -212,7 +213,7 @@ ul.clean li+li{margin-top:6px}
 <header class="hero">
   <div class="wrap">
     <div class="venue">IEEE TBME 2026</div>
-    <h1 class="title"><span class="name">ℂ+Mag</span>: Harnessing <span class="nw">Magnitude-Only</span> and Complex Measurements for Improved Dynamic MRI Reconstruction with Learned Priors</h1>
+    <h1 class="title"><span class="name"><span class="cmg">ℂ+Mag</span></span>: Harnessing <span class="nw">Magnitude-Only</span> and Complex Measurements for Improved Dynamic MRI Reconstruction with Learned Priors</h1>
     <div class="authors">
       <span class="au">Mahdi Saberi</span>, <a class="au" href="https://utkualcalar.github.io/" target="_blank" rel="noopener">Yaşar Utku Alçalar</a>, <span class="au">Merve Gülle</span>, <span class="au">Chetan Shenoy</span>, <a class="au" href="https://imagine.umn.edu/people/mehmet-akcakaya" target="_blank" rel="noopener">Mehmet Akçakaya</a>
     </div>
@@ -228,13 +229,13 @@ ul.clean li+li{margin-top:6px}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>BibTeX</a>
     </div>
 
-    <p class="thesis"><b>ℂ+Mag</b> reconstructs each frame from its own <b class="cx">complex</b> k-space plus the <b class="mag">magnitude-only</b> k-space of neighboring frames. Those magnitudes come from data the scan already acquires, so it <em>improves image quality at no extra scan time</em>.</p>
+    <p class="thesis"><b><span class="cmg">ℂ+Mag</span></b> reconstructs each frame from its own <b class="cx">complex</b> k-space plus the <b class="mag">magnitude-only</b> k-space of neighboring frames. Those magnitudes come from data the scan already acquires, so it <em>improves image quality at no extra scan time</em>.</p>
     <figure class="teaser" id="teaser">
       <canvas width="1600" height="900" aria-label="Animation of the ℂ+Mag pipeline: interleaved cine acquisition across frames t−1 to t+2; frame t keeps complex k-space while neighbors keep only magnitude; neighbor magnitudes fill the lines frame t skipped; an unrolled ADMM network with a magnitude-aware data-fidelity step reconstructs a sharper image than conventional PD-DL."></canvas>
       <div class="teaser-ctrl"><button type="button" data-act="play">Pause</button><button type="button" data-act="replay">Replay</button></div>
     </figure>
     <div class="tsteps" id="tsteps" aria-label="Animation steps">
-      <button type="button" data-i="0"><b>1</b>Acquire</button><button type="button" data-i="1"><b>2</b>Keep magnitude</button><button type="button" data-i="2"><b>3</b>Two data sets</button><button type="button" data-i="3"><b>4</b>PD-DL</button><button type="button" data-i="4"><b>5</b>ℂ+Mag</button><button type="button" data-i="5"><b>6</b>Cine</button>
+      <button type="button" data-i="0"><b>1</b>Acquire</button><button type="button" data-i="1"><b>2</b>Keep magnitude</button><button type="button" data-i="2"><b>3</b>Two data sets</button><button type="button" data-i="3"><b>4</b>PD-DL</button><button type="button" data-i="4"><b>5</b><span class="cmg">ℂ+Mag</span></button><button type="button" data-i="5"><b>6</b>Cine</button>
     </div>
 
   </div>
@@ -249,7 +250,7 @@ ul.clean li+li{margin-top:6px}
       <div class="prose" style="text-align:justify;hyphens:auto">
         <p>Cosine similarity between the k-space magnitude of the central cardiac phase (dashed line) and every other phase, shown as mean ± std across slices.</p>
         <p>Since <span class="mono" style="white-space:nowrap">NMSE ≈ 2(1 − c-sim)</span> for equal-energy magnitudes, c-sim is simply another view of the NMSE. Over the whole cycle it stays above <span class="mono">0.988</span> <span style="white-space:nowrap">(NMSE &lt; <span class="mono">0.024</span>)</span>, so the neighbors' magnitudes closely match the ones a frame did not acquire.</p>
-        <p>The phase does change between frames, so <span class="cm">ℂ+Mag</span> borrows only the <span class="mag">magnitudes</span>.</p>
+        <p>The phase does change between frames, so <span class="cm"><span class="cmg">ℂ+Mag</span></span> borrows only the <span class="mag">magnitudes</span>.</p>
       </div>
       <figure>
         <a class="plate" href="figs/motivation.png" target="_blank" rel="noopener"><img src="figs/motivation.png" alt="Cosine similarity between the k-space magnitude of the central cardiac phase and every other phase. All curves peak at 1.000 at phase 13 and stay above about 0.988 over all 25 phases." loading="lazy"></a>
@@ -263,33 +264,9 @@ ul.clean li+li{margin-top:6px}
   <div class="wrap">
     <div class="head"><span class="eyebrow">Abstract</span><h2>Two kinds of measurement, one reconstruction</h2></div>
     <div class="prose">
-      <p>MRI reconstruction methods for undersampled k-space naturally use the <span class="cx">complex-valued</span> measurements. Work on sparse phase retrieval shows that <span class="mag">magnitude-only</span> measurements can carry complementary information, but MRI has rarely used them because there was no practical way to get informative magnitudes without extra scan time.</p>
-      <p>We show that in accelerated steady-state dynamic MRI, multi-coil k-space magnitudes are highly consistent across time-frames. Building on this, we propose <span class="cm">ℂ+Mag</span>, a magnitude-informed physics-driven deep learning (PD-DL) reconstruction. It unrolls ADMM with a new magnitude-aware data-fidelity step, using quadratic smoothing and Nesterov momentum to handle the non-differentiable, non-convex magnitude term.</p>
-      <p>On retrospectively undersampled cine and phase-contrast flow MRI, and on prospectively undersampled real-time cine, <span class="cm">ℂ+Mag</span> suppresses artifacts better, recovers sharper anatomy and preserves phase better than conventional PD-DL. Blinded cardiologist readings support these results.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ================= OBSERVATION ================= -->
-<section id="observation">
-  <div class="wrap">
-    <div class="head"><span class="eyebrow">Key observation</span><h2>k-space magnitude barely changes from one cardiac phase to the next</h2></div>
-    <div class="two">
-      <div class="prose">
-        <p>Using breath-hold segmented cine from OCMR and phase-contrast Flow2D from CMRxRecon2025, we measured the cosine similarity between the true multi-coil k-space magnitude <span class="mono">|y|</span> of a frame and the magnitude <span class="mono">r</span> taken from its neighbors, on the lines the frame did <em>not</em> acquire (Ω<sup>C</sup>).</p>
-        <p>The mean similarity stays above 0.98 across all cardiac phases at R = 6 and 8 for both datasets, and it stays high coil by coil. Because <span class="mono">NMSE ≈ 2(1 − c-sim)</span> when the energies match, high similarity means low magnitude error on exactly the locations the reconstruction is missing.</p>
-        <p>Similarity is highest where the energy is: near the k-space center.</p>
-        <div class="kv" aria-label="c-sim by spatial-frequency band (cine)">
-          <div><span class="mono">0.997</span><span>low frequency</span></div>
-          <div><span class="mono">0.881</span><span>mid frequency</span></div>
-          <div><span class="mono">0.730</span><span>high frequency</span></div>
-        </div>
-        <p style="font-size:.8rem;color:var(--muted);margin-top:8px">Median c-sim by radial band, segmented cine. Flow2D: 0.995 / 0.882 / 0.723.</p>
-      </div>
-      <figure>
-        <a class="plate" href="figs/fig1_consistency.png" target="_blank" rel="noopener"><img src="figs/fig1_consistency.png" alt="Fig. 1: temporal c-sim curves above 0.986, linear NMSE versus c-sim relationship, and coil-wise c-sim violin plots." loading="lazy"></a>
-        <figcaption><b>Fig. 1.</b> (a) Mean temporal c-sim over Ω<sup>C</sup> for segmented cine and Flow2D at R ∈ {6, 8}. (b) NMSE falls linearly as c-sim rises. (c, d) Coil-wise c-sim distributions.</figcaption>
-      </figure>
+      <p>MRI reconstruction methods for undersampled k-space data naturally utilize <span class="cx">complex-valued</span> measurements. Parallel developments in sparse phase retrieval have shown that <span class="mag">magnitude-only</span> measurements may provide complementary information for signal recovery. However, their use in MRI reconstruction remains largely unexplored, due to lack of practical settings where informative magnitude measurements can be obtained without additional scan time.</p>
+      <p>In this work, we investigate the use of auxiliary k-space magnitude information for accelerated steady-state dynamic MRI reconstruction, and demonstrate strong consistency of k-space magnitudes across time-frames. Building on this observation, we propose <span class="cm"><span class="cmg">ℂ+Mag</span></span>, a magnitude-informed physics-driven deep learning (PD-DL) reconstruction method. The proposed method employs an ADMM-based unrolling framework with a novel magnitude-aware data-fidelity formulation, where quadratically smoothed optimization and momentum-based updates are introduced to address the non-differentiability and non-convexity of the magnitude constraints.</p>
+      <p>Experiments on retrospectively undersampled cine MRI and phase-contrast flow MRI datasets, as well as prospectively undersampled real-time cine MRI acquisitions, demonstrate improved artifact suppression, sharper anatomical recovery, and better preservation of phase information compared to conventional PD-DL methods, which is further supported through blinded expert reader evaluations.</p>
     </div>
   </div>
 </section>
@@ -298,7 +275,7 @@ ul.clean li+li{margin-top:6px}
 <section id="idea">
   <div class="wrap">
     <div class="head"><span class="eyebrow">Interactive</span><h2>Where the extra magnitudes come from</h2>
-      <p class="prose">Cine uses a time-interleaved, shifted equidistant pattern: each frame samples every R-th phase-encode line, shifted by one line per frame. Pick a target frame and an acceleration rate. For every line the target skipped, ℂ+Mag takes the magnitude from the closest frame that sampled it.</p>
+      <p class="prose">Cine uses a time-interleaved, shifted equidistant pattern: each frame samples every R-th phase-encode line, shifted by one line per frame. Pick a target frame and an acceleration rate. For every line the target skipped, <span class="cmg">ℂ+Mag</span> takes the magnitude from the closest frame that sampled it.</p>
     </div>
     <div class="panel">
       <div class="controls">
@@ -321,7 +298,7 @@ ul.clean li+li{margin-top:6px}
         <div>
           <div class="kpair">
             <figure><svg id="kPD" viewBox="0 0 160 160" role="img" aria-label="Complex measurements of frame t"></svg><figcaption><span class="cx"><b>y</b><sub>Ω</sub></span>: complex, frame t<br>network input + DF (both methods)</figcaption></figure>
-            <figure><svg id="kCM" viewBox="0 0 160 160" role="img" aria-label="Auxiliary magnitude measurements from neighboring frames"></svg><figcaption><span class="mag"><b>r</b><sub>Δ</sub></span>: magnitude only, neighbors<br>DF units only (ℂ+Mag)</figcaption></figure>
+            <figure><svg id="kCM" viewBox="0 0 160 160" role="img" aria-label="Auxiliary magnitude measurements from neighboring frames"></svg><figcaption><span class="mag"><b>r</b><sub>Δ</sub></span>: magnitude only, neighbors<br>DF units only (<span class="cmg">ℂ+Mag</span>)</figcaption></figure>
           </div>
           <div class="readout" id="readout"></div>
         </div>
@@ -336,7 +313,7 @@ ul.clean li+li{margin-top:6px}
     <div class="head"><span class="eyebrow">Method</span><h2>A data-fidelity term for complex and magnitude measurements</h2></div>
     <figure>
       <a class="plate" href="figs/fig2_pipeline.jpg" target="_blank" rel="noopener"><img src="figs/fig2_pipeline.jpg" alt="Fig. 2: ℂ+Mag pipeline. Frame t contributes complex-valued data; frames t+1 and t+2 contribute only k-space magnitudes, which enter a new data-fidelity block in each unroll." loading="lazy"></a>
-      <figcaption><b>Fig. 2.</b> For target frame t, both methods use the complex data <b>y</b><sub>Ω<sub>t</sub></sub>. ℂ+Mag also takes only the magnitudes of the neighbors' lines, <b>r</b><sub>Δ</sub> with Δ = Ω<sub>t+1</sub> ∪ Ω<sub>t+2</sub> = Ω<sub>t</sub><sup>C</sup> (R = 3 shown), and feeds them to a new data-fidelity block DF<sub>μ,λ</sub>.</figcaption>
+      <figcaption><b>Fig. 2.</b> For target frame t, both methods use the complex data <b>y</b><sub>Ω<sub>t</sub></sub>. <span class="cmg">ℂ+Mag</span> also takes only the magnitudes of the neighbors' lines, <b>r</b><sub>Δ</sub> with Δ = Ω<sub>t+1</sub> ∪ Ω<sub>t+2</sub> = Ω<sub>t</sub><sup>C</sup> (R = 3 shown), and feeds them to a new data-fidelity block DF<sub>μ,λ</sub>.</figcaption>
     </figure>
 
     <div class="prose" style="margin-top:28px"><p>We add a magnitude least-squares term to the standard regularized objective:</p></div>
@@ -357,7 +334,7 @@ ul.clean li+li{margin-top:6px}
       <div class="step">
         <span class="tag">Step 1 · learned prior</span>
         <div class="m"><math><msup><mi mathvariant="normal">𝐯</mi><mi mathvariant="normal">k</mi></msup><mo>=</mo><msub><mi mathvariant="normal">prox</mi><mi mathvariant="normal">ℛ</mi></msub><mo>(</mo><msup><mi mathvariant="normal">𝐱</mi><mrow><mi mathvariant="normal">k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>+</mo><msup><mi mathvariant="normal">𝐮</mi><mrow><mi mathvariant="normal">k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>)</mo></math></div>
-        <p>A time-embedded U-Net (TE-UNet), either spatial-only (one frame) or spatiotemporal (R frames). It is identical in PD-DL and ℂ+Mag.</p>
+        <p>A time-embedded U-Net (TE-UNet), either spatial-only (one frame) or spatiotemporal (R frames). It is identical in PD-DL and <span class="cmg">ℂ+Mag</span>.</p>
       </div>
       <div class="step hl">
         <span class="tag">Step 2 · magnitude-aware DF (new)</span>
@@ -421,7 +398,7 @@ ul.clean li+li{margin-top:6px}
         <div class="cinegrid">
           <figure><canvas id="cvRef0" width="312" height="432" aria-label="Subject 1 reference cine"></canvas><figcaption>Reference<span class="cm-m">fully sampled</span></figcaption></figure>
           <figure><canvas id="cvPd0" width="312" height="432" aria-label="Subject 1 PD-DL cine"></canvas><figcaption>PD-DL<span class="cm-m" id="mPd0"></span></figcaption></figure>
-          <figure><canvas id="cvCm0" width="312" height="432" aria-label="Subject 1 C+Mag cine"></canvas><figcaption class="ours">ℂ+Mag<span class="cm-m" id="mCm0"></span></figcaption></figure>
+          <figure><canvas id="cvCm0" width="312" height="432" aria-label="Subject 1 C+Mag cine"></canvas><figcaption class="ours"><span class="cmg">ℂ+Mag</span><span class="cm-m" id="mCm0"></span></figcaption></figure>
         </div>
       </div>
       <div class="cinerow">
@@ -429,7 +406,7 @@ ul.clean li+li{margin-top:6px}
         <div class="cinegrid">
           <figure><canvas id="cvRef1" width="312" height="432" aria-label="Subject 2 reference cine"></canvas><figcaption>Reference<span class="cm-m">fully sampled</span></figcaption></figure>
           <figure><canvas id="cvPd1" width="312" height="432" aria-label="Subject 2 PD-DL cine"></canvas><figcaption>PD-DL<span class="cm-m" id="mPd1"></span></figcaption></figure>
-          <figure><canvas id="cvCm1" width="312" height="432" aria-label="Subject 2 C+Mag cine"></canvas><figcaption class="ours">ℂ+Mag<span class="cm-m" id="mCm1"></span></figcaption></figure>
+          <figure><canvas id="cvCm1" width="312" height="432" aria-label="Subject 2 C+Mag cine"></canvas><figcaption class="ours"><span class="cmg">ℂ+Mag</span><span class="cm-m" id="mCm1"></span></figcaption></figure>
         </div>
       </div>
       <p style="font-size:.82rem;color:var(--muted);margin-top:12px">Two test subjects, all 25 cardiac phases, retrospectively undersampled at R = 6 and shown at full field of view. Within each subject, the three columns share one contrast setting and both error maps share one scale. Metrics are PSNR / SSIM averaged over the 25 phases of the unfiltered reconstructions; for smooth playback, each displayed phase is the median of itself and its two neighboring phases.</p>
@@ -443,15 +420,15 @@ ul.clean li+li{margin-top:6px}
     </div>
     <div class="tabpanel" id="p-cine" role="tabpanel" aria-labelledby="tab-cine">
       <figure><a class="plate" href="figs/fig3_cine.jpg" target="_blank" rel="noopener"><img src="figs/fig3_cine.jpg" alt="Fig. 3: diastolic and systolic cine reconstructions at R = 6, 8, 12, 16 from 0.55 T, 1.5 T and 3 T scans." loading="lazy"></a>
-      <figcaption><b>Fig. 3.</b> Diastolic (left) and systolic (right) frames at R ∈ {6, 8, 12, 16} from 0.55 T, 1.5 T and 3.0 T. ℂ+Mag keeps anatomy sharp where spatial-only PD-DL breaks down, and adds gains on top of the spatiotemporal regularizer at R = 12 and 16. Select the image to open it at full size.</figcaption></figure>
+      <figcaption><b>Fig. 3.</b> Diastolic (left) and systolic (right) frames at R ∈ {6, 8, 12, 16} from 0.55 T, 1.5 T and 3.0 T. <span class="cmg">ℂ+Mag</span> keeps anatomy sharp where spatial-only PD-DL breaks down, and adds gains on top of the spatiotemporal regularizer at R = 12 and 16. Select the image to open it at full size.</figcaption></figure>
     </div>
     <div class="tabpanel narrow" id="p-xt" role="tabpanel" aria-labelledby="tab-xt" hidden>
       <figure><a class="plate" href="figs/fig5_xt.jpg" target="_blank" rel="noopener"><img src="figs/fig5_xt.jpg" alt="Fig. 5: reconstructed frames with x-t and y-t temporal profiles." loading="lazy"></a>
-      <figcaption><b>Fig. 5.</b> x-t and y-t profiles (temporal axis enlarged 5×). ℂ+Mag preserves temporal structure, and the benefit is largest at high R.</figcaption></figure>
+      <figcaption><b>Fig. 5.</b> x-t and y-t profiles (temporal axis enlarged 5×). <span class="cmg">ℂ+Mag</span> preserves temporal structure, and the benefit is largest at high R.</figcaption></figure>
     </div>
     <div class="tabpanel narrow" id="p-flow" role="tabpanel" aria-labelledby="tab-flow" hidden>
       <figure><a class="plate" href="figs/fig4_flow.jpg" target="_blank" rel="noopener"><img src="figs/fig4_flow.jpg" alt="Fig. 4: Flow2D magnitude images, ×10 error maps and phase-difference maps at R = 6, 8, 12, 16." loading="lazy"></a>
-      <figcaption><b>Fig. 4.</b> Flow2D magnitude, error (×10) and phase-difference Δϕ maps. PD-DL leaves residual artifacts and phase inconsistencies that ℂ+Mag suppresses.</figcaption></figure>
+      <figcaption><b>Fig. 4.</b> Flow2D magnitude, error (×10) and phase-difference Δϕ maps. PD-DL leaves residual artifacts and phase inconsistencies that <span class="cmg">ℂ+Mag</span> suppresses.</figcaption></figure>
     </div>
   </div>
 </section>
@@ -483,8 +460,8 @@ ul.clean li+li{margin-top:6px}
       <div class="prose">
         <p>Free-breathing real-time cine has no fully sampled reference, so these models were trained with multi-mask SSDU self-supervision.</p>
         <ul class="clean">
-          <li><b>bSSFP</b> (NHLBI repository, 1.5 T). Acquired at R = 4 and further undersampled to R = 8. ℂ+Mag at R = 8 matches the image quality of the clinical tGRAPPA reconstruction at R = 4.</li>
-          <li><b>GRE</b> (acquired locally, 3 T, R = 8). tGRAPPA shows heavy artifacts and PD-DL loses detail. ℂ+Mag keeps cardiac structures in both systole and diastole.</li>
+          <li><b>bSSFP</b> (NHLBI repository, 1.5 T). Acquired at R = 4 and further undersampled to R = 8. <span class="cmg">ℂ+Mag</span> at R = 8 matches the image quality of the clinical tGRAPPA reconstruction at R = 4.</li>
+          <li><b>GRE</b> (acquired locally, 3 T, R = 8). tGRAPPA shows heavy artifacts and PD-DL loses detail. <span class="cmg">ℂ+Mag</span> keeps cardiac structures in both systole and diastole.</li>
         </ul>
         <p style="margin-top:14px">Real-time imaging is a natural fit: neighboring frames are acquired one after another, so their magnitudes are reliable even with irregular heart rhythms.</p>
       </div>
@@ -498,12 +475,12 @@ ul.clean li+li{margin-top:6px}
     <div class="head"><span class="eyebrow">Clinical evaluation</span><h2>Measurements and reader scores match the reference</h2></div>
     <figure>
       <a class="plate" href="figs/fig8_reader.png" target="_blank" rel="noopener"><img src="figs/fig8_reader.png" alt="Fig. 8: blinded reader scores for SNR, blurring, aliasing and overall quality for cine and Flow2D at R = 6 and 8." loading="lazy"></a>
-      <figcaption><b>Fig. 8.</b> Blinded cardiologist scores on a 4-point Likert scale (1 = excellent, lower is better) for SNR, blurring, aliasing and overall quality. ℂ+Mag scores close to the reference and clearly better than PD-DL. Wilcoxon signed-rank test, * P &lt; 0.05.</figcaption>
+      <figcaption><b>Fig. 8.</b> Blinded cardiologist scores on a 4-point Likert scale (1 = excellent, lower is better) for SNR, blurring, aliasing and overall quality. <span class="cmg">ℂ+Mag</span> scores close to the reference and clearly better than PD-DL. Wilcoxon signed-rank test, * P &lt; 0.05.</figcaption>
     </figure>
     <h3 style="margin:34px 0 12px">Cardiac function and flow (Table IV)</h3>
     <div class="tbl">
       <table>
-        <thead><tr><th>Metric</th><th>BH cine<br>ℂ+Mag R=8</th><th>BH cine<br>Reference</th><th>RT bSSFP<br>ℂ+Mag R=8</th><th>RT bSSFP<br>tGRAPPA R=4</th><th>RT GRE<br>ℂ+Mag R=8</th><th>RT GRE<br>Breath-hold</th></tr></thead>
+        <thead><tr><th>Metric</th><th>BH cine<br><span class="cmg">ℂ+Mag</span> R=8</th><th>BH cine<br>Reference</th><th>RT bSSFP<br><span class="cmg">ℂ+Mag</span> R=8</th><th>RT bSSFP<br>tGRAPPA R=4</th><th>RT GRE<br><span class="cmg">ℂ+Mag</span> R=8</th><th>RT GRE<br>Breath-hold</th></tr></thead>
         <tbody>
           <tr><td>EDV (mL)</td><td>119.6 (26)</td><td>121.8 (25)</td><td>98.7 (14)</td><td>100.7 (13)</td><td>120.7 (20.7)</td><td>121.3 (19)</td></tr>
           <tr><td>ESV (mL)</td><td>48.3 (19)</td><td>48.4 (18)</td><td>75.0 (30)</td><td>78.3 (23)</td><td>36.7 (12.8)</td><td>37.0 (13)</td></tr>
@@ -516,7 +493,7 @@ ul.clean li+li{margin-top:6px}
     </div>
     <div class="tbl" style="margin-top:14px">
       <table>
-        <thead><tr><th>Flow2D, descending aorta</th><th>ℂ+Mag R=6</th><th>ℂ+Mag R=8</th><th>Reference R=1</th></tr></thead>
+        <thead><tr><th>Flow2D, descending aorta</th><th><span class="cmg">ℂ+Mag</span> R=6</th><th><span class="cmg">ℂ+Mag</span> R=8</th><th>Reference R=1</th></tr></thead>
         <tbody>
           <tr><td>Net flow volume (mL)</td><td>28.7 (13.4)</td><td>28.3 (13.2)</td><td>28.7 (12.9)</td></tr>
           <tr><td>Forward flow volume (mL)</td><td>30.0 (13.1)</td><td>29.8 (13.2)</td><td>29.2 (12.7)</td></tr>
@@ -526,7 +503,7 @@ ul.clean li+li{margin-top:6px}
         </tbody>
       </table>
     </div>
-    <p style="font-size:.82rem;color:var(--muted);margin-top:8px">Mean (SD). Paired t-test: no significant difference between ℂ+Mag and the reference on any metric (P &gt; 0.05).</p>
+    <p style="font-size:.82rem;color:var(--muted);margin-top:8px">Mean (SD). Paired t-test: no significant difference between <span class="cmg">ℂ+Mag</span> and the reference on any metric (P &gt; 0.05).</p>
   </div>
 </section>
 
@@ -574,14 +551,14 @@ ul.clean li+li{margin-top:6px}
         <thead><tr><th>Method</th><th>DF steps</th><th>E / Eᴴ evals</th><th>Params</th><th>Inference (ms)</th><th>Training (ms)</th><th>Inference mem (MB)</th><th>Training mem (GB)</th></tr></thead>
         <tbody>
           <tr><td>Conventional PD-DL</td><td>100</td><td>200</td><td>2.026 M</td><td>163.9 ± 1.1</td><td>526.5 ± 18.0</td><td>189.2</td><td>5.8</td></tr>
-          <tr class="ours"><td>ℂ+Mag (ADMM)</td><td>100</td><td>400</td><td>2.026 M</td><td>189.1 ± 4.8</td><td>569.6 ± 46.9</td><td>195.6</td><td>9.4</td></tr>
-          <tr><td>ℂ+Mag (VSQP)</td><td>100</td><td>400</td><td>2.026 M</td><td>187.9 ± 5.5</td><td>561.6 ± 40.9</td><td>195.2</td><td>9.4</td></tr>
-          <tr><td>ℂ+Mag (PGD, 1 iter)</td><td>10</td><td>40</td><td>2.026 M</td><td>104.7 ± 1.2</td><td>296.9 ± 19.5</td><td>194.8</td><td>6.1</td></tr>
-          <tr><td>ℂ+Mag (PGD, 10 iters)</td><td>100</td><td>400</td><td>2.026 M</td><td>174.9 ± 38.4</td><td>534.2 ± 241.1</td><td>204.7</td><td>9.4</td></tr>
+          <tr class="ours"><td><span class="cmg">ℂ+Mag</span> (ADMM)</td><td>100</td><td>400</td><td>2.026 M</td><td>189.1 ± 4.8</td><td>569.6 ± 46.9</td><td>195.6</td><td>9.4</td></tr>
+          <tr><td><span class="cmg">ℂ+Mag</span> (VSQP)</td><td>100</td><td>400</td><td>2.026 M</td><td>187.9 ± 5.5</td><td>561.6 ± 40.9</td><td>195.2</td><td>9.4</td></tr>
+          <tr><td><span class="cmg">ℂ+Mag</span> (PGD, 1 iter)</td><td>10</td><td>40</td><td>2.026 M</td><td>104.7 ± 1.2</td><td>296.9 ± 19.5</td><td>194.8</td><td>6.1</td></tr>
+          <tr><td><span class="cmg">ℂ+Mag</span> (PGD, 10 iters)</td><td>100</td><td>400</td><td>2.026 M</td><td>174.9 ± 38.4</td><td>534.2 ± 241.1</td><td>204.7</td><td>9.4</td></tr>
         </tbody>
       </table>
     </div>
-    <p style="font-size:.82rem;color:var(--muted);margin-top:8px">Per sample. ℂ+Mag adds about 25 ms (15%) at inference with no extra parameters.</p>
+    <p style="font-size:.82rem;color:var(--muted);margin-top:8px">Per sample. <span class="cmg">ℂ+Mag</span> adds about 25 ms (15%) at inference with no extra parameters.</p>
 
     <div class="panel" style="margin-top:36px">
       <h3 style="margin-bottom:8px">Limitations</h3>
@@ -694,7 +671,7 @@ function drawDemo(){
   const nC = NL / R, nM = NL - nC, maxd = dn.length ? Math.max(...dn.map(f => Math.abs(f - t))) : 0;
   $("#readout").innerHTML =
     `<div><span>Complex lines <b>y</b><sub>Ω</sub> (both methods)</span><span class="mono cx">${nC} / ${NL} · ${(100/R).toFixed(1)}%</span></div>` +
-    `<div><span>Magnitude-only lines <b>r</b><sub>Δ</sub> (ℂ+Mag DF)</span><span class="mono mag">${nM} / ${NL}</span></div>` +
+    `<div><span>Magnitude-only lines <b>r</b><sub>Δ</sub> (<span class="cmg">ℂ+Mag</span> DF)</span><span class="mono mag">${nM} / ${NL}</span></div>` +
     `<div><span>Frames that donate magnitude</span><span class="mono">${dn.length} (R − 1)</span></div>` +
     `<div><span>Farthest donor</span><span class="mono">${maxd} frame${maxd === 1 ? "" : "s"} away</span></div>` +
     `<div><span>Lines with magnitude only (Δ = Ω<sup>C</sup>)</span><span class="mono">all skipped lines</span></div>`;
@@ -790,7 +767,7 @@ function drawLine(){
   const pd = D.pd[met], cm = D.cm[met];
   const gains = pd.map((v, i) => cm[i] - v);
   const fmtG = g => isP ? (g >= 0 ? "+" : "−") + Math.abs(g).toFixed(2) + " dB" : (g >= 0 ? "+" : "−") + Math.abs(g).toFixed(3);
-  $("#lineNote").innerHTML = `ℂ+Mag minus PD-DL: ` + Rs.map((r, i) => `R = ${r}: <b class="mono">${fmtG(gains[i])}</b>`).join(" · ");
+  $("#lineNote").innerHTML = `<span class="cmg">ℂ+Mag</span> minus PD-DL: ` + Rs.map((r, i) => `R = ${r}: <b class="mono">${fmtG(gains[i])}</b>`).join(" · ");
 }
 $("#lineLegend").innerHTML = legendHTML();
 segBind("#dsSeg", d => { LC.ds = d.v; drawLine(); });
@@ -799,7 +776,7 @@ segBind("#metSeg", d => { LC.met = d.v; drawLine(); });
 
 /* ================= Table II ================= */
 (function(){
-  const names = { pd: "PD-DL (CG)", cm: "ℂ+Mag (ours)", or: "ℂ+Mag (oracle)" };
+  const names = { pd: "PD-DL (CG)", cm: '<span class="cmg">ℂ+Mag</span> (ours)', or: '<span class="cmg">ℂ+Mag</span> (oracle)' };
   let h = `<table><thead><tr><th rowspan="2">Method</th><th colspan="8" style="text-align:center">Segmented cine</th><th colspan="8" style="text-align:center">Phase-contrast Flow2D</th></tr><tr>`;
   ["cine","flow"].forEach(() => Rs.forEach(r => h += `<th>R=${r}<br>PSNR</th><th>SSIM</th>`));
   h += `</tr></thead><tbody>`;
@@ -953,7 +930,7 @@ requestAnimationFrame(tick);
 })();
 </script>
 
-<!-- ================= Teaser animation: the ℂ+Mag pipeline in six steps (R = 6) ================= -->
+<!-- ================= Teaser animation: the <span class="cmg">ℂ+Mag</span> pipeline in six steps (R = 6) ================= -->
 <script>
 (function(){
 "use strict";
@@ -999,14 +976,21 @@ function tint(img, col){
   x.globalCompositeOperation = "lighter"; x.globalAlpha = .25; x.drawImage(img, 0, 0, 256, 256); return c;
 }
 function rr(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+const CM_TOK = "ℂ+Mag";                         // \mathbb{C}+\text{Mag}, drawn in the LaTeX font
+function segs(s){ return s.split(/(ℂ\+Mag)/).filter(Boolean); }
+function segW(g, w, sz, f){ ctx.font = g === CM_TOK ? `${w} ${sz*1.12}px ${MF}` : `${w} ${sz}px ${f}`; return ctx.measureText(g).width; }
+function textW(s, w, sz, f){ return segs(s).reduce((m, g) => m + segW(g, w, sz, f), 0); }
 function text(s, x, y, o){
   o = o || {}; const a = o.a == null ? 1 : o.a; if (a <= 0) return; ctx.globalAlpha = a; ctx.fillStyle = o.c || C.txt;
-  ctx.font = `${o.w || 600} ${o.s || 24}px ${o.f || FONT}`; ctx.textAlign = o.al || "center"; ctx.textBaseline = "alphabetic"; ctx.fillText(s, x, y);
+  const w = o.w || 600, sz = o.s || 24, f = o.f || FONT, al = o.al || "center"; ctx.textBaseline = "alphabetic";
+  if (f === MF || s.indexOf(CM_TOK) < 0){ ctx.font = `${w} ${sz}px ${f}`; ctx.textAlign = al; ctx.fillText(s, x, y); return; }
+  const tw = textW(s, w, sz, f); let cx = al === "left" ? x : al === "right" ? x - tw : x - tw/2; ctx.textAlign = "left";
+  segs(s).forEach(g => { const gw = segW(g, w, sz, f); ctx.fillText(g, cx, y); cx += gw; });
 }
 function rich(parts, x, y, s, a, al){         // multi-color line; al = "center" | "left"
-  if (a <= 0) return; ctx.font = `600 ${s}px ${FONT}`;
-  const w = parts.reduce((m, p) => m + ctx.measureText(p[0]).width, 0); let cx = al === "left" ? x : x - w/2;
-  parts.forEach(p => { text(p[0], cx, y, { s, c: p[1], al:"left", a, w: p[2] || 600 }); ctx.font = `${p[2] || 600} ${s}px ${FONT}`; cx += ctx.measureText(p[0]).width; });
+  if (a <= 0) return;
+  const w = parts.reduce((m, p) => m + textW(p[0], p[2] || 600, s, FONT), 0); let cx = al === "left" ? x : x - w/2;
+  parts.forEach(p => { text(p[0], cx, y, { s, c: p[1], al:"left", a, w: p[2] || 600 }); cx += textW(p[0], p[2] || 600, s, FONT); });
 }
 function math(s, x, y, size, col, a, al){ text(s, x, y, { s: size, w: 400, f: MF, c: col, a, al }); }
 function sub(main, sb, x, y, s, col, a, al){  // math symbol with subscript in the LaTeX font; al = "center" | "left" | "right"
@@ -1091,12 +1075,10 @@ function draw(t){
     const ly = KS_Y + KS_S + 36;
     if (f.tgt){
       if (t < 9.2){
-        text(`lines ${f.off}, ${f.off + R}, ${f.off + 2*R}, …`, cx, ly, { s: 17, f: MONO, w: 500, c: C.mut, a: appear * (1 - seg(t, 5.4, 5.8)) });
         text("complex", cx, ly, { s: 21, w: 700, c: C.cx, a: seg(t, 5.6, 6.0) * (1 - seg(t, 9, 9.2)) });
       }
     } else {
       const st = FLY[i], pa = 1 - seg(t, st + .6, st + 1.0);
-      text(`lines ${f.off}, ${f.off + R}, ${f.off + 2*R}, …`, cx, ly, { s: 17, f: MONO, w: 500, c: C.mut, a: appear * (1 - seg(t, 6.0, 6.3)) });
       text("phase discarded", cx, ly, { s: 19, w: 700, c: C.red, a: seg(t, 6.3, 6.6) * (1 - seg(t, 7.5, 7.8)) });
       text("magnitude only", cx, ly, { s: 19, w: 700, c: C.mag, a: seg(t, 7.8, 8.3) * pa });
     }
@@ -1117,11 +1099,9 @@ function draw(t){
       sub("𝐲", "Ω", Y.x - 24, ly, 46, C.cx, a3, "right");
       text("complex", Y.x - 24, ly + 40, { s: 21, w: 700, c: C.cx, a: a3, al: "right" });
       text("frame t’s own lines", Y.x - 24, ly + 70, { s: 18, c: C.mut, a: a3, al: "right" });
-      text(`${NL / R} / ${NL} lines`, Y.x - 24, ly + 98, { s: 18, f: MONO, c: C.txt, a: a3, al: "right" });
       sub("𝐫", "Δ", RP.x + RP.s + 24, ly, 46, C.mag, a3, "left");
       text("magnitude only", RP.x + RP.s + 24, ly + 40, { s: 21, w: 700, c: C.mag, a: a3, al: "left" });
       text("from the 5 neighbors", RP.x + RP.s + 24, ly + 70, { s: 18, c: C.mut, a: a3, al: "left" });
-      text(`${m} / ${SKIPPED} skipped lines`, RP.x + RP.s + 24, ly + 98, { s: 18, f: MONO, c: C.txt, a: a3, al: "left" });
       { ctx.font = `400 34px ${MF}`; const w = ctx.measureText("Δ = Ω").width, x0 = 800 - (w + 14)/2; math("Δ = Ω", x0, Y.y + Y.s/2 - 6, 34, C.txt, a3, "left"); math("C", x0 + w + 2, Y.y + Y.s/2 - 22, 20, C.txt, a3, "left"); }
       text("kept separate", 800, Y.y + Y.s/2 + 26, { s: 18, c: C.mut, a: a3 });
     }
@@ -1134,8 +1114,8 @@ function draw(t){
   if (a4 > 0){
     const dash = [7, 7], dimR = 1 - .7 * seg(t, 15.0, 15.6) * (1 - seg(t, 22.2, 22.8));
     const PATHS = [
-      { cy: CYS[0], b: 15.8, yb: 150, df: ["DF", "μ", C.dfr, C.dfrS], name: "Conventional PD-DL", err: OUT.epd, out: OUT.pd, oc: C.edge, lab: "PD-DL", lc: C.txt, m: ["PSNR 26.33 dB", "SSIM 0.869"] },
-      { cy: CYS[1], b: 22.2, yb: 540, df: ["DF", "μ,λ", C.df, C.dfS], name: "ℂ+Mag", err: OUT.ecm, out: OUT.cm, oc: C.acc, lab: "ℂ+Mag", lc: C.acc, m: ["PSNR 33.77 dB", "SSIM 0.948"] }
+      { cy: CYS[0], b: 15.8, yb: 138, df: ["DF", "μ", C.dfr, C.dfrS], name: "Conventional PD-DL", err: OUT.epd, out: OUT.pd, oc: C.edge, lab: "PD-DL", lc: C.txt, m: ["PSNR 26.33 dB", "SSIM 0.869"] },
+      { cy: CYS[1], b: 22.2, yb: 528, df: ["DF", "μ,λ", C.df, C.dfS], name: "ℂ+Mag", err: OUT.ecm, out: OUT.cm, oc: C.acc, lab: "ℂ+Mag", lc: C.acc, m: ["PSNR 33.77 dB", "SSIM 0.948"] }
     ];
     sub("𝐲", "Ω", Y.x + Y.s/2, Y.y - 14, 30, C.cx, a4);
     sub("𝐫", "Δ", RP.x + RP.s/2, RP.y - 14, 30, C.mag, a4 * dimR);
@@ -1152,7 +1132,6 @@ function draw(t){
       if (pa <= 0) return;
       line([[ZX + ZS + 4, zc], [zr, zc], [zr, P.cy]], C.con, pa, null, 3.5);
       arrow(zr, P.cy, GX[0] - 4, P.cy, C.con, pa);
-      text(P.name, GX[0], P.cy + 102, { s: 22, w: 800, c: P.lc, a: pa, al: "left" });
       // complex-data bus: starts at a y_Ω tag just above this row and drops into each DF unit
       const ba = ez(seg(t, b + .8, b + 1.6)), tx = GX[0], tw = 62;
       if (ba > 0){
@@ -1166,6 +1145,9 @@ function draw(t){
         line([[RP.x + RP.s + 4, yR], [dfX(2), yR]], C.mag, ma, dash);
         GX.forEach((gx, g) => arrow(dfX(g), yR, dfX(g), P.cy + BH/2 + 4, C.mag, ma, dash));
       }
+      { const fp = 10;   /* narrow dotted frame around the unrolled network */
+        ctx.globalAlpha = pa * .9; ctx.strokeStyle = C.mut; ctx.lineWidth = 1.6; ctx.setLineDash([2, 5]); ctx.lineCap = "round";
+        rr(GX[0] - fp, P.cy - 72 - fp, GX[2] + GW - GX[0] + 2*fp, 144 + 2*fp, 18); ctx.stroke(); ctx.setLineDash([]); ctx.lineCap = "butt"; }
       GX.forEach((gx, g) => {
         const on = seg(t, b + 2.0 + g*.7, b + 2.3 + g*.7), gy = P.cy - 72, gh = 144;
         ctx.globalAlpha = pa; ctx.strokeStyle = C.edge; ctx.lineWidth = 2; ctx.setLineDash([8, 6]); rr(gx, gy, GW, gh, 14); ctx.stroke(); ctx.setLineDash([]);
@@ -1179,6 +1161,9 @@ function draw(t){
         for (let j = 0; j < 2; j++) arrow(gx + BX(j) + BW + 1, P.cy, gx + BX(j+1) - 1, P.cy, C.con, pa);
         if (g < 2) arrow(gx + GW + 1, P.cy, GX[g+1] - 2, P.cy, C.con, pa);
       });
+      { const nx = (GX[0] + GX[2] + GW)/2, ny = P.cy + 118, nw = textW(P.name, 800, 30, FONT);   /* name patch interrupts the r_Δ arrow behind it */
+        ctx.globalAlpha = pa; ctx.fillStyle = C.bg; ctx.fillRect(nx - nw/2 - 12, ny - 30, nw + 24, 40);
+        text(P.name, nx, ny, { s: 30, w: 800, c: P.lc, a: pa }); }
       const oa = ez(seg(t, b + 4.1, b + 4.9)), ea = ez(seg(t, b + 4.6, b + 5.4)), mt = seg(t, b + 5.3, b + 5.9);
       arrow(GX[2] + GW + 3, P.cy, OX - 6, P.cy, pi ? C.acc : C.con, oa);
       imgR(P.out, OX, P.cy - OH/2, OW, OH, oa, P.oc, pi ? 4 : 2);
