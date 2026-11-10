@@ -757,8 +757,7 @@ function drawLine(){
       ["cine","flow"].forEach((ds, d) => Rs.forEach((r, i) => {
         ["psnr","ssim"].forEach((mt, q) => {
           const v = T2[ds][reg][k][mt][i];
-          const best = k !== "or" && v >= Math.max(T2[ds][reg].pd[mt][i], T2[ds][reg].cm[mt][i])
-            && !(k === "cm" && ds === "cine" && reg === "ST" && i === 0);   // cine, C+Mag spatiotemporal R = 6: not bolded (SSIM tie)
+          const best = k !== "or" && v >= Math.max(T2[ds][reg].pd[mt][i], T2[ds][reg].cm[mt][i]);
           const sep = q ? "" : (i === 0 && d ? " ds" : i ? " gs" : "");
           h += `<td class="${best ? "best" : ""}${sep}">${mt === "psnr" ? v.toFixed(2) : v.toFixed(3).replace(/^0/, "")}</td>`;
         });
