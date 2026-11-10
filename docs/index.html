@@ -259,7 +259,7 @@ ul.clean li+li{margin-top:6px}
     <div class="venue">IEEE TBME 2026</div>
     <h1 class="title"><span class="name"><span class="cmg">ℂ+Mag</span></span>: Harnessing <span class="nw">Magnitude-Only</span> and Complex Measurements for Improved Dynamic MRI Reconstruction with Learned Priors</h1>
     <div class="authors">
-      <span class="au">Mahdi Saberi</span>, <a class="au" href="https://utkualcalar.github.io/" target="_blank" rel="noopener">Yaşar Utku Alçalar</a>, <span class="au">Merve Gülle</span>, <span class="au">Chetan Shenoy</span>, <a class="au" href="https://imagine.umn.edu/people/mehmet-akcakaya" target="_blank" rel="noopener">Mehmet Akçakaya</a>
+      <a class="au" href="https://mahdisaberii.github.io/" target="_blank" rel="noopener">Mahdi Saberi</a>, <a class="au" href="https://utkualcalar.github.io/" target="_blank" rel="noopener">Yaşar Utku Alçalar</a>, <span class="au">Merve Gülle</span>, <span class="au">Chetan Shenoy</span>, <a class="au" href="https://imagine.umn.edu/people/mehmet-akcakaya" target="_blank" rel="noopener">Mehmet Akçakaya</a>
     </div>
     <div class="affil">University of Minnesota</div>
     <div class="links">
@@ -279,7 +279,7 @@ ul.clean li+li{margin-top:6px}
       <div class="teaser-ctrl"><button type="button" data-act="play">Pause</button><button type="button" data-act="replay">Replay</button></div>
     </figure>
     <div class="tsteps" id="tsteps" aria-label="Animation steps">
-      <button type="button" data-i="0"><b>1</b>Acquire</button><button type="button" data-i="1"><b>2</b>Keep magnitude</button><button type="button" data-i="2"><b>3</b>Two data sets</button><button type="button" data-i="3"><b>4</b>PD-DL</button><button type="button" data-i="4"><b>5</b><span class="cmg">ℂ+Mag</span></button><button type="button" data-i="5"><b>6</b>Cine</button>
+      <button type="button" data-i="0"><b>1</b>Acquire</button><button type="button" data-i="1"><b>2</b>Keep magnitude</button><button type="button" data-i="2"><b>3</b>Two data sets</button><button type="button" data-i="3"><b>4</b>PD-DL</button><button type="button" data-i="4"><b>5</b><span class="cmg">ℂ+Mag</span></button><button type="button" data-i="5"><b>6</b>Cine &amp; flow</button>
     </div>
 
   </div>
@@ -755,7 +755,8 @@ function drawLine(){
       ["cine","flow"].forEach((ds, d) => Rs.forEach((r, i) => {
         ["psnr","ssim"].forEach((mt, q) => {
           const v = T2[ds][reg][k][mt][i];
-          const best = k !== "or" && v >= Math.max(T2[ds][reg].pd[mt][i], T2[ds][reg].cm[mt][i]);
+          const best = k !== "or" && v >= Math.max(T2[ds][reg].pd[mt][i], T2[ds][reg].cm[mt][i])
+            && !(k === "cm" && reg === "ST" && i === 0);         // C+Mag spatiotemporal R = 6: not bolded
           const sep = q ? "" : (i === 0 && d ? " ds" : i ? " gs" : "");
           h += `<td class="${best ? "best" : ""}${sep}">${mt === "psnr" ? v.toFixed(2) : v.toFixed(3).replace(/^0/, "")}</td>`;
         });
@@ -787,7 +788,7 @@ new MutationObserver(renderAll).observe(document.documentElement, { attributes: 
 "use strict";
 const fig = document.getElementById("teaser"); if (!fig) return;
 const cvs = fig.querySelector("canvas"), ctx = cvs.getContext("2d");
-const W = 1600, H = 900, NL = 48, R = 6, ROWH = 256 / NL, T_END = 39.2;
+const W = 1600, H = 900, NL = 48, R = 6, ROWH = 256 / NL, T_END = 41.0;
 const STEPS = [0, 4.5, 9, 14, 22, 29.4];
 const TITLES = [
   "Interleaved cine at R = 6: each frame acquires a different set of k-space lines",
@@ -795,7 +796,7 @@ const TITLES = [
   "Two separate measurement sets for frame t",
   "Conventional PD-DL: only the complex data, as input and in every DF unit",
   "ℂ+Mag: the same network, plus the magnitudes in every DF unit",
-  "All 25 cardiac phases, full field of view: PD-DL, ℂ+Mag and the reference"
+  "All 25 cardiac phases at R = 6: PD-DL, ℂ+Mag and the reference"
 ];
 const C = { bg:"#fbf7ec", panel:"#06080d", edge:"#e4dac2", con:"#3a3d45", txt:"#17181a", mut:"#6b6f76",
             cx:"#2f5bea", mag:"#a87a06", acc:"#7a1f2b", red:"#d64545", ink:"#17181a",
@@ -808,8 +809,9 @@ const CXS = [200, 440, 680, 920, 1160, 1400];
 const FLY = { 3: 10.0, 1: 10.6, 4: 11.2, 0: 11.8, 5: 12.4 };      // neighbor index -> start of its flight into r_Δ
 const IMG_Y = 150, IMG_S = 205, KS_Y = 505, KS_S = 205;
 const SRC = { lab:"cine/ref.jpg", opd:"anim/out_pddl.png", ocm:"anim/out_cmag.png", oepd:"anim/err_pddl.png", oecm:"anim/err_cmag.png",
-              fref:"cine/ref_full.jpg", fpd:"cine/pddl_full.jpg", fcm:"cine/cmag_full.jpg", zf:"anim/zf.png", km:"anim/kmag.png", kp:"anim/kphase.png" };
+              fref:"cine/ref_full.jpg", fpd:"cine/pddl_full.jpg", fcm:"cine/cmag_full.jpg", gref:"cine/flow_ref_full.jpg", gpd:"cine/flow_pddl_full.jpg", gcm:"cine/flow_cmag_full.jpg", zf:"anim/zf.png", km:"anim/kmag.png", kp:"anim/kphase.png" };
 const FW = 208, FH = 288;                                // full field of view (portrait)
+const FLW = 160, FLH = 224;                              // Flow2D frames
 const TS = 192, TT = 22, NFR = 25;                       // sprite tile size; frame t = 23 (index 22); 25 cardiac phases
 const IM = {}; let kB, kY, FRM = [], OUT = {}, ready = false;
 const TILE = (sheet, i) => { const c = document.createElement("canvas"); c.width = c.height = TS; c.getContext("2d").drawImage(sheet, i*TS, 0, TS, TS, 0, 0, TS, TS); return c; };
@@ -1028,32 +1030,46 @@ function draw(t){
     });
   }
 
-  // ---------- step 6: cine of all 25 phases, full field of view: PD-DL | ℂ+Mag | reference ----------
+  // ---------- step 6: all 25 phases at R = 6 — cine (left) and Flow2D (right): PD-DL | ℂ+Mag | reference ----------
   const s6 = seg(t, 29.4, 30.2);
   if (s6 > 0){
     ctx.globalAlpha = s6; ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);          // fade the pipeline out
     rich([["6", C.acc, 800], ["   " + TITLES[5], C.txt]], W/2, 58, 29, seg(t, 29.4, 29.9) * (1 - seg(t, T_END - .7, T_END)));
-    const TH = 560, TW = Math.round(TH * FW / FH), GAP = 44, X0 = (W - 3*TW - 2*GAP)/2, Y0 = 92;
-    const z = ez(seg(t, 29.6, 30.9)), play = Math.max(0, t - 31.0), fi = (TT + Math.floor(play * 11)) % NFR;
-    const frameImg = (sheet, f, x, y, w, hh, a, stroke, lw) => {
-      if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; rr(x, y, w, hh, 12); ctx.clip(); ctx.drawImage(sheet, f*FW, 0, FW, FH, x, y, w, hh); ctx.restore();
-      ctx.globalAlpha = a; ctx.strokeStyle = stroke || C.edge; ctx.lineWidth = lw || 2; rr(x, y, w, hh, 12); ctx.stroke();
+    const PW = 246, PG = 10, GG = 44, X0 = (W - 6*PW - 4*PG - GG)/2, Y0 = 232;
+    const z = ez(seg(t, 29.6, 30.9)), play = Math.max(0, t - 31.0), fc = (TT + Math.floor(play * 11)) % NFR, ff = Math.floor(play * 11) % NFR;
+    const la = seg(t, 30.6, 31.2), fa = ez(seg(t, 30.4, 31.0));
+    const panel = (sheet, f, sw, sh, x, y, w, hh, a, stroke, lw) => {
+      if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; rr(x, y, w, hh, 10); ctx.clip(); ctx.drawImage(sheet, f*sw, 0, sw, sh, x, y, w, hh); ctx.restore();
+      ctx.globalAlpha = a; ctx.strokeStyle = stroke; ctx.lineWidth = lw; rr(x, y, w, hh, 10); ctx.stroke();
     };
-    const COLS = [
-      { sh: IM.fpd, lab: "PD-DL", c: C.txt, m: "PSNR 23.87 dB · SSIM 0.847", from: CYS[0] },
-      { sh: IM.fcm, lab: "ℂ+Mag", c: C.acc, m: "PSNR 31.74 dB · SSIM 0.940", from: CYS[1] },
-      { sh: IM.fref, lab: "Reference", c: C.mut, m: "fully sampled" }
+    const GROUPS = [
+      { name: "Segmented cine", col: C.acc, sw: FW, sh: FH, f: fc, cols: [
+        { sh: IM.fpd, lab: "PD-DL", c: C.txt, m: "23.87 dB · 0.847", from: CYS[0] },
+        { sh: IM.fcm, lab: "ℂ+Mag", c: C.acc, m: "31.74 dB · 0.940", from: CYS[1] },
+        { sh: IM.fref, lab: "Reference", c: C.mut, m: "fully sampled" }] },
+      { name: "Phase-contrast Flow2D", col: C.cx, sw: FLW, sh: FLH, f: ff, cols: [
+        { sh: IM.gpd, lab: "PD-DL", c: C.txt, m: "23.20 dB · 0.777" },
+        { sh: IM.gcm, lab: "ℂ+Mag", c: C.acc, m: "32.79 dB · 0.934" },
+        { sh: IM.gref, lab: "Reference", c: C.mut, m: "fully sampled" }] }
     ];
-    const la = seg(t, 30.6, 31.2);
-    COLS.forEach((cl6, i) => {
-      const gx = X0 + i*(TW + GAP);
-      if (cl6.from != null) frameImg(cl6.sh, fi, lerp(OX, gx, z), lerp(cl6.from - OH/2, Y0, z), lerp(OW, TW, z), lerp(OH, TH, z), 1, i === 1 ? C.acc : C.edge, i === 1 ? 4 : 2);
-      else frameImg(cl6.sh, fi, gx, Y0, TW, TH, ez(seg(t, 30.4, 31.0)), C.edge, 2);
-      text(cl6.lab, gx + TW/2, Y0 + TH + 40, { s: 30, w: 800, c: cl6.c, a: la });
-      text(cl6.m, gx + TW/2, Y0 + TH + 70, { s: 18, w: 600, f: cl6.from != null ? MONO : FONT, c: C.mut, a: la });
+    GROUPS.forEach((G, gi) => {
+      const gx0 = X0 + gi*(3*PW + 2*PG + GG), gw = 3*PW + 2*PG, ph = Math.round(PW * G.sh / G.sw);
+      if (la > 0){                                                     // dataset box, colored as in Table I
+        ctx.globalAlpha = la; ctx.fillStyle = G.col + "24"; rr(gx0, Y0 - 62, gw, 42, 10); ctx.fill();
+        ctx.strokeStyle = G.col; ctx.lineWidth = 2; rr(gx0, Y0 - 62, gw, 42, 10); ctx.stroke();
+        text(G.name, gx0 + gw/2, Y0 - 34, { s: 21, w: 800, c: C.txt, a: la });
+      }
+      G.cols.forEach((q, i) => {
+        const x = gx0 + i*(PW + PG), st = i === 1 ? C.acc : C.edge, lw = i === 1 ? 4 : 2;
+        if (q.from != null) panel(q.sh, G.f, G.sw, G.sh, lerp(OX, x, z), lerp(q.from - OH/2, Y0, z), lerp(OW, PW, z), lerp(OH, ph, z), 1, st, lw);
+        else panel(q.sh, G.f, G.sw, G.sh, x, Y0, PW, ph, fa, st, lw);
+        text(q.lab, x + PW/2, Y0 + ph + 36, { s: 26, w: 800, c: q.c, a: la });
+        text(q.m, x + PW/2, Y0 + ph + 64, { s: 17, w: 600, f: q.from != null || i === 1 || i === 0 ? MONO : FONT, c: C.mut, a: la });
+      });
     });
-    text("mean PSNR / SSIM over all 25 cardiac phases (unfiltered); playback uses a 3-phase temporal median", W/2, Y0 + TH + 108, { s: 16, c: C.mut, a: la });
-    text(`cardiac phase ${fi + 1} / ${NFR}`, W/2, Y0 + TH + 138, { s: 18, w: 600, f: MONO, c: C.txt, a: seg(t, 31.0, 31.4) });
+    const yb = Y0 + Math.round(PW * FLH / FLW) + 112;
+    text("PSNR · SSIM, mean over all 25 cardiac phases", W/2, yb, { s: 17, c: C.mut, a: la });
+    text(`cardiac phase ${fc + 1} / ${NFR}`, W/2, yb + 30, { s: 18, w: 600, f: MONO, c: C.txt, a: seg(t, 31.0, 31.4) });
   }
 
   const fo = seg(t, T_END - .7, T_END);
