@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ℂ+Mag Dynamic MRI</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="ℂ+Mag: harnessing magnitude-only and complex measurements for improved dynamic MRI reconstruction with learned priors. IEEE TBME 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400;1,6..72,500&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column (≈1040px) with full-bleed figure plates; color carries meaning:
+   blue = complex-valued measurements, amber = magnitude-only measurements / <span class="cmg">ℂ+Mag</span>. */
+:root{
+  --bg:#fbfbfa; --surface:#ffffff; --surface-2:#f3f3f0; --ink:#17181a; --ink-2:#45484d; --muted:#5d6066; --line:#e3e3de;
+  --cx:#2f5bea; --mag:#a87a06; --base:#9aa0aa; --oracle:#7446d0; --accent-soft:#f6e9eb;
+  --plate:#ffffff; --kbg:#070b16; --kdim:#1b2236;
+  --accent:#7a1f2b; --gold:#b8860b;  /* UMN maroon + gold, as on the UDT page */
+  --f-head:"Inter", system-ui, -apple-system, "Segoe UI", "LMMath", sans-serif;
+  --f-display:"Inter", system-ui, -apple-system, "Segoe UI", "LMMath", sans-serif;
+  --f-body:"Inter", system-ui, -apple-system, "Segoe UI", "LMMath", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --col:1040px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111214; --surface:#191b1e; --surface-2:#202226; --ink:#ececea; --ink-2:#c4c6ca; --muted:#a2a5ab; --line:#2d3035; --accent-soft:#2a1b1e;
+    --cx:#7c9bff; --mag:#e0b44c; --base:#6b7280; --oracle:#b79bff; --plate:#ffffff; --accent:#e07a88; --gold:#e0b44c; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111214; --surface:#191b1e; --surface-2:#202226; --ink:#ececea; --ink-2:#c4c6ca; --muted:#a2a5ab; --line:#2d3035; --accent-soft:#2a1b1e;
+  --cx:#7c9bff; --mag:#e0b44c; --base:#6b7280; --oracle:#b79bff; --plate:#ffffff; --accent:#e07a88; --gold:#e0b44c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.65 var(--f-body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:var(--col);margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+a{color:var(--cx)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);font-weight:800;text-wrap:balance;margin:0;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3vw,1.875rem);line-height:1.2}
+h3{font-size:1.25rem;line-height:1.25}
+p{margin:0}
+.prose{max-width:68ch;color:var(--ink-2)}
+.prose p+p{margin-top:.9em}
+.cx{color:var(--cx);font-weight:600}
+.mag{color:var(--mag);font-weight:600}
+.cm{font-family:var(--f-display);font-weight:700;color:var(--accent);white-space:nowrap}
+.cmg{color:var(--accent);font-family:"LMMath","Latin Modern Math","STIX Two Math","Cambria Math",serif;font-size:1.1em;line-height:1;letter-spacing:0;white-space:nowrap}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font:700 14px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+
+/* ---------- hero (centered, UDT-style) ---------- */
+header.hero{padding-block:64px 24px;text-align:center}
+.hero .venue{display:inline-block;font:600 13px/1.4 var(--f-head);letter-spacing:.04em;text-transform:uppercase;color:var(--gold);border:1px solid color-mix(in srgb,var(--gold) 40%,transparent);background:color-mix(in srgb,var(--gold) 8%,transparent);padding:4px 12px;border-radius:999px;margin-bottom:20px}
+h1.title{font-family:var(--f-head);font-size:clamp(22px,2.75vw,31px);line-height:1.18;font-weight:800;letter-spacing:-.025em;margin:0 auto 8px;text-wrap:balance;color:var(--ink)}
+h1.title .name{color:var(--accent)}
+.hero .authors{font-size:18px;margin:24px 0 4px;color:var(--ink)}
+.hero .authors .au{color:var(--ink);font-weight:500;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:1.5px;text-underline-offset:4px;white-space:nowrap}
+.hero .authors a.au:hover{color:var(--accent)}
+.hero .authors .au+.au{margin-left:.45em}
+h1.title{max-width:1008px}
+h1.title .nw{white-space:nowrap}
+.hero .affil{color:var(--muted);font-size:15px}
+.links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:28px 0 8px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:999px;font:600 15px/1.4 var(--f-head);text-decoration:none;border:1px solid var(--ink);transition:transform .15s ease,opacity .15s ease}
+.btn:hover{transform:translateY(-1px);opacity:.9}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn svg{width:17px;height:17px;flex:none}
+.thesis{margin:34px 0 0;font-size:.86rem;line-height:1.55;max-width:none;text-align:justify;text-align-last:center;color:var(--muted)}
+
+/* ---------- teaser animation (canvas, like UDT) ---------- */
+.teaser{position:relative;margin:16px auto 0;border-radius:18px;overflow:hidden;background:#fbf7ec;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(120,90,20,.08);border:1px solid #ece3cc}
+.teaser canvas{display:block;width:100%;aspect-ratio:16/9}
+.teaser-ctrl{position:absolute;top:12px;right:12px;display:flex;gap:6px;opacity:.6;transition:opacity .2s}
+.teaser:hover .teaser-ctrl,.teaser-ctrl:focus-within{opacity:1}
+.teaser-ctrl button{font:600 12px var(--f-head);color:#17181a;cursor:pointer;background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.12);border-radius:999px;padding:5px 11px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.teaser-ctrl button:hover{background:rgba(0,0,0,.1)}
+.tsteps{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:14px}
+.tsteps button{font:600 13px/1.3 var(--f-head);color:var(--muted);background:var(--surface-2);border:1px solid transparent;border-radius:999px;padding:5px 12px;cursor:pointer}
+.tsteps button b{font-family:var(--f-mono);margin-right:6px}
+.tsteps button[aria-current="step"]{color:var(--accent);background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+@media (max-width:600px){.teaser{margin-left:-16px;margin-right:-16px;border-radius:0;border-left:0;border-right:0}}
+.thesis b{color:var(--accent)}
+.thesis b.cx{color:var(--cx)}
+.thesis b.mag{color:var(--mag)}
+.thesis em{font-style:normal}
+.hero .glance{text-align:left}
+
+/* ---------- glance ---------- */
+.glance{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:36px}
+.stat{background:var(--surface);padding:20px 18px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.stat .num{font:800 clamp(1.7rem,3.4vw,2.35rem)/1 var(--f-display);color:var(--ink);font-variant-numeric:tabular-nums}
+.stat .num small{font-size:.5em;font-weight:500;color:var(--muted);margin-left:.15em}
+.stat .lbl{font-size:.86rem;color:var(--ink-2);line-height:1.4}
+.stat .src{font:.7rem/1.3 var(--f-mono);color:var(--muted);margin-top:auto;padding-top:6px}
+@media (max-width:760px){.glance{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:21;background:var(--bg)}
+
+/* ---------- sections ---------- */
+section{padding-block:clamp(48px,7vw,80px) 0}
+section>.wrap>.head{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:clamp(16px,2.6vw,26px)}
+figure{margin:0}
+.plate{background:var(--plate);border:1px solid var(--line);border-radius:10px;padding:10px;display:block}
+.plate img{display:block;width:100%;height:auto;border-radius:4px}
+figcaption{font-size:.86rem;color:var(--muted);margin-top:10px;line-height:1.5;max-width:90ch;text-align:justify;hyphens:auto}
+figcaption b{color:var(--ink-2)}
+.two{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:860px){.two{grid-template-columns:minmax(0,1fr)}}
+.kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+.kv div{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface)}
+.kv .mono{font-size:1.15rem;font-weight:600;display:block}
+.kv span:last-child{font-size:.78rem;color:var(--muted)}
+
+/* ---------- controls ---------- */
+.refs{font-size:.8rem;color:var(--muted);padding-left:1.4em;margin-top:14px;text-align:left}
+.refs li{margin-bottom:4px}
+.cite{text-decoration:none;color:var(--accent);font-weight:600}
+.toy svg{display:block;width:100%;height:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.toy #toyNote{min-height:4.7em}
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-bottom:16px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg)}
+.seg button{font:600 .82rem/1 var(--f-body);color:var(--ink-2);background:transparent;border:0;padding:.6em .85em;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.ctl{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--muted);font-weight:600}
+input[type=range]{accent-color:var(--accent);width:min(260px,46vw)}
+
+/* ---------- sampling demo ---------- */
+.demo{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:26px;align-items:start}
+@media (max-width:860px){.demo{grid-template-columns:minmax(0,1fr)}}
+.demo svg{width:100%;height:auto;display:block}
+.kpair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.kpair figcaption{margin-top:6px;font-size:.8rem;text-align:center}
+.readout{margin-top:16px;display:grid;gap:8px;font-size:.88rem}
+.readout div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding-bottom:6px}
+.readout div span:first-child{color:var(--muted)}
+.slimdemo{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.slimdemo .controls{gap:10px 18px;margin-bottom:8px}
+.slimdemo .ctl{font-size:.82rem}
+.slimdemo #tSlider{width:110px}
+.slimdemo svg{width:100%;height:auto;display:block}
+.slimdemo .legend{font-size:.76rem;gap:4px 14px;margin-top:6px}
+.kw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.kw-l{font:700 .72rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-right:6px}
+.chip{font-size:.74rem;font-weight:600;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:.28em .65em}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.82rem;color:var(--ink-2);margin-top:12px}
+.legend i{display:inline-block;width:14px;height:6px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+/* ---------- math ---------- */
+.eq{overflow-x:auto;padding:18px 8px;margin:18px 0;border-block:1px solid var(--line);font-size:1.12rem}
+@font-face{font-family:"LMMath";src:url("fonts/latinmodern-math.woff2") format("woff2");font-display:swap}
+math{font-family:"LMMath","Latin Modern Math","STIX Two Math","Cambria Math",serif}
+.m-cx{color:var(--cx)} .m-mag{color:var(--mag)} .m-r{color:var(--ink-2)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}
+@media (max-width:860px){.steps{grid-template-columns:minmax(0,1fr)}}
+.step{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--surface);display:flex;flex-direction:column;gap:8px;min-width:0}
+.step.hl{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-soft)}
+.step .tag{font:600 .72rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.step.hl .tag{color:var(--accent)}
+.step .m{overflow-x:auto;font-size:.98rem;padding:4px 0}
+.step p{font-size:.88rem;color:var(--ink-2)}
+
+/* ---------- charts ---------- */
+.chart{position:relative}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart text{fill:var(--muted);font:11px var(--f-mono)}
+.chart .lab{font:600 12px var(--f-body)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font:12px/1.5 var(--f-body);padding:8px 10px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .1s;z-index:5}
+.tip b{font-family:var(--f-mono)}
+.tip .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.gaingrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 26px}
+.gaingrid h4{margin:0 0 4px;font:600 .82rem/1.3 var(--f-body);color:var(--ink-2)}
+.gaingrid h4 span{color:var(--muted);font-weight:500}
+@media (max-width:640px){.gaingrid{grid-template-columns:1fr}}
+.chartlegend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--ink-2);margin:2px 0 8px}
+.chartlegend span{display:inline-flex;align-items:center;gap:6px}
+.multi{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:700px){.multi{grid-template-columns:minmax(0,1fr)}}
+.multi h3{font:600 .82rem/1 var(--f-body);color:var(--ink-2);margin-bottom:6px}
+
+/* ---------- tables ---------- */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.84rem;font-variant-numeric:tabular-nums}
+th,td{padding:.55em .7em;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+thead th{font:600 .74rem/1.2 var(--f-mono);color:var(--muted);letter-spacing:.03em;background:var(--bg)}
+tbody tr:last-child td{border-bottom:0}
+tr.grp td{font:600 .72rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+tr.ours td{background:var(--accent-soft);font-weight:700}
+tr.oracle td{color:var(--muted);font-style:italic}
+td.best{font-weight:700;color:var(--ink)}
+.t2{font-size:.8rem}
+.t2 th,.t2 td{padding:.5em .55em}
+.t2 thead th{text-align:center;border-bottom:1px solid var(--line)}
+.t2 th.t2-ds{font:600 .82rem/1.2 var(--f-body);color:var(--ink);letter-spacing:0;padding:.6em .5em .4em}
+.t2 th.t2-r{font:600 .76rem/1 var(--f-mono);color:var(--ink-2);padding:.45em .5em}
+.t2 th.t2-k{font:500 .66rem/1 var(--f-mono);color:var(--muted);letter-spacing:.06em;padding:.4em .55em .55em}
+.t2 th.t2-m{text-align:left;vertical-align:bottom;font:600 .72rem/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+.t2 td{text-align:center;color:var(--ink-2)}
+.t2 td:first-child{text-align:left;color:var(--ink);font-weight:600;padding-right:1em}
+.t2 .gs{border-left:1px dashed var(--line)}
+.t2 .ds{border-left:2px solid var(--line)}
+.t2 tr.grp td{padding:.65em .7em .5em;text-align:left;color:var(--accent)}
+.t2 tr.ours td{color:var(--ink)}
+.t2 td.best{color:var(--ink);font-weight:700}
+.t2 tr.oracle td{color:var(--muted)}
+.t2 .t2-box{display:block;padding:.45em .6em;border-radius:6px;border:1.5px solid;font-weight:700}
+.t2 .t2-box.c{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,transparent)}
+.t2 .t2-box.f{border-color:var(--cx);background:color-mix(in srgb,var(--cx) 18%,transparent)}
+.t2 .t2-box.b{border-color:#6fa8dc;background:color-mix(in srgb,#6fa8dc 18%,transparent)}
+.t2 .t2-box.g{border-color:#e8a07a;background:color-mix(in srgb,#e8a07a 18%,transparent)}
+.t2 .t2-box.n{border-color:var(--muted);background:color-mix(in srgb,var(--muted) 14%,transparent)}
+.t2c th.t2-k{font:600 .72rem/1.2 var(--f-body);letter-spacing:0;color:var(--ink-2);text-transform:none;padding:.5em .6em .6em}
+.t2c th.t2-m{font:600 .72rem/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent);vertical-align:bottom}
+.t2c td{font-size:.82rem}
+.t2c td.oc{color:var(--ink);font-weight:700;background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.t2 .t2-sd{display:inline-block;margin-left:.35em;font-size:.72rem;font-weight:500;color:var(--muted)}
+.t2 .t2-sub{font:italic 500 .74rem var(--f-body);color:var(--muted)}
+.bar{display:inline-block;height:6px;border-radius:2px;background:var(--base);vertical-align:middle;margin-left:8px}
+tr.ours .bar{background:var(--accent)}
+
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tabs button{font:600 .85rem/1 var(--f-body);padding:.65em .9em;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tabpanel .plate{max-height:none}
+.tabpanel.narrow .plate{max-width:560px;margin-inline:auto}
+.zoom{font-size:.8rem;margin-top:6px;display:inline-block}
+
+/* ---------- misc ---------- */
+.callout{border-left:3px solid var(--accent);padding:6px 0 6px 16px;color:var(--ink-2);margin-top:18px;max-width:72ch}
+pre.bib{margin:0;overflow-x:auto;font:13px/1.6 var(--f-mono);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.bibwrap{position:relative}
+.copy{position:absolute;top:10px;right:10px}
+footer{margin-top:80px;border-top:1px solid var(--line);padding-block:28px 40px;color:var(--muted);font-size:.84rem}
+footer .wrap{display:flex;flex-direction:column;gap:6px}
+.rtcard{margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-left:4px solid;border-radius:10px}
+.rtcard.b{border-left-color:#6fa8dc;background:color-mix(in srgb,#6fa8dc 9%,transparent)}
+.rtcard.g{border-left-color:#e8a07a;background:color-mix(in srgb,#e8a07a 9%,transparent)}
+.rtcard p{margin:6px 0 0;font-size:.95em}
+.rthead{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.rthead b{font-size:1rem;margin-right:4px;color:var(--ink)}
+.rthead .chip{font:500 .72rem/1 var(--f-mono);padding:4px 7px;border-radius:999px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface)}
+ul.clean{margin:10px 0 0;padding-left:1.1em;color:var(--ink-2)}
+ul.clean li+li{margin-top:6px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="venue">IEEE TBME 2026</div>
+    <h1 class="title"><span class="name"><span class="cmg">ℂ+Mag</span></span>: Harnessing <span class="nw">Magnitude-Only</span> and Complex Measurements for Improved Dynamic MRI Reconstruction with Learned Priors</h1>
+    <div class="authors">
+      <a class="au" href="https://mahdisaberii.github.io/" target="_blank" rel="noopener">Mahdi Saberi</a>, <a class="au" href="https://utkualcalar.github.io/" target="_blank" rel="noopener">Yaşar Utku Alçalar</a>, <span class="au">Merve Gülle</span>, <span class="au">Chetan Shenoy</span>, <a class="au" href="https://imagine.umn.edu/people/mehmet-akcakaya" target="_blank" rel="noopener">Mehmet Akçakaya</a>
+    </div>
+    <div class="affil">University of Minnesota</div>
+    <div class="links">
+      <a class="btn" href="https://ieeexplore.ieee.org/abstract/document/11735101" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Paper (IEEE)</a>
+      <a class="btn" href="https://arxiv.org/abs/2608.18036" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>arXiv</a>
+      <a class="btn" href="https://github.com/MahdiSaberii/C_Plus_Mag" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>Code</a>
+      <a class="btn ghost" href="#bibtex">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>BibTeX</a>
+    </div>
+
+    <p class="thesis"><b><span class="cmg">ℂ+Mag</span></b> reconstructs each frame from its own <b class="cx">complex</b> k-space plus the <b class="mag">magnitude-only</b> k-space of neighboring frames. Those magnitudes come from data the scan already acquires, so it <em>improves image quality at no extra scan time</em>.</p>
+    <figure class="teaser" id="teaser">
+      <canvas width="1600" height="900" aria-label="Animation of the ℂ+Mag pipeline: interleaved cine acquisition across frames t−1 to t+2; frame t keeps complex k-space while neighbors keep only magnitude; neighbor magnitudes fill the lines frame t skipped; an unrolled ADMM network with a magnitude-aware data-fidelity step reconstructs a sharper image than conventional PD-DL."></canvas>
+      <div class="teaser-ctrl"><button type="button" data-act="play">Pause</button><button type="button" data-act="replay">Replay</button></div>
+    </figure>
+    <div class="tsteps" id="tsteps" aria-label="Animation steps">
+      <button type="button" data-i="0"><b>1</b>Acquire</button><button type="button" data-i="1"><b>2</b>Keep magnitude</button><button type="button" data-i="2"><b>3</b>Two data sets</button><button type="button" data-i="3"><b>4</b>PD-DL</button><button type="button" data-i="4"><b>5</b><span class="cmg">ℂ+Mag</span></button><button type="button" data-i="5"><b>6</b>Cine</button>
+    </div>
+
+  </div>
+</header>
+
+<main>
+<!-- ================= TOY EXAMPLE ================= -->
+<section id="toy">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow">Background</span><h2>Two magnitudes ≈ one complex measurement</h2></div>
+    <div class="two" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center">
+      <div class="prose" style="text-align:justify;hyphens:auto">
+        <p>A <span class="cx">complex-valued</span> measurement carries two real numbers: its real and imaginary parts. A <span class="mag">magnitude-only</span> measurement carries just one. For sparse signals, Akçakaya and Tarokh showed that two random magnitude-only measurements hold the same information as one random complex-valued linear measurement <a href="#ref-at15" class="cite">[1]</a>, which motivates reconstructing MRI from a mix of the two <a href="#ref-atn15" class="cite">[2]</a>.</p>
+        <p>Think of telling someone where your friend is. A complex measurement is like saying “260 m north-east of the school”: a distance <em>and</em> a direction. A magnitude-only measurement keeps the distance but drops the direction, so one of them only says “260 m from the school”. Two of them, “260 m from the school and 210 m from the library”, narrow it down to two spots, and one of those is in the river. Just as common sense rules out the river, a prior such as sparsity rules out the wrong solution.</p>
+        <ol class="refs">
+          <li id="ref-at15">M. Akçakaya and V. Tarokh, “Sparse signal recovery from a mixture of linear and magnitude-only measurements,” <i>IEEE Signal Processing Letters</i>, vol. 22, no. 9, pp. 1220–1223, 2015.</li>
+          <li id="ref-atn15">M. Akçakaya, V. Tarokh and R. Nezafat, “Joint compressed sensing and sparse phase retrieval: reconstruction from a combination of complex and magnitude-only k-space measurements,” in <i>Proc. ISMRM</i>, 2015.</li>
+        </ol>
+      </div>
+      <figure class="toy">
+        <div class="controls" style="margin-bottom:10px">
+          <div class="seg" id="toyMode" role="group" aria-label="What you are told"><button type="button" data-v="c" aria-pressed="true">Distance + direction</button><button type="button" data-v="m1">One distance</button><button type="button" data-v="m2">Two distances</button></div>
+        </div>
+        <svg id="toySvg" viewBox="0 0 400 330" role="img" aria-label="Map with a school, a library, a river and your friend. A distance and a direction from the school pin the friend down; one distance gives a circle; two distances give two circles that cross at the friend and at a point in the river."></svg>
+        <figcaption id="toyNote"></figcaption>
+        <figcaption style="margin-top:4px;font-size:.78rem">Analogy: distance ↔ magnitude, direction ↔ phase. In [1] the measurements are random linear projections of a sparse signal, and sparsity plays the role of the river.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABSTRACT ================= -->
+<section id="abstract">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow">Abstract</span><h2>Dynamic MRI: free and accurate auxiliary magnitude measurements</h2></div>
+    <div class="two" style="grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start">
+      <div class="prose" style="text-align:justify;hyphens:auto">
+        <p>MRI reconstruction methods for undersampled k-space data naturally utilize <span class="cx">complex-valued</span> measurements. Parallel developments in sparse phase retrieval have shown that <span class="mag">magnitude-only</span> measurements may provide complementary information for signal recovery. However, their use in MRI reconstruction remains largely unexplored, due to lack of practical settings where informative magnitude measurements can be obtained without additional scan time. In this work, we investigate the use of auxiliary k-space magnitude information for accelerated steady-state dynamic MRI reconstruction, and demonstrate strong consistency of k-space magnitudes across time-frames. Building on this observation, we propose <span class="cm"><span class="cmg">ℂ+Mag</span></span>, a magnitude-informed physics-driven deep learning (PD-DL) reconstruction method. The proposed method employs an ADMM-based unrolling framework with a novel magnitude-aware data-fidelity formulation, where quadratically smoothed optimization and momentum-based updates are introduced to address the non-differentiability and non-convexity of the magnitude constraints. Experiments on retrospectively undersampled cine MRI and phase-contrast flow MRI datasets, as well as prospectively undersampled real-time cine MRI acquisitions, demonstrate improved artifact suppression, sharper anatomical recovery, and better preservation of phase information compared to conventional PD-DL methods, which is further supported through blinded expert reader evaluations.</p>
+        <div class="kw"><span class="kw-l">Index terms</span><span class="chip">Cardiac MRI</span><span class="chip">Dynamic MRI reconstruction</span><span class="chip">Magnitude-only measurements</span><span class="chip">Phase retrieval</span><span class="chip">Physics-driven deep learning</span><span class="chip">Algorithm unrolling</span></div>
+      </div>
+      <figure>
+        <a class="plate" href="figs/motivation.png" target="_blank" rel="noopener"><img src="figs/motivation.png" alt="Cosine similarity between the k-space magnitude of the central cardiac phase and every other phase. All curves peak at 1.000 at phase 13 and stay above about 0.988 over all 25 phases." loading="lazy"></a>
+        <figcaption>Cosine similarity (c-sim) between the k-space magnitude of the central cardiac phase (dashed) and every other phase; mean ± std across slices. It stays above 0.988, i.e. <span class="mono" style="white-space:nowrap">NMSE ≈ 2(1 − c-sim)</span> &lt; 0.024, so neighboring frames closely match the magnitudes a frame did not acquire. The panel below shows where these magnitudes come from for a target frame t.</figcaption>
+        <div class="slimdemo">
+          <div class="controls">
+            <div class="ctl">R
+              <div class="seg" id="rSeg" role="group" aria-label="Acceleration rate">
+                <button type="button" data-r="8" aria-pressed="true">8</button><button type="button" data-r="12">12</button>
+              </div>
+            </div>
+            <label class="ctl" for="tSlider">Frame <input id="tSlider" type="range" min="0" max="24" value="12"> <span class="mono" id="tVal">t = 12</span></label>
+          </div>
+          <svg id="grid" role="img" aria-label="Sampling pattern across cardiac frames"></svg>
+          <div class="legend">
+            <span><i style="background:var(--cx)"></i>frame t: complex</span>
+            <span><i style="background:var(--mag)"></i>neighbors: magnitude reused</span>
+            <span><i style="background:var(--muted);opacity:.45"></i>unused</span>
+          </div>
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="results">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow">Results · retrospective undersampling</span><h2>Gains grow with the acceleration rate</h2>
+      <p class="prose">Cine (OCMR; 0.55 T, 1.5 T and 3 T; 46 training / 14 test subjects) and Flow2D (CMRxRecon2025; 20 / 8) at R ∈ {6, 8, 12, 16}, without ACS lines. The oracle uses the true magnitudes and marks the upper bound of the formulation; it is not achievable in practice.</p>
+    </div>
+    <div class="panel">
+      <div class="chartlegend" id="lineLegend"></div>
+      <div class="gaingrid" id="gainGrid"></div>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:10px;text-align:justify">Gain of <span class="cmg">ℂ+Mag</span> over PD-DL at each acceleration rate R. Each panel has its own scale; hover for the absolute values.</p>
+    </div>
+
+    <h3 style="margin:36px 0 12px">Table I</h3>
+    <div class="tbl" id="tab2"></div>
+    <p style="font-size:.82rem;color:var(--muted);margin-top:8px;text-align:justify">Mean PSNR (dB) and SSIM over the test sets of segmented cine and Flow2D, retrospectively undersampled at R = 6, 8, 12 and 16. Bold marks the better of PD-DL and <span class="cmg">ℂ+Mag</span>. The oracle uses the true magnitudes and is shown only as an upper bound.</p>
+
+    <h3 style="margin:40px 0 12px">Blinded cardiologist assessment</h3>
+    <figure>
+      <a class="plate" href="figs/fig8_reader.png" target="_blank" rel="noopener"><img src="figs/fig8_reader.png" alt="Fig. 8: blinded reader scores for SNR, blurring, aliasing and overall quality for cine and Flow2D at R = 6 and 8." loading="lazy"></a>
+      <figcaption>Blinded cardiologist scores on a 4-point Likert scale (1 = excellent, lower is better) for SNR, blurring, aliasing and overall quality. <span class="cmg">ℂ+Mag</span> scores close to the reference and clearly better than PD-DL. Wilcoxon signed-rank test, * P &lt; 0.05.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= PROSPECTIVE ================= -->
+<section id="prospective">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow">Prospective undersampling</span><h2>Real-time cine at R = 8, trained without fully sampled data</h2></div>
+    <div class="two rt" style="grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);align-items:start">
+      <div class="prose" style="text-align:justify;hyphens:auto">
+        <p>Free-breathing real-time cine has no fully sampled reference, so these models were trained with multi-mask SSDU self-supervision. Real-time imaging is a natural fit for <span class="cmg">ℂ+Mag</span>: neighboring frames are acquired one after another, so their magnitudes stay reliable even with irregular heart rhythms.</p>
+        <div class="rtcard b">
+          <div class="rthead"><b>bSSFP</b><span class="chip">NHLBI repository</span><span class="chip">1.5 T</span><span class="chip">R = 4 → 8</span></div>
+          <p>Acquired at R = 4 and further undersampled to R = 8. <span class="cmg">ℂ+Mag</span> at R = 8 matches the image quality of the clinical tGRAPPA reconstruction at R = 4.</p>
+        </div>
+        <div class="rtcard g">
+          <div class="rthead"><b>GRE</b><span class="chip">Acquired locally</span><span class="chip">3 T</span><span class="chip">R = 8</span></div>
+          <p>tGRAPPA shows heavy artifacts and PD-DL loses detail, while <span class="cmg">ℂ+Mag</span> keeps cardiac structures sharp in both systole and diastole.</p>
+        </div>
+      </div>
+      <figure><a class="plate" href="figs/fig6_realtime.jpg" target="_blank" rel="noopener"><img src="figs/fig6_realtime.jpg" alt="Real-time bSSFP and GRE cine reconstructions comparing tGRAPPA, PD-DL and C+Mag in diastole and systole." loading="lazy"></a>
+      <figcaption style="text-align:justify">Real-time bSSFP (top, blue) and GRE (bottom, peach) in diastole and systole. Yellow arrows mark residual artifacts and lost detail in tGRAPPA and PD-DL.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CLINICAL ================= -->
+<section id="clinical">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow">Clinical evaluation</span><h2>Cardiac function and flow measurements match the reference</h2></div>
+    <h3 style="margin:8px 0 12px">Table II</h3>
+    <div class="tbl">
+      <table class="t2 t2c">
+        <thead>
+          <tr><th rowspan="2" class="t2-m">Cardiac function</th><th colspan="2" class="t2-ds"><span class="t2-box c">Breath-hold cine</span></th><th colspan="2" class="t2-ds ds"><span class="t2-box b">Real-time bSSFP</span></th><th colspan="2" class="t2-ds ds"><span class="t2-box g">Real-time GRE</span></th></tr>
+          <tr><th class="t2-k"><span class="cmg">ℂ+Mag</span> (R = 8)</th><th class="t2-k">Reference</th><th class="t2-k ds"><span class="cmg">ℂ+Mag</span> (R = 8)</th><th class="t2-k">tGRAPPA (R = 4)</th><th class="t2-k ds"><span class="cmg">ℂ+Mag</span> (R = 8)</th><th class="t2-k">Breath-hold</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>EDV (mL)</td><td class="oc">119.6<span class="t2-sd">(26)</span></td><td class="">121.8<span class="t2-sd">(25)</span></td><td class="oc ds">98.7<span class="t2-sd">(14)</span></td><td class="">100.7<span class="t2-sd">(13)</span></td><td class="oc ds">120.7<span class="t2-sd">(20.7)</span></td><td class="">121.3<span class="t2-sd">(19)</span></td></tr>
+          <tr><td>ESV (mL)</td><td class="oc">48.3<span class="t2-sd">(19)</span></td><td class="">48.4<span class="t2-sd">(18)</span></td><td class="oc ds">75.0<span class="t2-sd">(30)</span></td><td class="">78.3<span class="t2-sd">(23)</span></td><td class="oc ds">36.7<span class="t2-sd">(12.8)</span></td><td class="">37.0<span class="t2-sd">(13)</span></td></tr>
+          <tr><td>SV (mL)</td><td class="oc">71.3<span class="t2-sd">(19)</span></td><td class="">73.2<span class="t2-sd">(19)</span></td><td class="oc ds">23.7<span class="t2-sd">(16)</span></td><td class="">22.3<span class="t2-sd">(11)</span></td><td class="oc ds">84.0<span class="t2-sd">(10.5)</span></td><td class="">84.3<span class="t2-sd">(8)</span></td></tr>
+          <tr><td>EF (%)</td><td class="oc">59.8<span class="t2-sd">(11)</span></td><td class="">60.3<span class="t2-sd">(11)</span></td><td class="oc ds">26.0<span class="t2-sd">(21)</span></td><td class="">23.0<span class="t2-sd">(14)</span></td><td class="oc ds">70.3<span class="t2-sd">(6.8)</span></td><td class="">70.2<span class="t2-sd">(7)</span></td></tr>
+          <tr><td>EDM (g)</td><td class="oc">96.2<span class="t2-sd">(7)</span></td><td class="">94.1<span class="t2-sd">(18)</span></td><td class="oc ds">103.7<span class="t2-sd">(27)</span></td><td class="">103.3<span class="t2-sd">(28)</span></td><td class="oc ds">139.3<span class="t2-sd">(18.3)</span></td><td class="">139.7<span class="t2-sd">(34.3)</span></td></tr>
+          <tr><td>ESM (g)</td><td class="oc">93.3<span class="t2-sd">(16)</span></td><td class="">95.9<span class="t2-sd">(18)</span></td><td class="oc ds">121.3<span class="t2-sd">(14)</span></td><td class="">121.7<span class="t2-sd">(15)</span></td><td class="oc ds">138.7<span class="t2-sd">(25.5)</span></td><td class="">138.7<span class="t2-sd">(27.8)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:.82rem;color:var(--muted);margin-top:8px;text-align:justify">Left-ventricular function on <span class="cmg">ℂ+Mag</span> reconstructions and on the reference; mean with SD in parentheses. ED/ES: end-diastolic/end-systolic; V: volume; M: mass; SV: stroke volume; EF: ejection fraction. Paired t-test: no significant difference from the reference on any metric (P &gt; 0.05).</p>
+
+    <h3 style="margin:36px 0 12px">Table III</h3>
+    <div class="tbl">
+      <table class="t2 t2c">
+        <thead>
+          <tr><th rowspan="2" class="t2-m">Flow, descending aorta</th><th colspan="3" class="t2-ds"><span class="t2-box f">Phase-contrast Flow2D</span></th></tr>
+          <tr><th class="t2-k"><span class="cmg">ℂ+Mag</span> (R = 6)</th><th class="t2-k"><span class="cmg">ℂ+Mag</span> (R = 8)</th><th class="t2-k">Reference</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Net flow volume (mL)</td><td class="oc">28.7<span class="t2-sd">(13.4)</span></td><td class="oc">28.3<span class="t2-sd">(13.2)</span></td><td class="">28.7<span class="t2-sd">(12.9)</span></td></tr>
+          <tr><td>Forward flow volume (mL)</td><td class="oc">30.0<span class="t2-sd">(13.1)</span></td><td class="oc">29.8<span class="t2-sd">(13.2)</span></td><td class="">29.2<span class="t2-sd">(12.7)</span></td></tr>
+          <tr><td>Backward flow volume (mL)</td><td class="oc">1.3<span class="t2-sd">(0.85)</span></td><td class="oc">1.5<span class="t2-sd">(0.4)</span></td><td class="">0.5<span class="t2-sd">(0.5)</span></td></tr>
+          <tr><td>Regurgitant fraction (%)</td><td class="oc">5.79<span class="t2-sd">(5.8)</span></td><td class="oc">6.14<span class="t2-sd">(4.0)</span></td><td class="">2.4<span class="t2-sd">(2.4)</span></td></tr>
+          <tr><td>Cardiac output (L/min)</td><td class="oc">1.85<span class="t2-sd">(0.87)</span></td><td class="oc">1.83<span class="t2-sd">(0.86)</span></td><td class="">1.86<span class="t2-sd">(0.84)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:.82rem;color:var(--muted);margin-top:8px;text-align:justify">Flow in the descending aorta on <span class="cmg">ℂ+Mag</span> reconstructions and on the fully sampled reference; mean with SD in parentheses. Paired t-test: no significant difference from the reference on any metric (P &gt; 0.05).</p>
+  </div>
+</section>
+
+<!-- ================= BIBTEX ================= -->
+<section id="bibtex">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow">Citation</span><h2>BibTeX</h2></div>
+    <div class="bibwrap">
+      <button class="btn copy" type="button" id="copyBib">Copy</button>
+<pre class="bib" id="bib">@article{saberi2026cplusmag,
+  title   = {Harnessing Magnitude-Only and Complex Measurements for Improved
+             Dynamic {MRI} Reconstruction with Learned Priors},
+  author  = {Saberi, Mahdi and Al{\c{c}}alar, Ya{\c{s}}ar Utku and G{\"u}lle, Merve
+             and Shenoy, Chetan and Ak{\c{c}}akaya, Mehmet},
+  journal = {IEEE Transactions on Biomedical Engineering},
+  year    = {2026},
+  doi     = {10.1109/TBME.2026.3743233}
+}
+
+@inproceedings{saberi2026revisiting,
+  title     = {Revisiting {MRI} Reconstruction Using a Combination of Complex
+               and Magnitude Measurements with Learned Priors},
+  author    = {Saberi, Mahdi and Ak{\c{c}}akaya, Mehmet},
+  booktitle = {Proc. IEEE International Symposium on Biomedical Imaging (ISBI)},
+  year      = {2026}
+}</pre>
+    </div>
+  </div>
+</section>
+</main>
+<script>
+/* ---------- toy example: finding a friend from a distance + direction, or from two distances ---------- */
+(() => {
+const svg = document.getElementById("toySvg"); if (!svg) return;
+const NS = "http://www.w3.org/2000/svg", css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const W = 400, H = 330, K = 400 / 600, O = { x: 200, y: 225 * K };        // 600 m wide map; meters -> px
+const SCH = { x: -160, y: -20 }, LIB = { x: 140, y: -40 }, FR = { x: 40, y: 150 };
+const DS = 260, DL = 210;                                                   // rounded distances shown in the text
+const P = q => ({ x: O.x + q.x * K, y: O.y - q.y * K });
+const el = (n, at, par) => { const e = document.createElementNS(NS, n); for (const k in at) e.setAttribute(k, at[k]); (par || svg).appendChild(e); return e; };
+const tx = (s, x, y, at) => { const e = el("text", Object.assign({ x, y, "font-size": 12, "font-family": "Inter, system-ui, sans-serif", "font-weight": 600, "text-anchor": "middle" }, at || {})); e.textContent = s; return e; };
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+function mirror(q){ const dx = LIB.x - SCH.x, dy = LIB.y - SCH.y, t = ((q.x - SCH.x)*dx + (q.y - SCH.y)*dy) / (dx*dx + dy*dy); return { x: 2*(SCH.x + t*dx) - q.x, y: 2*(SCH.y + t*dy) - q.y }; }
+const rTop = x => -175 + 15 * Math.sin(x / 90), rBot = x => -255 + 15 * Math.sin(x / 90 + .5);
+function riverPath(){
+  let d = ""; for (let x = -320; x <= 320; x += 10){ const q = P({ x, y: rTop(x) }); d += (d ? "L" : "M") + q.x.toFixed(1) + " " + q.y.toFixed(1); }
+  for (let x = 320; x >= -320; x -= 10){ const q = P({ x, y: rBot(x) }); d += "L" + q.x.toFixed(1) + " " + q.y.toFixed(1); }
+  return d + "Z";
+}
+function school(c, ink){ const q = P(c), g = el("g", {});
+  el("path", { d: `M${q.x - 11} ${q.y + 9}V${q.y - 3}L${q.x} ${q.y - 12}L${q.x + 11} ${q.y - 3}V${q.y + 9}Z`, fill: css("--surface"), stroke: ink, "stroke-width": 1.8, "stroke-linejoin": "round" }, g);
+  el("line", { x1: q.x, y1: q.y - 12, x2: q.x, y2: q.y - 21, stroke: ink, "stroke-width": 1.6 }, g); el("path", { d: `M${q.x} ${q.y - 21}h7l-2 2.5l2 2.5h-7z`, fill: css("--accent") }, g);
+  el("rect", { x: q.x - 3, y: q.y + 2, width: 6, height: 7, fill: ink }, g); tx("School", q.x, q.y + 24, { fill: ink }); }
+function library(c, ink){ const q = P(c), g = el("g", {});
+  el("path", { d: `M${q.x - 13} ${q.y - 5}L${q.x} ${q.y - 13}L${q.x + 13} ${q.y - 5}Z`, fill: css("--surface"), stroke: ink, "stroke-width": 1.8, "stroke-linejoin": "round" }, g);
+  [-8, 0, 8].forEach(dx => el("line", { x1: q.x + dx, y1: q.y - 4, x2: q.x + dx, y2: q.y + 7, stroke: ink, "stroke-width": 2.2 }, g));
+  el("line", { x1: q.x - 13, y1: q.y + 9, x2: q.x + 13, y2: q.y + 9, stroke: ink, "stroke-width": 2.2 }, g); tx("Library", q.x, q.y + 24, { fill: ink }); }
+// ---- timeline: the three cases play in turn; buttons jump to a case ----
+const PH = [["c", 0, 5.2], ["m1", 5.2, 9.6], ["m2", 9.6, 16.4]], T_LOOP = 16.4;
+const clamp = v => Math.max(0, Math.min(1, v)), seg = (u, a, b) => clamp((u - a) / (b - a)), ez = v => v < .5 ? 2*v*v : 1 - Math.pow(-2*v + 2, 2) / 2;
+const NOTES = {
+  c:  `<b class="cx">Distance + direction</b> (like one complex measurement): “${DS} m north-east of the school” pins your friend down.`,
+  m1: `<b class="mag">One distance</b> (like one magnitude measurement): “${DS} m from the school”. Your friend could be anywhere on the circle.`,
+  m2: `<b class="mag">Two distances</b> (like two magnitude measurements): “${DS} m from the school and ${DL} m from the library”. The circles cross twice, but one spot is in the river, so only one location is possible.`
+};
+const reduce = false;   /* autoplay even when the OS asks for reduced motion (author choice) */
+let t = reduce ? 15 : 0, last = null, visible = true, shown = "";
+function ring(c, r, prog, a, labAng, lab, flip, labA){
+  const pc = P(c), R = r * K, C = 2 * Math.PI * R;
+  if (prog > 0) el("circle", { cx: pc.x, cy: pc.y, r: R, fill: "none", stroke: css("--mag"), "stroke-width": 2.2, opacity: a,
+    "stroke-dasharray": `${C * prog} ${C}`, transform: `rotate(${-labAng * 180 / Math.PI} ${pc.x} ${pc.y})` });
+  if (labA > 0){ const e = { x: pc.x + R * Math.cos(labAng), y: pc.y - R * Math.sin(labAng) }, nx = -Math.sin(labAng), ny = -Math.cos(labAng);
+    el("line", { x1: pc.x, y1: pc.y, x2: e.x, y2: e.y, stroke: css("--mag"), "stroke-width": 1.4, "stroke-dasharray": "3 4", opacity: labA * a });
+    tx(`${lab} m`, (pc.x + e.x)/2 + 16 * nx * flip, (pc.y + e.y)/2 + 16 * ny * flip + 4, { fill: css("--mag"), opacity: labA * a }); }
+}
+function draw(){
+  svg.innerHTML = "";
+  const line = css("--line"), mut = css("--muted"), ink = css("--ink"), cx = css("--cx"), red = "#d1495b";
+  const ph = PH.find(q => t >= q[1] && t < q[2]) || PH[2], mode = ph[0], u = t - ph[1], dur = ph[2] - ph[1];
+  const out = 1 - seg(u, dur - .45, dur);                                    // fade at the end of each case
+  if (shown !== mode){ shown = mode; document.getElementById("toyNote").innerHTML = NOTES[mode];
+    document.querySelectorAll("#toyMode button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === mode ? "true" : "false")); }
+  for (let g = -300; g <= 300; g += 100){ const a = P({ x: g, y: 0 }); el("line", { x1: a.x, y1: 0, x2: a.x, y2: H, stroke: line, "stroke-width": 1 }); }
+  for (let g = -200; g <= 200; g += 100){ const a = P({ x: 0, y: g }); el("line", { x1: 0, y1: a.y, x2: W, y2: a.y, stroke: line, "stroke-width": 1 }); }
+  el("path", { d: riverPath(), fill: "#4a90b8", "fill-opacity": .28, stroke: "#4a90b8", "stroke-opacity": .55, "stroke-width": 1.2 });
+  tx("River", P({ x: -240, y: -222 }).x, P({ x: -240, y: -222 }).y, { fill: "#4a90b8", "font-style": "italic" });
+  { const a = P({ x: 270, y: 170 }); tx("N", a.x, a.y - 16, { fill: mut, "font-size": 11 }); el("path", { d: `M${a.x} ${a.y - 12}l-5 12l5 -3l5 3z`, fill: mut }); }
+  const pf = P(FR), ps = P(SCH);
+  if (mode === "c"){
+    const pr = ez(seg(u, .4, 1.8)), ang = Math.atan2(pf.y - ps.y, pf.x - ps.x), L = (Math.hypot(pf.x - ps.x, pf.y - ps.y) - 12) * pr;
+    if (pr > 0){
+      el("line", { x1: ps.x, y1: ps.y, x2: ps.x + L * Math.cos(ang), y2: ps.y + L * Math.sin(ang), stroke: cx, "stroke-width": 2.6, opacity: out });
+      el("path", { d: `M0 0L-11 -6L-11 6Z`, fill: cx, opacity: out, transform: `translate(${ps.x + (L + 2) * Math.cos(ang)} ${ps.y + (L + 2) * Math.sin(ang)}) rotate(${ang * 180 / Math.PI})` });
+    }
+    const m = { x: (ps.x + pf.x)/2, y: (ps.y + pf.y)/2 }; tx(`${DS} m, north-east`, m.x - 30, m.y + 2, { fill: cx, "text-anchor": "end", opacity: seg(u, 1.4, 2.0) * out });
+  } else {
+    const r1 = dist(FR, SCH), r2 = dist(FR, LIB);
+    if (mode === "m1") ring(SCH, r1, ez(seg(u, .3, 2.0)), out, -0.45, DS, 1, seg(u, 1.6, 2.2));
+    else {
+      ring(SCH, r1, 1, out, -0.45, DS, 1, 1);
+      ring(LIB, r2, ez(seg(u, .3, 2.0)), out, 0.85, DL, -1, seg(u, 1.6, 2.2));
+      const xa = seg(u, 2.4, 2.9) * out;
+      if (xa > 0){ const m = P(mirror(FR)), sc = .6 + .4 * ez(seg(u, 2.4, 2.9));
+        const g = el("g", { opacity: xa, transform: `translate(${m.x} ${m.y}) scale(${sc})` });
+        el("circle", { cx: 0, cy: 0, r: 8, fill: "none", stroke: red, "stroke-width": 2.2 }, g);
+        el("path", { d: "M-5 -5L5 5M5 -5L-5 5", stroke: red, "stroke-width": 2.2, "stroke-linecap": "round" }, g);
+        tx("in the river: not feasible", m.x + 14, m.y + 4, { fill: red, "text-anchor": "start", opacity: xa });
+      }
+      const ka = seg(u, 3.2, 3.6) * out;                                       // the feasible crossing: your friend
+      if (ka > 0) el("circle", { cx: pf.x, cy: pf.y, r: 13 + 4 * Math.sin((u - 3.2) * 4), fill: "none", stroke: cx, "stroke-width": 2, opacity: ka * .8 });
+    }
+  }
+  school(SCH, ink); library(LIB, ink);
+  el("circle", { cx: pf.x, cy: pf.y, r: 8, fill: cx, stroke: css("--surface"), "stroke-width": 2 });
+  tx("Friend", pf.x + 13, pf.y + 4, { fill: cx, "text-anchor": "start" });
+}
+function tick(ts){
+  if (last == null) last = ts; const dt = Math.min(.05, (ts - last) / 1000); last = ts;
+  if (!reduce && visible){ t = (t + dt) % T_LOOP; draw(); }
+  requestAnimationFrame(tick);
+}
+document.getElementById("toyMode").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+  const q = PH.find(x => x[0] === b.dataset.v); t = reduce ? q[2] - .6 : q[1] + .01; draw(); });
+if ("IntersectionObserver" in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(svg);
+if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+draw(); requestAnimationFrame(tick);
+})();
+</script>
+
+<footer>
+  <div class="wrap">
+    <span>Supported in part by NIH R01HL153146, R01HL179616, R01EB032830 and P41EB027061. We thank Dr. Peter Kellman for the real-time bSSFP data and the NHLBI Intramural Research Program for the NIH Open Source Cardiac MRI Raw Data Repository.</span>
+    <span>Figures © 2026 IEEE, reproduced from the authors' accepted manuscript. Page © 2026 Mahdi Saberi · University of Minnesota.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const segBind = (id, cb) => { const g = $(id); g.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; g.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); cb(b.dataset); }); };
+
+/* ================= sampling demo ================= */
+const NF = 25, NL = 48;
+const S = { R: 8, t: 12 };
+function donors(R, t){
+  const out = [];
+  for (let c = 0; c < R; c++){
+    if (c === t % R) continue;
+    let best = -1;
+    for (let f = 0; f < NF; f++){
+      if (f % R !== c) continue;
+      if (best < 0 || Math.abs(f - t) < Math.abs(best - t)) best = f;
+    }
+    if (best >= 0) out.push(best);
+  }
+  return out.sort((a,b) => a - b);
+}
+function drawDemo(){
+  const { R, t } = S, dn = donors(R, t), dset = new Set(dn);
+  const cw = 14, ch = 2.6, ox = 22, oy = 6, W = ox + NF*cw + 6, H = oy + NL*ch + 34;
+  const g = $("#grid"); g.innerHTML = ""; g.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const cx = css("--cx"), mag = css("--mag"), mut = css("--muted"), line = css("--line");
+  el("rect", { x: ox, y: oy, width: NF*cw, height: NL*ch, fill: css("--bg"), stroke: line }, g);
+  // column highlights
+  for (let f = 0; f < NF; f++){
+    if (f === t || dset.has(f)) el("rect", { x: ox + f*cw, y: oy, width: cw, height: NL*ch, fill: f === t ? cx : mag, opacity: .1 }, g);
+  }
+  for (let f = 0; f < NF; f++){
+    for (let l = 0; l < NL; l++){
+      if (l % R !== f % R) continue;
+      const fill = f === t ? cx : dset.has(f) ? mag : mut;
+      el("rect", { x: ox + f*cw + 2, y: oy + l*ch + .5, width: cw - 4, height: ch - 1, rx: .8, fill, opacity: (f === t || dset.has(f)) ? 1 : .32 }, g);
+    }
+  }
+  const tx = (x, y, s, a) => { const e = el("text", Object.assign({ x, y, "text-anchor": "middle", fill: mut, "font-size": 9, "font-family": css("--f-mono") }, a || {}), g); e.textContent = s; return e; };
+  for (let f = 0; f < NF; f++){
+    const isT = f === t, isD = dset.has(f);
+    tx(ox + f*cw + cw/2, oy + NL*ch + 12, f, isT ? { fill: cx, "font-weight": 700 } : isD ? { fill: mag } : {});
+    if (isT) tx(ox + f*cw + cw/2, oy + NL*ch + 24, "t", { fill: cx, "font-weight": 700 });
+    else if (isD) tx(ox + f*cw + cw/2, oy + NL*ch + 24, (f > t ? "+" : "−") + Math.abs(f - t), { fill: mag, "font-size": 8 });
+  }
+  tx(10, oy + NL*ch/2, "k-space line", { transform: `rotate(-90 10 ${oy + NL*ch/2})` });
+  tx(ox + NF*cw/2, H - 1, "cardiac frame →", { "font-size": 8.5 });
+
+  // k-space panels
+  const kpanel = (id, withMag) => {  // withMag=false: y_Ω (acquired lines); true: r_Δ (skipped lines only)
+    const s = $(id); s.innerHTML = "";
+    const defs = el("defs", {}, s);
+    const rg = el("radialGradient", { id: id.slice(1) + "g", cx: "50%", cy: "50%", r: "50%" }, defs);
+    el("stop", { offset: "0%", "stop-color": "#fff", "stop-opacity": .95 }, rg);
+    el("stop", { offset: "12%", "stop-color": "#9aa6c2", "stop-opacity": .55 }, rg);
+    el("stop", { offset: "45%", "stop-color": "#39435e", "stop-opacity": .35 }, rg);
+    el("stop", { offset: "100%", "stop-color": "#0b1020", "stop-opacity": 0 }, rg);
+    el("rect", { x: 0, y: 0, width: 160, height: 160, rx: 8, fill: css("--kbg") }, s);
+    const h = 160 / NL;
+    for (let l = 0; l < NL; l++){
+      const acq = l % R === t % R;
+      if (acq && !withMag) el("rect", { x: l*h, y: 0, width: h, height: 160, fill: cx, opacity: .85 }, s);
+      else if (!acq && withMag) el("rect", { x: l*h, y: 0, width: h, height: 160, fill: mag, opacity: .55 }, s);
+    }
+    el("rect", { x: 0, y: 0, width: 160, height: 160, fill: `url(#${id.slice(1)}g)` }, s);
+    for (let l = 0; l < NL; l++) el("line", { x1: l*h, x2: l*h, y1: 0, y2: 160, stroke: css("--kbg"), "stroke-width": .5, opacity: .9 }, s);
+  };
+  if ($("#kPD")){ kpanel("#kPD", false); kpanel("#kCM", true); }
+
+  const nC = NL / R, nM = NL - nC, maxd = dn.length ? Math.max(...dn.map(f => Math.abs(f - t))) : 0;
+  if ($("#readout")) $("#readout").innerHTML =
+    `<div><span>Complex lines <b>y</b><sub>Ω</sub> (both methods)</span><span class="mono cx">${nC} / ${NL} · ${(100/R).toFixed(1)}%</span></div>` +
+    `<div><span>Magnitude-only lines <b>r</b><sub>Δ</sub> (<span class="cmg">ℂ+Mag</span> DF)</span><span class="mono mag">${nM} / ${NL}</span></div>` +
+    `<div><span>Frames that donate magnitude</span><span class="mono">${dn.length} (R − 1)</span></div>` +
+    `<div><span>Farthest donor</span><span class="mono">${maxd} frame${maxd === 1 ? "" : "s"} away</span></div>` +
+    `<div><span>Lines with magnitude only (Δ = Ω<sup>C</sup>)</span><span class="mono">all skipped lines</span></div>`;
+  $("#tVal").textContent = "t = " + t;
+}
+segBind("#rSeg", d => { S.R = +d.r; drawDemo(); });
+$("#tSlider").addEventListener("input", e => { S.t = +e.target.value; drawDemo(); });
+
+/* ================= data ================= */
+const Rs = [6, 8, 12, 16];
+const T2 = {
+  cine: { S: { pd: { psnr: [34.67,29.93,26.85,25.61], ssim: [.927,.849,.757,.715] },
+               cm: { psnr: [40.69,38.67,35.92,33.83], ssim: [.974,.963,.940,.923] },
+               or: { psnr: [42.45,41.15,38.45,36.67], ssim: [.980,.975,.958,.947] } },
+          ST:{ pd: { psnr: [47.49,45.36,41.20,38.14], ssim: [.991,.988,.979,.969] },
+               cm: { psnr: [47.29,45.40,41.77,38.99], ssim: [.991,.988,.980,.972] },
+               or: { psnr: [47.68,46.53,45.41,44.09], ssim: [.992,.991,.989,.986] } } },
+  flow: { S: { pd: { psnr: [26.51,24.21,23.25,23.00], ssim: [.786,.690,.649,.626] },
+               cm: { psnr: [34.67,32.12,29.50,28.92], ssim: [.933,.905,.856,.847] },
+               or: { psnr: [40.87,37.59,33.84,31.70], ssim: [.976,.962,.925,.883] } },
+          ST:{ pd: { psnr: [36.92,34.30,31.57,30.91], ssim: [.959,.938,.908,.900] },
+               cm: { psnr: [37.68,35.30,32.85,31.75], ssim: [.964,.947,.924,.905] },
+               or: { psnr: [42.92,41.21,38.83,36.68], ssim: [.984,.980,.970,.957] } } }
+};
+const SER = [
+  { k: "pd", name: "PD-DL (CG)", color: "--base", dash: "", marker: "square" },
+  { k: "cm", name: "ℂ+Mag (ours)", color: "--accent", dash: "", marker: "circle" },
+  { k: "or", name: "ℂ+Mag oracle", color: "--oracle", dash: "5 4", marker: "diamond" }
+];
+const legendHTML = () => SER.map(s => `<span><svg width="22" height="10" aria-hidden="true"><line x1="1" x2="21" y1="5" y2="5" stroke="${css(s.color)}" stroke-width="2" ${s.dash ? `stroke-dasharray="${s.dash}"` : ""}/></svg>${s.name}</span>`).join("");
+
+function niceTicks(lo, hi, n){
+  const span = hi - lo, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1,2,2.5,5,10].map(m => m*mag).find(s => span / s <= n) || 10*mag;
+  const a = Math.floor(lo / step) * step, b = Math.ceil(hi / step) * step, out = [];
+  for (let v = a; v <= b + step/2; v += step) out.push(+v.toFixed(6));
+  return out;
+}
+function marker(g, type, x, y, color){
+  const ring = css("--surface");
+  if (type === "circle") el("circle", { cx: x, cy: y, r: 4.5, fill: color, stroke: ring, "stroke-width": 2 }, g);
+  else if (type === "square") el("rect", { x: x-4, y: y-4, width: 8, height: 8, rx: 1.5, fill: color, stroke: ring, "stroke-width": 2 }, g);
+  else el("path", { d: `M${x} ${y-5.5}L${x+5.5} ${y}L${x} ${y+5.5}L${x-5.5} ${y}Z`, fill: color, stroke: ring, "stroke-width": 2 }, g);
+}
+
+/* ================= gain chart: C+Mag minus PD-DL, both datasets / regularizers ================= */
+const GDS = [{ k: "cine", name: "Segmented cine", color: "--accent" }, { k: "flow", name: "Flow2D", color: "--cx" }];
+function drawLine(){
+  const grid = $("#gainGrid"); grid.innerHTML = "";
+  ["psnr", "ssim"].forEach(met => { const isP = met === "psnr";
+  const gain = (ds, reg, k, i) => T2[ds][reg][k][met][i] - T2[ds][reg].pd[met][i];
+  const fmt = v => isP ? v.toFixed(2) : v.toFixed(3);
+  const fmtG = g => (g >= 0 ? "+" : "−") + (isP ? Math.abs(g).toFixed(2) : Math.abs(g).toFixed(3));
+  const RI = [0, 1, 2, 3];                                     // R = 6, 8, 12, 16
+  const line = css("--line"), mut = css("--muted"), ink = css("--ink");
+  [["S", "Spatial-only regularizer"], ["ST", "Spatiotemporal regularizer"]].forEach(([reg, title]) => {
+    const cell = document.createElement("div"); cell.innerHTML = `<h4>${title} <span>· ${isP ? "PSNR" : "SSIM"}</span></h4>`;
+    const host = document.createElement("div"); host.className = "chart"; cell.appendChild(host); grid.appendChild(cell);
+    const all = GDS.flatMap(d => RI.map(i => gain(d.k, reg, "cm", i)));     // own scale per panel
+    const ticks = niceTicks(Math.min(0, ...all), Math.max(...all) * 1.04, 5), y0 = ticks[0], y1 = ticks[ticks.length - 1];
+    const dec = Math.min(3, ((ticks[1] - ticks[0]).toString().split(".")[1] || "").length);
+    const W = 420, H = 230, m = { l: 58, r: 6, t: 18, b: 28 };
+    const step = (W - m.l - m.r) / RI.length, X = i => m.l + step * (i + .5), bw = 30, gap = 2;
+    const Y = v => m.t + (H - m.t - m.b) * (1 - (v - y0) / (y1 - y0));
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${title}: ${isP ? "PSNR" : "SSIM"} gain of C+Mag over PD-DL at R = 6, 8, 12, 16` }, host);
+    ticks.forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: line, "stroke-width": 1 }, svg);
+      const t = el("text", { x: m.l - 6, y: Y(v) + 4, "text-anchor": "end" }, svg); t.textContent = (v > 0 ? "+" : "") + v.toFixed(dec); });
+    el("line", { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), stroke: mut, "stroke-width": 1.2 }, svg);
+    { const yl = el("text", { x: 11, y: (m.t + H - m.b)/2, "text-anchor": "middle", transform: `rotate(-90 11 ${(m.t + H - m.b)/2})` }, svg); yl.textContent = isP ? "PSNR gain (dB)" : "SSIM gain"; }
+    const tip = document.createElement("div"); tip.className = "tip"; host.appendChild(tip);
+    RI.forEach((i, p) => { const r = Rs[i];
+      const t = el("text", { x: X(p), y: H - 8, "text-anchor": "middle" }, svg); t.textContent = "R = " + r;
+      GDS.forEach((d, j) => {
+        const c = css(d.color), g = gain(d.k, reg, "cm", i);
+        const x = X(p) + (j ? gap/2 : -bw - gap/2), yt = Y(Math.max(g, 0)), yb = Y(Math.min(g, 0)), hh = Math.max(yb - yt, 1.5);
+        if (g >= 0) el("path", { d: `M${x} ${yb}V${yt + Math.min(4, hh)}Q${x} ${yt} ${x + 4} ${yt}H${x + bw - 4}Q${x + bw} ${yt} ${x + bw} ${yt + Math.min(4, hh)}V${yb}Z`, fill: c }, svg);
+        else el("path", { d: `M${x} ${yt}V${yb - Math.min(4, hh)}Q${x} ${yb} ${x + 4} ${yb}H${x + bw - 4}Q${x + bw} ${yb} ${x + bw} ${yb - Math.min(4, hh)}V${yt}Z`, fill: c }, svg);
+        const ly = g >= 0 ? yt - 5 : yb + 12;
+        const lt = el("text", { x: x + bw/2, y: ly, "text-anchor": "middle", fill: ink, style: "font-size:10px" }, svg); lt.textContent = fmtG(g).replace("+", "");
+        const hit = el("rect", { x: x - 1, y: m.t, width: bw + 2, height: H - m.t - m.b, fill: "transparent" }, svg);
+        const show = () => {
+          const D = T2[d.k][reg];
+          tip.innerHTML = `<div style="opacity:.7">${d.name} · R = ${r}</div>` +
+            `<div>PD-DL: <b>${fmt(D.pd[met][i])}</b></div>` +
+            `<div><span class="sw" style="background:${c}"></span>ℂ+Mag: <b>${fmt(D.cm[met][i])}</b> (${fmtG(g)})</div>`;
+          const rc = svg.getBoundingClientRect(), sc = rc.width / W;
+          tip.style.left = Math.min(Math.max((x + bw/2) * sc, 100), rc.width - 100) + "px"; tip.style.top = (yt * sc - 10) + "px"; tip.style.opacity = 1;
+        };
+        hit.addEventListener("mouseenter", show); hit.addEventListener("touchstart", show, { passive: true });
+        hit.addEventListener("mouseleave", () => tip.style.opacity = 0);
+      });
+    });
+  });
+  });
+  $("#lineLegend").innerHTML = GDS.map(d => `<span><svg width="12" height="12" aria-hidden="true"><rect width="12" height="12" rx="2" fill="${css(d.color)}"/></svg>${d.name}</span>`).join("");
+}
+
+/* ================= Table I ================= */
+(function(){
+  const names = { pd: "PD-DL", cm: '<span class="cmg">ℂ+Mag</span>', or: '<span class="cmg">ℂ+Mag</span> <span class="t2-sub">oracle</span>' };
+  let h = `<table class="t2"><thead><tr><th rowspan="3" class="t2-m">Method</th><th colspan="8" class="t2-ds"><span class="t2-box c">Segmented cine</span></th><th colspan="8" class="t2-ds ds"><span class="t2-box f">Phase-contrast Flow2D</span></th></tr><tr>`;
+  ["cine","flow"].forEach((_, d) => Rs.forEach((r, i) => h += `<th colspan="2" class="t2-r${i === 0 && d ? " ds" : i ? " gs" : ""}">R = ${r}</th>`));
+  h += `</tr><tr>`;
+  ["cine","flow"].forEach((_, d) => Rs.forEach((r, i) => h += `<th class="t2-k${i === 0 && d ? " ds" : i ? " gs" : ""}">PSNR</th><th class="t2-k">SSIM</th>`));
+  h += `</tr></thead><tbody>`;
+  [["S","Spatial-only regularizer"],["ST","Spatiotemporal regularizer"]].forEach(([reg, lab]) => {
+    h += `<tr class="grp"><td colspan="17">${lab}</td></tr>`;
+    ["pd","cm","or"].forEach(k => {
+      h += `<tr class="${k === "cm" ? "ours" : k === "or" ? "oracle" : ""}"><td>${names[k]}</td>`;
+      ["cine","flow"].forEach((ds, d) => Rs.forEach((r, i) => {
+        ["psnr","ssim"].forEach((mt, q) => {
+          const v = T2[ds][reg][k][mt][i];
+          const best = k !== "or" && v >= Math.max(T2[ds][reg].pd[mt][i], T2[ds][reg].cm[mt][i])
+            && !(k === "cm" && reg === "ST" && i === 0);         // C+Mag spatiotemporal R = 6: not bolded
+          const sep = q ? "" : (i === 0 && d ? " ds" : i ? " gs" : "");
+          h += `<td class="${best ? "best" : ""}${sep}">${mt === "psnr" ? v.toFixed(2) : v.toFixed(3).replace(/^0/, "")}</td>`;
+        });
+      }));
+      h += `</tr>`;
+    });
+  });
+  $("#tab2").innerHTML = h + `</tbody></table>`;
+})();
+
+/* ================= bibtex copy ================= */
+$("#copyBib").addEventListener("click", e => {
+  const txt = $("#bib").textContent, b = e.currentTarget;
+  const done = () => { b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy", 1500); };
+  const fallback = () => { const r = document.createRange(); r.selectNodeContents($("#bib")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Press Ctrl+C"; };
+  try { navigator.clipboard.writeText(txt).then(done, fallback); } catch (_) { fallback(); }
+});
+
+/* ================= render & theme ================= */
+function renderAll(){ drawDemo(); drawLine(); }
+renderAll();
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+new MutationObserver(renderAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>
+<!-- ================= Teaser animation: the <span class="cmg">ℂ+Mag</span> pipeline in six steps (R = 6) ================= -->
+<script>
+(function(){
+"use strict";
+const fig = document.getElementById("teaser"); if (!fig) return;
+const cvs = fig.querySelector("canvas"), ctx = cvs.getContext("2d");
+const W = 1600, H = 900, NL = 48, R = 6, ROWH = 256 / NL, T_END = 39.2;
+const STEPS = [0, 4.5, 9, 14, 22, 29.4];
+const TITLES = [
+  "Interleaved cine at R = 6: each frame acquires a different set of k-space lines",
+  "Frame t keeps its complex data; its neighbors contribute only magnitude",
+  "Two separate measurement sets for frame t",
+  "Conventional PD-DL: only the complex data, as input and in every DF unit",
+  "ℂ+Mag: the same network, plus the magnitudes in every DF unit",
+  "All 25 cardiac phases, full field of view: PD-DL, ℂ+Mag and the reference"
+];
+const C = { bg:"#fbf7ec", panel:"#06080d", edge:"#e4dac2", con:"#3a3d45", txt:"#17181a", mut:"#6b6f76",
+            cx:"#2f5bea", mag:"#a87a06", acc:"#7a1f2b", red:"#d64545", ink:"#17181a",
+            reg:"#c3d2f6", regS:"#7f9be0", dfr:"#f7cfae", dfrS:"#de9a64", df:"#ddcdf3", dfS:"#a589d6", dual:"#f1e0ad", dualS:"#cfae52" };
+const MAGMA = [[0,"#000004"],[.125,"#140e36"],[.25,"#3b0f70"],[.375,"#641a80"],[.5,"#8c2981"],[.625,"#b73779"],[.75,"#de4968"],[.875,"#f7705c"],[.9375,"#fe9f6d"],[1,"#fcfdbf"]];
+const FONT = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif', MONO = '"JetBrains Mono", ui-monospace, monospace';
+const MF = '"LMMath", "Latin Modern Math", "STIX Two Math", serif';   // LaTeX (Computer Modern) look for math
+const FR = [-2, -1, 0, 1, 2, 3].map(d => ({ d, lab: d === 0 ? "t" : d < 0 ? `t−${-d}` : `t+${d}`, off: ((d % R) + R) % R, tgt: d === 0 }));
+const CXS = [200, 440, 680, 920, 1160, 1400];
+const FLY = { 3: 10.0, 1: 10.6, 4: 11.2, 0: 11.8, 5: 12.4 };      // neighbor index -> start of its flight into r_Δ
+const IMG_Y = 150, IMG_S = 205, KS_Y = 505, KS_S = 205;
+const SRC = { lab:"cine/ref.jpg", opd:"anim/out_pddl.png", ocm:"anim/out_cmag.png", oepd:"anim/err_pddl.png", oecm:"anim/err_cmag.png",
+              fref:"cine/ref_full.jpg", fpd:"cine/pddl_full.jpg", fcm:"cine/cmag_full.jpg", zf:"anim/zf.png", km:"anim/kmag.png", kp:"anim/kphase.png" };
+const FW = 208, FH = 288;                                // full field of view (portrait)
+const TS = 192, TT = 22, NFR = 25;                       // sprite tile size; frame t = 23 (index 22); 25 cardiac phases
+const IM = {}; let kB, kY, FRM = [], OUT = {}, ready = false;
+const TILE = (sheet, i) => { const c = document.createElement("canvas"); c.width = c.height = TS; c.getContext("2d").drawImage(sheet, i*TS, 0, TS, TS, 0, 0, TS, TS); return c; };
+
+const cl = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const ez = p => p < .5 ? 2*p*p : 1 - Math.pow(-2*p + 2, 2) / 2;
+const lerp = (a, b, p) => a + (b - a) * p;
+const rowsOf = off => { const r = []; for (let l = 0; l < NL; l++) if (l % R === off) r.push(l); return r; };
+const SKIPPED = NL - NL / R;
+
+function tint(img, col){
+  const c = document.createElement("canvas"); c.width = c.height = 256; const x = c.getContext("2d");
+  x.drawImage(img, 0, 0, 256, 256); x.globalCompositeOperation = "multiply"; x.fillStyle = col; x.fillRect(0, 0, 256, 256);
+  x.globalCompositeOperation = "lighter"; x.globalAlpha = .25; x.drawImage(img, 0, 0, 256, 256); return c;
+}
+function rr(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+const CM_TOK = "ℂ+Mag";                         // \mathbb{C}+\text{Mag}, drawn in the LaTeX font
+function segs(s){ return s.split(/(ℂ\+Mag)/).filter(Boolean); }
+function segW(g, w, sz, f){ ctx.font = g === CM_TOK ? `${w} ${sz*1.12}px ${MF}` : `${w} ${sz}px ${f}`; return ctx.measureText(g).width; }
+function textW(s, w, sz, f){ return segs(s).reduce((m, g) => m + segW(g, w, sz, f), 0); }
+function text(s, x, y, o){
+  o = o || {}; const a = o.a == null ? 1 : o.a; if (a <= 0) return; ctx.globalAlpha = a; ctx.fillStyle = o.c || C.txt;
+  const w = o.w || 600, sz = o.s || 24, f = o.f || FONT, al = o.al || "center"; ctx.textBaseline = "alphabetic";
+  if (f === MF || s.indexOf(CM_TOK) < 0){ ctx.font = `${w} ${sz}px ${f}`; ctx.textAlign = al; ctx.fillText(s, x, y); return; }
+  const tw = textW(s, w, sz, f); let cx = al === "left" ? x : al === "right" ? x - tw : x - tw/2; ctx.textAlign = "left";
+  const base = ctx.fillStyle;
+  segs(s).forEach(g => { const gw = segW(g, w, sz, f); ctx.fillStyle = g === CM_TOK ? C.acc : base; ctx.fillText(g, cx, y); cx += gw; });
+}
+function rich(parts, x, y, s, a, al){         // multi-color line; al = "center" | "left"
+  if (a <= 0) return;
+  const w = parts.reduce((m, p) => m + textW(p[0], p[2] || 600, s, FONT), 0); let cx = al === "left" ? x : x - w/2;
+  parts.forEach(p => { text(p[0], cx, y, { s, c: p[1], al:"left", a, w: p[2] || 600 }); cx += textW(p[0], p[2] || 600, s, FONT); });
+}
+function math(s, x, y, size, col, a, al){ text(s, x, y, { s: size, w: 400, f: MF, c: col, a, al }); }
+function sub(main, sb, x, y, s, col, a, al){  // math symbol with subscript in the LaTeX font; al = "center" | "left" | "right"
+  if (a <= 0) return; ctx.font = `400 ${s}px ${MF}`; const w1 = ctx.measureText(main).width; ctx.font = `400 ${s*.66}px ${MF}`; const w2 = ctx.measureText(sb).width;
+  const x0 = al === "left" ? x : al === "right" ? x - (w1 + w2) : x - (w1 + w2)/2; math(main, x0, y, s, col, a, "left"); math(sb, x0 + w1 + 1, y + s*.26, s*.66, col, a, "left");
+  return w1 + w2;
+}
+function panel(x, y, s, a, stroke, lw){ if (a <= 0) return; ctx.globalAlpha = a; ctx.fillStyle = C.panel; rr(x, y, s, s, 10); ctx.fill(); ctx.strokeStyle = stroke || C.edge; ctx.lineWidth = lw || 2; ctx.stroke(); }
+function row(src, l, x, y, s, a){ if (a <= 0) return; ctx.globalAlpha = a; const h = s / NL; ctx.drawImage(src, l*ROWH, 0, ROWH, 256, x + l*h, y, Math.max(1, h*.8), s); }
+function imgR(im, x, y, w, hh, a, stroke, lw){ if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; rr(x, y, w, hh, 10); ctx.clip(); ctx.drawImage(im, x, y, w, hh); ctx.restore();
+  ctx.globalAlpha = a; ctx.strokeStyle = stroke || C.edge; ctx.lineWidth = lw || 2; rr(x, y, w, hh, 10); ctx.stroke(); }
+function img(im, x, y, s, a, stroke, lw){ if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; rr(x, y, s, s, 10); ctx.clip(); ctx.drawImage(im, x, y, s, s); ctx.restore();
+  ctx.globalAlpha = a; ctx.strokeStyle = stroke || C.edge; ctx.lineWidth = lw || 2; rr(x, y, s, s, 10); ctx.stroke(); }
+function arrow(x1, y1, x2, y2, col, a, dash){ if (a <= 0) return; ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = col === C.con ? 3.5 : 3; if (dash) ctx.setLineDash(dash);
+  const ang = Math.atan2(y2 - y1, x2 - x1); ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - 12*Math.cos(ang), y2 - 12*Math.sin(ang)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x2 - 14*Math.cos(ang) + 8*Math.sin(ang), y2 - 14*Math.sin(ang) - 8*Math.cos(ang)); ctx.lineTo(x2 - 14*Math.cos(ang) - 8*Math.sin(ang), y2 - 14*Math.sin(ang) + 8*Math.cos(ang)); ctx.closePath(); ctx.fill(); }
+function cbarH(x, y, w, a){              // horizontal magma colorbar
+  if (a <= 0) return; const g = ctx.createLinearGradient(x, 0, x + w, 0); MAGMA.forEach(s => g.addColorStop(s[0], s[1]));
+  ctx.globalAlpha = a; ctx.fillStyle = g; rr(x, y, w, 10, 3); ctx.fill(); ctx.strokeStyle = C.edge; ctx.lineWidth = 1; ctx.stroke();
+  text("error  0", x - 8, y + 10, { s: 13, c: C.mut, a, al: "right" }); text("max", x + w + 8, y + 10, { s: 13, c: C.mut, a, al: "left" });
+}
+function cbar(x, y, h, a){               // vertical magma colorbar, shared error scale
+  if (a <= 0) return; const g = ctx.createLinearGradient(0, y + h, 0, y); MAGMA.forEach(s => g.addColorStop(s[0], s[1]));
+  ctx.globalAlpha = a; ctx.fillStyle = g; rr(x, y, 10, h, 3); ctx.fill(); ctx.strokeStyle = C.edge; ctx.lineWidth = 1; ctx.stroke();
+  text("max", x + 5, y - 6, { s: 12, c: C.mut, a }); text("0", x + 5, y + h + 15, { s: 12, c: C.mut, a });
+}
+function line(pts, col, a, dash, lw){ if (a <= 0) return; ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw || 3; ctx.setLineDash(dash || []); ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); ctx.setLineDash([]); }
+
+// k-space panel of frame t (y_Ω) and the auxiliary magnitude panel (r_Δ)
+function yG(t){
+  const p3 = ez(seg(t, 9.2, 10.0)), p4 = ez(seg(t, 14, 14.8));
+  let x = lerp(CXS[2] - KS_S/2, 430, p3), y = lerp(KS_Y, 115, p3), s = lerp(KS_S, 300, p3);
+  return { x: lerp(x, 22, p4), y: lerp(y, 365, p4), s: lerp(s, 150, p4) };
+}
+function rG(t){
+  const p4 = ez(seg(t, 14, 14.8));
+  return { x: lerp(870, 22, p4), y: lerp(115, 690, p4), s: lerp(300, 150, p4) };
+}
+
+function draw(t){
+  ctx.setTransform(cvs.width / W, 0, 0, cvs.height / H, 0, 0);
+  ctx.globalAlpha = 1; ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+  if (!ready){ text("Loading…", W/2, H/2, { c: C.mut }); return; }
+
+  STEPS.forEach((s0, i) => {
+    const s1 = STEPS[i+1] == null ? T_END : STEPS[i+1];
+    const a = seg(t, s0, s0 + .5) * (1 - (i < STEPS.length - 1 ? seg(t, s1 - .4, s1) : seg(t, T_END - .7, T_END)));
+    rich([[`${i+1}`, C.acc, 800], ["   " + TITLES[i], C.txt]], W/2, 58, 29, a);
+  });
+
+  const Y = yG(t), RP = rG(t);
+  // ---------- steps 1-3: frames and their k-space ----------
+  FR.forEach((f, i) => {
+    const cx = CXS[i], appear = ez(seg(t, .12*i, .12*i + .7));
+    const imA = appear * (1 - seg(t, 9, 9.6));
+    if (imA > 0){
+      const b = 1, s = IMG_S, x = cx - s/2, y = IMG_Y + (IMG_S - s)/2;
+      img(FRM[i], x, y, s, imA, f.tgt ? C.cx : C.edge, f.tgt ? 4 : 2);
+      text(`frame ${f.lab}`, cx, IMG_Y + IMG_S + 36, { s: 23, w: f.tgt ? 800 : 600, c: f.tgt ? C.cx : C.mut, a: imA });
+    }
+    const rows = rowsOf(f.off), prog = seg(t, .9 + .15*i, 3.3 + .15*i) * rows.length;
+    if (f.tgt){
+      panel(Y.x, Y.y, Y.s, appear, C.cx, 3);
+      const q = seg(t, 4.8, 5.6);
+      rows.forEach((l, k) => { const a = cl(prog - k); row(IM.km, l, Y.x, Y.y, Y.s, a*(1 - q)); row(kB, l, Y.x, Y.y, Y.s, a*q); });
+    } else {
+      const st = FLY[i], pa = appear * (1 - seg(t, st + .6, st + 1.0));
+      const x = cx - KS_S/2, y = KS_Y;
+      panel(x, y, KS_S, pa);
+      const ph = seg(t, 5.0, 5.6) * (1 - seg(t, 6.9, 7.6)), q = seg(t, 7.2, 8.0);
+      rows.forEach((l, k) => {
+        const a = cl(prog - k), fp = ez(seg(t, st + k*.03, st + k*.03 + .8));
+        if (fp <= 0){ row(IM.km, l, x, y, KS_S, a*(1 - q)); row(kY, l, x, y, KS_S, a*q); row(IM.kp, l, x, y, KS_S, a*ph*.9); }
+        else if (fp < 1){ const xx = lerp(x, RP.x, fp), yy = lerp(y, RP.y, fp), ss = lerp(KS_S, RP.s, fp), w = ss / NL;
+          ctx.globalAlpha = .9; ctx.fillStyle = C.mag; ctx.fillRect(xx + l*w - 1, yy, w*.8 + 2, ss); row(kY, l, xx, yy, ss, .85); }
+      });
+      const xa = seg(t, 6.3, 6.6) * (1 - seg(t, 7.4, 7.9)) * pa;
+      if (xa > 0){ ctx.globalAlpha = xa; ctx.strokeStyle = C.red; ctx.lineWidth = 6; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(x + 22, y + 22); ctx.lineTo(x + KS_S - 22, y + KS_S - 22); ctx.moveTo(x + KS_S - 22, y + 22); ctx.lineTo(x + 22, y + KS_S - 22); ctx.stroke(); }
+    }
+    // labels under the k-space panels
+    const ly = KS_Y + KS_S + 36;
+    if (f.tgt){
+      if (t < 9.2){
+        text("complex", cx, ly, { s: 21, w: 700, c: C.cx, a: seg(t, 5.6, 6.0) * (1 - seg(t, 9, 9.2)) });
+      }
+    } else {
+      const st = FLY[i], pa = 1 - seg(t, st + .6, st + 1.0);
+      text("phase discarded", cx, ly, { s: 19, w: 700, c: C.red, a: seg(t, 6.3, 6.6) * (1 - seg(t, 7.5, 7.8)) });
+      text("magnitude only", cx, ly, { s: 19, w: 700, c: C.mag, a: seg(t, 7.8, 8.3) * pa });
+    }
+  });
+
+  // ---------- r_Δ panel (exists from step 3 on) ----------
+  const ra = seg(t, 9.4, 9.9);
+  if (ra > 0){
+    const dimR0 = 1 - .7 * seg(t, 15.0, 15.6) * (1 - seg(t, 22.2, 22.8));
+    panel(RP.x, RP.y, RP.s, ra * dimR0, C.mag, 3);
+    let m = 0;
+    FR.forEach((f, i) => { if (f.tgt) return; const st = FLY[i];
+      rowsOf(f.off).forEach((l, k) => { if (seg(t, st + k*.03, st + k*.03 + .8) >= 1){ row(kY, l, RP.x, RP.y, RP.s, dimR0); m++; } }); });
+    // step 3 labels beside the two panels
+    const a3 = seg(t, 9.6, 10.1) * (1 - seg(t, 13.6, 14));
+    if (a3 > 0){
+      const ly = Y.y + 70;
+      sub("𝐲", "Ω", Y.x - 24, ly, 46, C.cx, a3, "right");
+      text("complex", Y.x - 24, ly + 40, { s: 21, w: 700, c: C.cx, a: a3, al: "right" });
+      text("frame t’s own lines", Y.x - 24, ly + 70, { s: 18, c: C.mut, a: a3, al: "right" });
+      sub("𝐫", "Δ", RP.x + RP.s + 24, ly, 46, C.mag, a3, "left");
+      text("magnitude only", RP.x + RP.s + 24, ly + 40, { s: 21, w: 700, c: C.mag, a: a3, al: "left" });
+      text("from the 5 neighbors", RP.x + RP.s + 24, ly + 70, { s: 18, c: C.mut, a: a3, al: "left" });
+      { ctx.font = `400 34px ${MF}`; const w = ctx.measureText("Δ = Ω").width, x0 = 800 - (w + 14)/2; math("Δ = Ω", x0, Y.y + Y.s/2 - 6, 34, C.txt, a3, "left"); math("C", x0 + w + 2, Y.y + Y.s/2 - 22, 20, C.txt, a3, "left"); }
+      text("kept separate", 800, Y.y + Y.s/2 + 26, { s: 18, c: C.mut, a: a3 });
+    }
+  }
+
+  // ---------- steps 4-5: conventional PD-DL (top) first, then ℂ+Mag (bottom) ----------
+  const a4 = seg(t, 14.4, 15.0);
+  const BW = 58, BH = 74, GW = 246, GX = [428, 702, 976], BX = j => 8 + j*86, dfX = g => GX[g] + BX(1) + BW/2;
+  const OX = 1256, OH = 210, OW = Math.round(210 * 208 / 288), EX = OX + OW + 14, CYS = [245, 635];
+  if (a4 > 0){
+    const dash = [7, 7], dimR = 1 - .7 * seg(t, 15.0, 15.6) * (1 - seg(t, 22.2, 22.8));
+    const PATHS = [
+      { cy: CYS[0], b: 15.8, yb: 138, df: ["DF", "μ", C.dfr, C.dfrS], name: "Conventional PD-DL", err: OUT.epd, out: OUT.pd, oc: C.edge, lab: "PD-DL", lc: C.txt, m: ["PSNR 26.33 dB", "SSIM 0.869"] },
+      { cy: CYS[1], b: 22.2, yb: 528, df: ["DF", "μ,λ", C.df, C.dfS], name: "ℂ+Mag", err: OUT.ecm, out: OUT.cm, oc: C.acc, lab: "ℂ+Mag", lc: C.acc, m: ["PSNR 33.77 dB", "SSIM 0.948"] }
+    ];
+    sub("𝐲", "Ω", Y.x + Y.s/2, Y.y - 14, 30, C.cx, a4);
+    sub("𝐫", "Δ", RP.x + RP.s/2, RP.y - 14, 30, C.mag, a4 * dimR);
+    text("magnitude only", RP.x + RP.s/2, RP.y + RP.s + 26, { s: 16, w: 700, c: C.mag, a: a4 * dimR });
+    // shared network input E_Ω^H y_Ω (zero-filled), to the right of the y_Ω panel, centered between the two rows
+    const za = ez(seg(t, 14.8, 15.6)), ZX = 240, ZS = 148, ZY = Y.y + Y.s/2 - ZS/2, zc = ZY + ZS/2, zr = 400;
+    arrow(Y.x + Y.s + 4, zc, ZX - 6, zc, C.cx, za);
+    { const ex = (Y.x + Y.s + ZX)/2 - 13;   /* E_Ω^H centered above the arrow, clear of both panels */
+      math("E", ex, zc - 16, 24, C.txt, za, "left"); math("H", ex + 17, zc - 30, 14, C.txt, za, "left"); math("Ω", ex + 17, zc - 9, 14, C.txt, za, "left"); }
+    img(IM.zf, ZX, ZY, ZS, za, C.cx, 3);
+    text("network input", ZX + ZS/2, ZY + ZS + 24, { s: 16, w: 700, c: C.txt, a: za });
+    text("(zero-filled, shared)", ZX + ZS/2, ZY + ZS + 44, { s: 14, c: C.mut, a: za });
+    PATHS.forEach((P, pi) => {
+      const b = P.b, pa = ez(seg(t, b, b + .8));
+      if (pa <= 0) return;
+      line([[ZX + ZS + 4, zc], [zr, zc], [zr, P.cy]], C.con, pa, null, 3.5);
+      arrow(zr, P.cy, GX[0] - 4, P.cy, C.con, pa);
+      // complex-data bus: starts at a y_Ω tag just above this row and drops into each DF unit
+      const ba = ez(seg(t, b + .8, b + 1.6)), tx = GX[0], tw = 62;
+      if (ba > 0){
+        ctx.globalAlpha = ba; ctx.fillStyle = "#ffffff"; rr(tx, P.yb - 17, tw, 34, 9); ctx.fill(); ctx.strokeStyle = C.cx; ctx.lineWidth = 2; ctx.setLineDash([]); ctx.stroke();
+        sub("𝐲", "Ω", tx + tw/2, P.yb + 8, 24, C.cx, ba);
+        line([[tx + tw + 2, P.yb], [dfX(2), P.yb]], C.cx, ba, dash);
+        GX.forEach((gx, g) => arrow(dfX(g), P.yb, dfX(g), P.cy - BH/2 - 4, C.cx, ba, dash));
+      }
+      if (pi){
+        const ma = ez(seg(t, b + 1.2, b + 2.0)), yR = RP.y + RP.s/2;
+        line([[RP.x + RP.s + 4, yR], [dfX(2), yR]], C.mag, ma, dash);
+        GX.forEach((gx, g) => arrow(dfX(g), yR, dfX(g), P.cy + BH/2 + 4, C.mag, ma, dash));
+      }
+      { const fp = 10;   /* narrow dotted frame around the unrolled network */
+        ctx.globalAlpha = pa * .9; ctx.strokeStyle = C.mut; ctx.lineWidth = 1.6; ctx.setLineDash([2, 5]); ctx.lineCap = "round";
+        rr(GX[0] - fp, P.cy - 72 - fp, GX[2] + GW - GX[0] + 2*fp, 144 + 2*fp, 18); ctx.stroke(); ctx.setLineDash([]); ctx.lineCap = "butt"; }
+      GX.forEach((gx, g) => {
+        const on = seg(t, b + 2.0 + g*.7, b + 2.3 + g*.7), gy = P.cy - 72, gh = 144;
+        ctx.globalAlpha = pa; ctx.strokeStyle = C.edge; ctx.lineWidth = 2; ctx.setLineDash([8, 6]); rr(gx, gy, GW, gh, 14); ctx.stroke(); ctx.setLineDash([]);
+        if (on > 0){ ctx.globalAlpha = on * .05; ctx.fillStyle = "#000000"; rr(gx, gy, GW, gh, 14); ctx.fill();
+          ctx.globalAlpha = on * .8; ctx.strokeStyle = C.mut; ctx.lineWidth = 2; rr(gx, gy, GW, gh, 14); ctx.stroke(); }
+        [["R", "θ", C.reg, C.regS], P.df, ["D", "γ", C.dual, C.dualS]].forEach((bk, j) => {
+          const bx = gx + BX(j), by = P.cy - BH/2;
+          ctx.globalAlpha = pa; ctx.fillStyle = bk[2]; rr(bx, by, BW, BH, 11); ctx.fill(); ctx.strokeStyle = bk[3]; ctx.lineWidth = 1.5; ctx.stroke();
+          sub(bk[0], bk[1], bx + BW/2, by + BH/2 + 9, bk[0] === "DF" ? 22 : 31, C.ink, pa);
+        });
+        for (let j = 0; j < 2; j++) arrow(gx + BX(j) + BW + 1, P.cy, gx + BX(j+1) - 1, P.cy, C.con, pa);
+        if (g < 2) arrow(gx + GW + 1, P.cy, GX[g+1] - 2, P.cy, C.con, pa);
+      });
+      { const nx = (GX[0] + GX[2] + GW)/2, ny = P.cy + 118, nw = textW(P.name, 800, 30, FONT);   /* name patch interrupts the r_Δ arrow behind it */
+        ctx.globalAlpha = pa; ctx.fillStyle = C.bg; ctx.fillRect(nx - nw/2 - 12, ny - 30, nw + 24, 40);
+        text(P.name, nx, ny, { s: 30, w: 800, c: P.lc, a: pa }); }
+      const oa = ez(seg(t, b + 4.1, b + 4.9)), ea = ez(seg(t, b + 4.6, b + 5.4)), mt = seg(t, b + 5.3, b + 5.9);
+      arrow(GX[2] + GW + 3, P.cy, OX - 6, P.cy, pi ? C.acc : C.con, oa);
+      imgR(P.out, OX, P.cy - OH/2, OW, OH, oa, P.oc, pi ? 4 : 2);
+      text(P.lab, OX + OW/2, P.cy + OH/2 + 28, { s: 23, w: 800, c: P.lc, a: oa });
+      imgR(P.err, EX, P.cy - OH/2, OW, OH, ea, C.edge, 2);
+      text("error", EX + OW/2, P.cy + OH/2 + 28, { s: 19, w: 700, c: C.mut, a: ea });
+      cbar(EX + OW + 8, P.cy - OH/2, OH, ea);
+      P.m.forEach((s, k) => text(s, (OX + EX + OW)/2, P.cy + OH/2 + 54 + k*21, { s: 16, w: 600, f: MONO, c: pi ? C.txt : C.mut, a: mt }));
+    });
+  }
+
+  // ---------- step 6: cine of all 25 phases, full field of view: PD-DL | ℂ+Mag | reference ----------
+  const s6 = seg(t, 29.4, 30.2);
+  if (s6 > 0){
+    ctx.globalAlpha = s6; ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);          // fade the pipeline out
+    rich([["6", C.acc, 800], ["   " + TITLES[5], C.txt]], W/2, 58, 29, seg(t, 29.4, 29.9) * (1 - seg(t, T_END - .7, T_END)));
+    const TH = 560, TW = Math.round(TH * FW / FH), GAP = 44, X0 = (W - 3*TW - 2*GAP)/2, Y0 = 92;
+    const z = ez(seg(t, 29.6, 30.9)), play = Math.max(0, t - 31.0), fi = (TT + Math.floor(play * 11)) % NFR;
+    const frameImg = (sheet, f, x, y, w, hh, a, stroke, lw) => {
+      if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; rr(x, y, w, hh, 12); ctx.clip(); ctx.drawImage(sheet, f*FW, 0, FW, FH, x, y, w, hh); ctx.restore();
+      ctx.globalAlpha = a; ctx.strokeStyle = stroke || C.edge; ctx.lineWidth = lw || 2; rr(x, y, w, hh, 12); ctx.stroke();
+    };
+    const COLS = [
+      { sh: IM.fpd, lab: "PD-DL", c: C.txt, m: "PSNR 23.87 dB · SSIM 0.847", from: CYS[0] },
+      { sh: IM.fcm, lab: "ℂ+Mag", c: C.acc, m: "PSNR 31.74 dB · SSIM 0.940", from: CYS[1] },
+      { sh: IM.fref, lab: "Reference", c: C.mut, m: "fully sampled" }
+    ];
+    const la = seg(t, 30.6, 31.2);
+    COLS.forEach((cl6, i) => {
+      const gx = X0 + i*(TW + GAP);
+      if (cl6.from != null) frameImg(cl6.sh, fi, lerp(OX, gx, z), lerp(cl6.from - OH/2, Y0, z), lerp(OW, TW, z), lerp(OH, TH, z), 1, i === 1 ? C.acc : C.edge, i === 1 ? 4 : 2);
+      else frameImg(cl6.sh, fi, gx, Y0, TW, TH, ez(seg(t, 30.4, 31.0)), C.edge, 2);
+      text(cl6.lab, gx + TW/2, Y0 + TH + 40, { s: 30, w: 800, c: cl6.c, a: la });
+      text(cl6.m, gx + TW/2, Y0 + TH + 70, { s: 18, w: 600, f: cl6.from != null ? MONO : FONT, c: C.mut, a: la });
+    });
+    text("mean PSNR / SSIM over all 25 cardiac phases (unfiltered); playback uses a 3-phase temporal median", W/2, Y0 + TH + 108, { s: 16, c: C.mut, a: la });
+    text(`cardiac phase ${fi + 1} / ${NFR}`, W/2, Y0 + TH + 138, { s: 18, w: 600, f: MONO, c: C.txt, a: seg(t, 31.0, 31.4) });
+  }
+
+  const fo = seg(t, T_END - .7, T_END);
+  if (fo > 0){ ctx.globalAlpha = fo; ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H); }
+  ctx.globalAlpha = 1;
+}
+
+// ---------- clock, controls, visibility ----------
+const reduce = false;   /* autoplay even when the OS asks for reduced motion (author choice) */
+let t = reduce ? 33 : 0, playing = !reduce, visible = true, last = null;
+const btnPlay = fig.querySelector('[data-act="play"]'), btnRe = fig.querySelector('[data-act="replay"]');
+const chips = [...document.querySelectorAll("#tsteps button")];
+btnPlay.textContent = playing ? "Pause" : "Play";
+function syncChips(){ let k = 0; STEPS.forEach((s, i) => { if (t >= s) k = i; }); chips.forEach((c, i) => { if (i === k) c.setAttribute("aria-current", "step"); else c.removeAttribute("aria-current"); }); }
+function fit(){ const w = cvs.getBoundingClientRect().width || W, d = Math.min(2, window.devicePixelRatio || 1);
+  cvs.width = Math.round(w * d); cvs.height = Math.round(w * d * 9 / 16); draw(t); }
+function tick(ts){
+  if (last == null) last = ts; const dt = Math.min(.05, (ts - last) / 1000); last = ts;
+  if (playing && visible && ready){ t += dt; if (t >= T_END) t = 0; draw(t); syncChips(); }
+  requestAnimationFrame(tick);
+}
+btnPlay.addEventListener("click", () => { playing = !playing; btnPlay.textContent = playing ? "Pause" : "Play"; });
+btnRe.addEventListener("click", () => { t = 0; playing = true; btnPlay.textContent = "Pause"; draw(t); syncChips(); });
+chips.forEach((c, i) => c.addEventListener("click", () => { t = playing ? STEPS[i] + .01 : [3.6, 8.6, 13.4, 21.4, 28.5, 33][i]; draw(t); syncChips(); }));
+if ("IntersectionObserver" in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(fig);
+window.addEventListener("resize", fit);
+
+let n = 0; const keys = Object.keys(SRC);
+const done = () => { if (++n === keys.length + 1){ kB = tint(IM.km, C.cx); kY = tint(IM.km, C.mag); FRM = FR.map(f => TILE(IM.lab, (TT + 3*f.d + NFR) % NFR)); /* step-1 thumbnails 3 phases apart so the motion is visible */ OUT = { cm: IM.ocm, pd: IM.opd, epd: IM.oepd, ecm: IM.oecm }; ready = true; fit(); syncChips(); } };
+keys.forEach(k => { const im = new Image(); im.onload = im.onerror = done; im.src = `${SRC[k]}`; IM[k] = im; });
+(document.fonts && document.fonts.load ? document.fonts.load('30px "LMMath"').catch(() => {}) : Promise.resolve()).then(done, done);
+fit(); requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
