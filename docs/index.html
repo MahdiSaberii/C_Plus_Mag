@@ -207,7 +207,9 @@ td.best{font-weight:700;color:var(--ink)}
 .t2 .gs{border-left:1px dashed var(--line)}
 .t2 .ds{border-left:2px solid var(--line)}
 .t2 tr.grp td{padding:.65em .7em .5em;text-align:left;color:var(--accent)}
-.t2 tr.ours td{color:var(--ink)}
+.t2 tr.ours td{color:var(--ink);font-weight:500}
+.t2 tr.ours td:first-child{font-weight:600}
+.t2 tr.ours td.best{font-weight:700}
 .t2 td.best{color:var(--ink);font-weight:700}
 .t2 tr.oracle td{color:var(--muted)}
 .t2 .t2-box{display:block;padding:.45em .6em;border-radius:6px;border:1.5px solid;font-weight:700}
@@ -742,7 +744,7 @@ function drawLine(){
 
 /* ================= Table I ================= */
 (function(){
-  const names = { pd: "PD-DL", cm: '<span class="cmg">ℂ+Mag</span>', or: '<span class="cmg">ℂ+Mag</span> <span class="t2-sub">oracle</span>' };
+  const names = { pd: "PD-DL", cm: '<span class="cmg">ℂ+Mag</span>', or: '<span class="cmg">ℂ+Mag</span> <span class="t2-sub">(oracle)</span>' };
   let h = `<table class="t2"><thead><tr><th rowspan="3" class="t2-m">Method</th><th colspan="8" class="t2-ds"><span class="t2-box c">Segmented cine</span></th><th colspan="8" class="t2-ds ds"><span class="t2-box f">Phase-contrast Flow2D</span></th></tr><tr>`;
   ["cine","flow"].forEach((_, d) => Rs.forEach((r, i) => h += `<th colspan="2" class="t2-r${i === 0 && d ? " ds" : i ? " gs" : ""}">R = ${r}</th>`));
   h += `</tr><tr>`;
@@ -756,7 +758,7 @@ function drawLine(){
         ["psnr","ssim"].forEach((mt, q) => {
           const v = T2[ds][reg][k][mt][i];
           const best = k !== "or" && v >= Math.max(T2[ds][reg].pd[mt][i], T2[ds][reg].cm[mt][i])
-            && !(k === "cm" && reg === "ST" && i === 0);         // C+Mag spatiotemporal R = 6: not bolded
+            && !(k === "cm" && ds === "cine" && reg === "ST" && i === 0);   // cine, C+Mag spatiotemporal R = 6: not bolded (SSIM tie)
           const sep = q ? "" : (i === 0 && d ? " ds" : i ? " gs" : "");
           h += `<td class="${best ? "best" : ""}${sep}">${mt === "psnr" ? v.toFixed(2) : v.toFixed(3).replace(/^0/, "")}</td>`;
         });
