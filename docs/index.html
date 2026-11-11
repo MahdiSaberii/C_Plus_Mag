@@ -252,6 +252,23 @@ footer .wrap{display:flex;flex-direction:column;gap:6px}
 .rthead .chip{font:500 .72rem/1 var(--f-mono);padding:4px 7px;border-radius:999px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface)}
 ul.clean{margin:10px 0 0;padding-left:1.1em;color:var(--ink-2)}
 ul.clean li+li{margin-top:6px}
+/* ---------- mobile ---------- */
+@media (max-width:860px){
+  .two,.two.rt{grid-template-columns:minmax(0,1fr) !important;gap:22px}
+}
+@media (max-width:600px){
+  body{font-size:15.5px;line-height:1.6}
+  .prose,.prose p,figcaption,.thesis,p[style*="justify"]{text-align:left !important;text-align-last:auto !important;hyphens:manual}
+  header.hero{padding-block:40px 16px}
+  .hero .authors{font-size:16px;line-height:1.7}
+  .hero .authors .au+.au{margin-left:.35em}
+  h2{font-size:1.4rem}
+  .tbl{margin-inline:-4px}
+  .t2{font-size:.74rem}
+  .t2 th,.t2 td{padding:.45em .45em}
+  .rtcard{padding:10px 12px}
+  pre.bib{font-size:11.5px;padding:14px}
+}
 </style>
 </head>
 <body>
@@ -1040,7 +1057,9 @@ function draw(t){
     const z = ez(seg(t, 29.6, 30.9)), play = Math.max(0, t - 31.0), fc = (TT + Math.floor(play * 11)) % NFR, ff = Math.floor(play * 11) % NFR;
     const la = seg(t, 30.6, 31.2), fa = ez(seg(t, 30.4, 31.0));
     const panel = (sheet, f, sw, sh, x, y, w, hh, a, stroke, lw) => {
-      if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; rr(x, y, w, hh, 10); ctx.clip(); ctx.drawImage(sheet, f*sw, 0, sw, sh, x, y, w, hh); ctx.restore();
+      if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; rr(x, y, w, hh, 10); ctx.clip();
+      if (sheet && sheet.naturalWidth) ctx.drawImage(sheet, f*sw, 0, sw, sh, x, y, w, hh); else { ctx.fillStyle = "#000"; ctx.fillRect(x, y, w, hh); }   // missing file: black panel, keep animating
+      ctx.restore();
       ctx.globalAlpha = a; ctx.strokeStyle = stroke; ctx.lineWidth = lw; rr(x, y, w, hh, 10); ctx.stroke();
     };
     const GROUPS = [
