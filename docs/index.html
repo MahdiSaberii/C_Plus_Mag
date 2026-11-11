@@ -292,9 +292,9 @@ ul.clean li+li{margin-top:6px}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>BibTeX</a>
     </div>
 
-    <p class="thesis"><b><span class="cmg">ℂ+Mag</span></b> reconstructs each frame from its own <b class="cx">complex</b> k-space plus the <b class="mag">magnitude-only</b> k-space of neighboring frames. Those magnitudes come from data the scan already acquires, so it <em>improves image quality at no extra scan time</em>.</p>
+    <p class="thesis"><b><span class="cmg">ℂ+Mag</span></b> reconstructs each frame from its own <b class="cx">complex-valued</b> k-space plus the <b class="mag">magnitude-only</b> k-space of neighboring frames. Those magnitudes come from data the scan already acquires, so it <em>improves image quality at no extra scan time</em>.</p>
     <figure class="teaser" id="teaser">
-      <canvas width="1600" height="900" aria-label="Animation of the ℂ+Mag pipeline: interleaved cine acquisition across frames t−1 to t+2; frame t keeps complex k-space while neighbors keep only magnitude; neighbor magnitudes fill the lines frame t skipped; an unrolled ADMM network with a magnitude-aware data-fidelity step reconstructs a sharper image than conventional PD-DL."></canvas>
+      <canvas width="1600" height="900" aria-label="Animation of the ℂ+Mag pipeline: interleaved cine acquisition across frames t−1 to t+2; frame t keeps complex-valued k-space while neighbors keep only magnitude; neighbor magnitudes fill the lines frame t skipped; an unrolled ADMM network with a magnitude-aware data-fidelity step reconstructs a sharper image than conventional PD-DL."></canvas>
       <div class="teaser-ctrl"><button type="button" data-act="play">Pause</button><button type="button" data-act="replay">Replay</button></div>
     </figure>
     <div class="tsteps" id="tsteps" aria-label="Animation steps">
@@ -308,11 +308,11 @@ ul.clean li+li{margin-top:6px}
 <!-- ================= TOY EXAMPLE ================= -->
 <section id="toy">
   <div class="wrap">
-    <div class="head"><span class="eyebrow">Background</span><h2>Two magnitudes ≈ one complex measurement</h2></div>
+    <div class="head"><span class="eyebrow">Background</span><h2>Two magnitudes ≈ one complex-valued measurement</h2></div>
     <div class="two" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center">
       <div class="prose" style="text-align:justify;hyphens:auto">
         <p>A <span class="cx">complex-valued</span> measurement carries two real numbers: its real and imaginary parts. A <span class="mag">magnitude-only</span> measurement carries just one. For sparse signals, Akçakaya and Tarokh showed that two random magnitude-only measurements hold the same information as one random complex-valued linear measurement <a href="#ref-at15" class="cite">[1]</a>, which motivates reconstructing MRI from a mix of the two <a href="#ref-atn15" class="cite">[2]</a>.</p>
-        <p>Think of telling someone where your friend is. A complex measurement is like saying “260 m north-east of the school”: a distance <em>and</em> a direction. A magnitude-only measurement keeps the distance but drops the direction, so one of them only says “260 m from the school”. Two of them, “260 m from the school and 210 m from the library”, narrow it down to two spots, and one of those is in the river. Just as common sense rules out the river, a prior such as sparsity rules out the wrong solution.</p>
+        <p>Think of telling someone where your friend is. A complex-valued measurement is like saying “260 m north-east of the school”: a distance <em>and</em> a direction. A magnitude-only measurement keeps the distance but drops the direction, so one of them only says “260 m from the school”. Two of them, “260 m from the school and 210 m from the library”, narrow it down to two spots, and one of those is in the river. Just as common sense rules out the river, a prior such as sparsity rules out the wrong solution.</p>
         <ol class="refs">
           <li id="ref-at15">M. Akçakaya and V. Tarokh, “Sparse signal recovery from a mixture of linear and magnitude-only measurements,” <i>IEEE Signal Processing Letters</i>, vol. 22, no. 9, pp. 1220–1223, 2015.</li>
           <li id="ref-atn15">M. Akçakaya, V. Tarokh and R. Nezafat, “Joint compressed sensing and sparse phase retrieval: reconstruction from a combination of complex and magnitude-only k-space measurements,” in <i>Proc. ISMRM</i>, 2015.</li>
@@ -353,7 +353,7 @@ ul.clean li+li{margin-top:6px}
           </div>
           <svg id="grid" role="img" aria-label="Sampling pattern across cardiac frames"></svg>
           <div class="legend">
-            <span><i style="background:var(--cx)"></i>frame t: complex</span>
+            <span><i style="background:var(--cx)"></i>frame t: complex-valued</span>
             <span><i style="background:var(--mag)"></i>neighbors: magnitude reused</span>
             <span><i style="background:var(--muted);opacity:.45"></i>unused</span>
           </div>
@@ -510,7 +510,7 @@ function library(c, ink){ const q = P(c), g = el("g", {});
 const PH = [["c", 0, 5.2], ["m1", 5.2, 9.6], ["m2", 9.6, 16.4]], T_LOOP = 16.4;
 const clamp = v => Math.max(0, Math.min(1, v)), seg = (u, a, b) => clamp((u - a) / (b - a)), ez = v => v < .5 ? 2*v*v : 1 - Math.pow(-2*v + 2, 2) / 2;
 const NOTES = {
-  c:  `<b class="cx">Distance + direction</b> (like one complex measurement): “${DS} m north-east of the school” pins your friend down.`,
+  c:  `<b class="cx">Distance + direction</b> (like one complex-valued measurement): “${DS} m north-east of the school” pins your friend down.`,
   m1: `<b class="mag">One distance</b> (like one magnitude measurement): “${DS} m from the school”. Your friend could be anywhere on the circle.`,
   m2: `<b class="mag">Two distances</b> (like two magnitude measurements): “${DS} m from the school and ${DL} m from the library”. The circles cross twice, but one spot is in the river, so only one location is possible.`
 };
@@ -660,7 +660,7 @@ function drawDemo(){
 
   const nC = NL / R, nM = NL - nC, maxd = dn.length ? Math.max(...dn.map(f => Math.abs(f - t))) : 0;
   if ($("#readout")) $("#readout").innerHTML =
-    `<div><span>Complex lines <b>y</b><sub>Ω</sub> (both methods)</span><span class="mono cx">${nC} / ${NL} · ${(100/R).toFixed(1)}%</span></div>` +
+    `<div><span>Complex-valued lines <b>y</b><sub>Ω</sub> (both methods)</span><span class="mono cx">${nC} / ${NL} · ${(100/R).toFixed(1)}%</span></div>` +
     `<div><span>Magnitude-only lines <b>r</b><sub>Δ</sub> (<span class="cmg">ℂ+Mag</span> DF)</span><span class="mono mag">${nM} / ${NL}</span></div>` +
     `<div><span>Frames that donate magnitude</span><span class="mono">${dn.length} (R − 1)</span></div>` +
     `<div><span>Farthest donor</span><span class="mono">${maxd} frame${maxd === 1 ? "" : "s"} away</span></div>` +
@@ -810,9 +810,9 @@ const W = 1600, H = 900, NL = 48, R = 6, ROWH = 256 / NL, T_END = 41.0;
 const STEPS = [0, 4.5, 9, 14, 22, 29.4];
 const TITLES = [
   "Interleaved cine at R = 6: each frame acquires a different set of k-space lines",
-  "Frame t keeps its complex data; its neighbors contribute only magnitude",
+  "Frame t keeps its complex-valued data; its neighbors contribute only magnitude",
   "Two separate measurement sets for frame t",
-  "Conventional PD-DL: only the complex data, as input and in every DF unit",
+  "Conventional PD-DL: only the complex-valued data, as input and in every DF unit",
   "ℂ+Mag: the same network, plus the magnitudes in every DF unit",
   "All 25 cardiac phases at R = 6: PD-DL, ℂ+Mag and the reference"
 ];
@@ -947,7 +947,7 @@ function draw(t){
     const ly = KS_Y + KS_S + 36;
     if (f.tgt){
       if (t < 9.2){
-        text("complex", cx, ly, { s: 21, w: 700, c: C.cx, a: seg(t, 5.6, 6.0) * (1 - seg(t, 9, 9.2)) });
+        text("complex-valued", cx, ly, { s: 21, w: 700, c: C.cx, a: seg(t, 5.6, 6.0) * (1 - seg(t, 9, 9.2)) });
       }
     } else {
       const st = FLY[i], pa = 1 - seg(t, st + .6, st + 1.0);
@@ -969,7 +969,7 @@ function draw(t){
     if (a3 > 0){
       const ly = Y.y + 70;
       sub("𝐲", "Ω", Y.x - 24, ly, 46, C.cx, a3, "right");
-      text("complex", Y.x - 24, ly + 40, { s: 21, w: 700, c: C.cx, a: a3, al: "right" });
+      text("complex-valued", Y.x - 24, ly + 40, { s: 21, w: 700, c: C.cx, a: a3, al: "right" });
       text("frame t’s own lines", Y.x - 24, ly + 70, { s: 18, c: C.mut, a: a3, al: "right" });
       sub("𝐫", "Δ", RP.x + RP.s + 24, ly, 46, C.mag, a3, "left");
       text("magnitude only", RP.x + RP.s + 24, ly + 40, { s: 21, w: 700, c: C.mag, a: a3, al: "left" });
